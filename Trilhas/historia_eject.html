@@ -1,741 +1,396 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EJECT | História da EJECT</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/svgs/logo-eject.svg">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/                .member-role {
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-                margin-bottom: 0;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | História e Cultura</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração da fonte Inter e Exo 2 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Exo+2:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
 
-            .completion-label {
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                gap: 0.5rem;
-                font-size: 0.875rem;
-                color: #374151;
-                cursor: pointer;
-                padding: 0.25rem 0.5rem;
-                border-radius: 9999px;
-                background-color: #f3f4f6;
-                transition: background-color 0.2s;
-                margin-bottom: 1rem;
-                width: fit-content;
-                margin-left: auto;
-            }
-            .completion-label:hover {
-                background-color: #e5e7eb;
-            }
-            .completion-label input {
-                width: 1.15em;
-                height: 1.15em;
-                border-radius: 0.25rem;
-                border-color: #9ca3af;
-                color: #0d6efd;
-                transition: all 0.2s;
-            }
-            .completion-label input:focus {
-                box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.5);
-                outline: none;
-            }
-            .completion-label input:checked {
-                background-color: #0d6efd;
-                border-color: #0d6efd;
-            }
-            .completion-label span {
-                user-select: none;
-            }
-    
-            /* Responsividade */
-            @media (max-width: 1024px) {
-                main.container { 
-                    padding-left: 15px;font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <style>
-            /* Importação da fonte */
-            @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap');
-    
-            /* Variáveis de cor */
-            :root {
-                --background: rgb(245, 251, 255);
-                --color-primary-bg: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
-                --text-primary: rgb(0, 61, 115);
-                --text-secondary: #4a4a4a;
-                --text-light-grey: #aaa;
-                --white: #fff;
-                --star-yellow: #FFBB3A;
-                --button-gradient: linear-gradient(92.07deg, rgb(9, 149, 219) 1.84%, rgb(17, 167, 241) 100%);
-                --button-gemini-gradient: linear-gradient(92.07deg, #4B0082 1.84%, #8A2BE2 100%); 
-                --shadow-color: rgb(224, 229, 241);
-                --shadow-strong-color: rgba(0, 30, 58, 0.18); 
-                --danger-color: #ff4757;
-                --danger-hover-color: #ff6b81;
-                --gemini-purple: #6A1B9A; 
-                --success-color: #28a745;
-                --warning-color: #ffc107;
-                --info-color: #17a2b8;
-                --podcast-player-bg: var(--white);
-                --podcast-player-accent: var(--text-primary); 
-                --podcast-cover-bg: #e0e8f0; 
-                --podcast-progress-bg: #d0d9e3; 
-                --podcast-progress-fill: var(--podcast-player-accent);
-                --member-card-bg: var(--white);
-                --member-photo-bg: #e0e8f0;
-            }
-    
-            /* Reset de estilo */
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-    
-            /* Configurações de fonte e corpo */
-            html {
-                font-size: 16px;
-            }
+    <!-- Lógica JavaScript (Firebase Modular v11 e Controle de Progresso) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Variáveis globais fornecidas pelo ambiente
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-            body {
-                font-family: "Exo 2", sans-serif;
-                width: 100%;
-                min-height: 100vh; 
-                background: var(--color-primary-bg); 
-                color: var(--text-secondary);
-                display: flex;
-                flex-direction: column;
-                line-height: 1.6;
-            }
-    
-            main {
-                flex: 1; 
-            }
-    
-            /* Estilos de título */
-            h1, h2, h3, h4, h5, h6 {
-                margin-top: 0; 
-                margin-bottom: 0.75rem; 
-                font-weight: 600; 
-                color: var(--text-primary); 
-            }
-    
-            h1 { font-size: 2.5rem; }
-            h2 { font-size: 2rem; }
-            h3 { font-size: 1.75rem; }
-            h4 { font-size: 1.5rem; }
-            h5 { font-size: 1.25rem; }
-            h6 { font-size: 1rem; }
-    
-    
-            /* Estilos de links */
-            a {
-                text-decoration: none;
-                color: rgb(9, 149, 219); 
-                transition: color 0.2s ease-in-out;
-            }
+        let db, auth;
+        let currentUser = null;
+        let localProgress = {};
+        const trilhaId = 'historia_eject'; // ID padrão para esta tela
+        const checkboxes = document.querySelectorAll('.topic-checkbox');
+        const totalTopics = checkboxes.length;
 
-            a:hover {
-                 color: rgb(5, 110, 170); 
-            }
-    
-            /* Header */
-            header {
-                width: 100%;
-                min-height: 90px; 
-                background: var(--background);
-                box-shadow: var(--shadow-color) 0px 4px 10px 0px;
-                display: flex;
-                align-items: center;
-                padding: 0 1rem; 
-            }
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressStatus = document.getElementById('progress-status');
 
-            header nav.container { 
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                max-width: 1200px; 
-                margin: 0 auto; 
-            }
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setPersistence(auth, browserLocalPersistence);
+        } else {
+            console.error("Firebase config is missing.");
+        }
 
-            header nav h1 {
-                font-weight: bold;
-                color: var(--text-primary);
-                font-size: 1.75rem; 
-                margin: 0; 
-            }
-    
-            .ds-contact-container {
-                display: flex;
-                align-items: center;
-            }
-    
-            .ds-contact-container img {
-                margin-left: 10px; 
-                height: 50px;
-            }
-    
-            /* Estilos para listas */
-            ul {
-                padding-left: 1.5rem; 
-            }
-    
-            li {
-                margin-bottom: 0.5rem; 
-            }
+        function updateProgressBar() {
+            const completedCount = Object.values(localProgress).filter(Boolean).length;
+            const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
 
-            .timeline {
-                list-style-type: none;
-                padding-left: 0;
-                position: relative;
-            }
-            .timeline:before {
-                content: '';
-                position: absolute;
-                left: 20px;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background-color: var(--text-primary);
-                opacity: 0.3;
-            }
-
-            .timeline-item {
-                margin-bottom: 2rem;
-                position: relative;
-                padding-left: 45px; 
-            }
-
-            .timeline-item:last-child {
-                margin-bottom: 0;
-            }
+            progressBar.style.width = `${percentage}%`;
             
-            .timeline-icon {
-                position: absolute;
-                left: 8px; 
-                top: 0px;
-                width: 25px; 
-                height: 25px; 
-                border-radius: 50%;
-                background-color: var(--text-primary);
-                color: var(--white);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 0.8rem;
-                font-weight: bold;
-                border: 2px solid var(--background); 
-            }
-             .timeline-icon-default {
-                background-color: var(--text-light-grey);
-             }
-            .timeline-icon-success {
-                background-color: var(--success-color);
-            }
-            .timeline-icon-warning {
-                background-color: var(--warning-color);
-            }
-            .timeline-icon-info {
-                background-color: var(--info-color);
-            }
-
-
-            .timeline-content {
-                background-color: var(--white);
-                padding: 1rem;
-                border-radius: 0.5rem;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            }
-            .timeline-content strong {
-                font-weight: 600;
-                color: var(--text-primary);
-            }
-            .timeline-content .text-muted {
-                font-size: 0.9rem;
-                display: block;
-                margin-bottom: 0.5rem;
-            }
-    
-            /* Estilos de botão */
-            .btn-gemini {
-                background: var(--button-gemini-gradient);
-                color: var(--white);
-                border: none;
-                padding: 0.6rem 1rem;
-                border-radius: 8px;
-                font-weight: 500;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-            .btn-gemini:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-                color: var(--white);
-            }
-            .btn-gemini:disabled {
-                background: var(--text-light-grey);
-                cursor: not-allowed;
-            }
-
-            .ds-btn, .login-button, .logout-button {
-                font-size: 1rem;
-                font-weight: bold;
-                text-transform: uppercase;
-                color: var(--white);
-                background: var(--button-gradient); 
-                padding: 0.8rem 1.2rem;
-                border-radius: 10px;
-                transition: all 0.3s ease;
-                display: inline-flex; 
-                align-items: center;
-                justify-content: center;
-                min-width: 150px;
-                min-height: 50px;
-                border: none; 
-            }
-    
-            .ds-btn:hover, .login-button:hover, .logout-button:hover {
-                transform: scale(1.05);
-                color: var(--white); 
-            }
-    
-            /* Footer */
-            footer {
-                width: 100%;
-                background-color: rgb(10, 55, 78);
-                padding: 2rem 1rem; 
-            }
-    
-            footer p {
-                font-size: 1rem;
-                text-align: center;
-                color: var(--white);
-                margin-bottom: 0; 
-            }
-    
-            .login-button:focus, .logout-button:focus, .ds-btn:focus, .btn:focus, .btn-gemini:focus { 
-                outline: 2px solid rgb(9, 149, 219);
-                box-shadow: 0 0 0 0.25rem rgba(9, 149, 219, 0.5); 
-            }
-    
-            /* Estilo do destaque */
-            .destaque {
-                color: rgb(206, 34, 177);
-                font-weight: bold;
-            }
-             .highlight-success {
-                color: var(--success-color);
-                font-weight: bold;
-            }
-            .highlight-warning {
-                color: var(--warning-color);
-                font-weight: bold;
-            }
-             .highlight-info {
-                color: var(--info-color);
-                font-weight: bold;
-            }
-    
-            /* Estilo para a tag <code> */
-            code {
-                background-color: #e9ecef; 
-                color: #c7254e; 
-                padding: 0.2rem 0.4rem;
-                border-radius: 0.2rem;
-                font-size: 0.875em; 
-            }
-    
-            pre { 
-                background-color: #f8f9fa;
-                border: 1px solid #dee2e6;
-                border-radius: 0.25rem;
-                padding: 1rem;
-                overflow-x: auto;
-                white-space: pre-wrap; 
-                word-wrap: break-word; 
-            }
-
-            pre code { 
-                background-color: transparent; 
-                color: inherit; 
-                padding: 0;
-                border-radius: 0;
-                font-size: inherit; 
-                border: none; 
-            }
-    
-            /* Ajustes gerais de parágrafo */
-            p {
-                line-height: 1.7; 
-                font-size: 1rem;
-                margin-bottom: 1rem;
-            }
-    
-            /* Podcast Player Styling */
-            .podcast-section-container {
-                background-color: transparent;
-                padding: 1rem 0;
-                margin-bottom: 2.5rem;
-            }
+            progressBar.classList.toggle('bg-green-600', percentage === 100);
+            progressBar.classList.toggle('bg-sky-600', percentage < 100);
             
-            .podcast-player-card {
-                background-color: var(--podcast-player-bg);
-                border-radius: 0.85rem; 
-                padding: 1.5rem; 
-                box-shadow: 0 10px 30px var(--shadow-strong-color); 
-                display: flex;
-                flex-direction: row; 
-                align-items: center;
-                gap: 1.5rem; 
-                max-width: 700px; 
-                margin-left: auto;
-                margin-right: auto;
-                transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
-                position: relative;
-                overflow: hidden; 
-            }
-            .podcast-player-card:before { 
-                content: "";
-                position: absolute;
-                top: -60%; 
-                left: -60%;
-                width: 220%;
-                height: 220%;
-                background: radial-gradient(circle, rgba(0, 61, 115, 0.08) 0%, rgba(0, 61, 115, 0) 65%); 
-                transform: rotate(0deg) scale(0.8); 
-                transition: transform 1.2s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.8s ease;
-                z-index: 0;
-                opacity: 0;
-                pointer-events: none; 
-            }
-            .podcast-player-card:hover:before {
-                transform: rotate(360deg) scale(1);
-                opacity: 1;
-            }
-            .podcast-player-card:hover {
-                transform: translateY(-5px) scale(1.02); 
-                box-shadow: 0 15px 35px var(--shadow-strong-color);
-            }
+            progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+        }
+        
+        function getProgressRef(userId, trilhaId) {
+            return doc(db, 'artifacts', appId, 'users', userId, 'trilha_progress', trilhaId);
+        }
 
+        async function saveProgressToDatabase() {
+            if (!currentUser || !db) return;
+            progressStatus.textContent = 'Salvando...';
+            progressStatus.className = 'text-sm font-medium text-yellow-600';
 
-            .podcast-cover-art {
-                width: 100px; 
-                height: 100px;
-                background-color: var(--podcast-cover-bg);
-                border-radius: 0.5rem; 
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden; 
-                flex-shrink: 0; 
-                box-shadow: 0 4px 12px rgba(0,0,0,0.12); 
-                transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                z-index: 1; 
-                border: 2px solid var(--white); 
-            }
-             .podcast-cover-art:hover {
-                transform: scale(1.1) rotate(3deg); 
-                box-shadow: 0 6px 15px rgba(0,0,0,0.18);
-            }
-            .podcast-cover-art img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover; 
-            }
-            .podcast-cover-art .fa-headphones-simple { 
-                font-size: 3.5rem; 
-                color: var(--text-light-grey);
-                opacity: 0.5;
-            }
-
-            .podcast-info-controls {
-                flex-grow: 1; 
-                width: auto; 
-                display: flex;
-                flex-direction: column;
-                justify-content: center; 
-                min-height: 100px; 
-                z-index: 1; 
-            }
-
-            .podcast-track-info {
-                margin-bottom: 0.75rem; 
-            }
-
-            .podcast-title {
-                font-size: 1.2rem; 
-                font-weight: 700; 
-                color: var(--text-primary);
-                margin-bottom: 0.2rem; 
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis; 
-            }
-            .podcast-show-name {
-                font-size: 0.9rem; 
-                color: var(--text-secondary);
-                margin-bottom: 0; 
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .podcast-player-card audio {
-                width: 100%;
-                height: 42px; 
-                border-radius: 6px; 
-                accent-color: var(--podcast-player-accent); 
-                background-color: transparent; 
-                outline: none; 
-            }
+            const userRef = getProgressRef(currentUser.uid, trilhaId);
             
-            .podcast-player-card audio::-webkit-media-controls-panel {
-                background-color: rgba(230, 238, 247, 0.85); 
-                border-radius: 6px;
-                padding: 0 8px; 
+            try {
+                await setDoc(userRef, localProgress, { merge: true });
+                progressStatus.textContent = 'Progresso salvo na nuvem';
+                progressStatus.className = 'text-sm font-medium text-green-600';
+            } catch (error) {
+                console.error("Erro ao salvar no Firestore: ", error);
+                progressStatus.textContent = 'Erro ao salvar';
+                progressStatus.className = 'text-sm font-medium text-red-600';
             }
-            .podcast-player-card audio::-webkit-media-controls-play-button,
-            .podcast-player-card audio::-webkit-media-controls-mute-button {
-                background-color: transparent; 
-                border-radius: 50%;
-                transition: background-color 0.2s ease, transform 0.2s ease;
-                color: var(--text-primary); 
-            }
-             .podcast-player-card audio::-webkit-media-controls-play-button:hover,
-            .podcast-player-card audio::-webkit-media-controls-mute-button:hover {
-                background-color: rgba(0, 61, 115, 0.15); 
-                transform: scale(1.1);
-            }
+        }
 
-            .podcast-player-card audio::-webkit-media-controls-timeline {
-                background-color: var(--podcast-progress-bg);
-                border-radius: 4px; 
-                margin: 0 12px; 
-                height: 8px; 
-                box-shadow: inset 0 1px 3px rgba(0,0,0,0.15); 
-                position: relative; 
-                overflow: hidden;
-            }
-             .podcast-player-card audio::-webkit-media-slider-thumb { 
-                -webkit-appearance: none;
-                width: 14px;
-                height: 14px;
-                border-radius: 50%;
-                background: var(--podcast-progress-fill);
-                box-shadow: 0 0 5px var(--podcast-progress-fill);
-            }
-            .podcast-player-card audio::-moz-range-thumb {
-                width: 14px;
-                height: 14px;
-                border-radius: 50%;
-                background: var(--podcast-progress-fill);
-                border: none;
-                box-shadow: 0 0 5px var(--podcast-progress-fill);
-            }
+        const debouncedSave = (() => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(saveProgressToDatabase, 1500);
+            };
+        })();
+        
+        function applyProgressToUI() {
+            checkboxes.forEach(checkbox => {
+                const key = checkbox.dataset.key;
+                checkbox.checked = !!localProgress[key];
+            });
+            updateProgressBar();
+        }
 
-             .podcast-player-card audio::-webkit-media-controls-timeline::-webkit-progress-value {
-                background-color: var(--podcast-progress-fill);
-                box-shadow: 0 0 8px var(--podcast-progress-fill); 
+        async function loadProgressFromDatabase(user) {
+            if (!user || !db) return;
+            progressStatus.textContent = 'Carregando...';
+            progressStatus.className = 'text-sm font-medium text-gray-500';
+
+            const userRef = getProgressRef(user.uid, trilhaId);
+            
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    localProgress = docSnap.data();
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Progresso carregado da nuvem';
+                    progressStatus.className = 'text-sm font-medium text-green-600';
+                } else {
+                    localProgress = {};
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Nenhum progresso salvo ainda';
+                    progressStatus.className = 'text-sm font-medium text-gray-500';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar do Firestore: ", error);
+                progressStatus.textContent = 'Erro ao carregar progresso';
+                progressStatus.className = 'text-sm font-medium text-red-600';
             }
+        }
+        
+        // Inicializa o estado de Autenticação/Carga
+        if (firebaseConfig) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadProgressFromDatabase(user);
+                } else {
+                    // Tenta o login automático via custom token ou anônimo
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            const anonUser = await signInAnonymously(auth);
+                            currentUser = anonUser.user;
+                            await loadProgressFromDatabase(currentUser);
+                        }
+                    } catch (error) {
+                         console.error("Erro de autenticação:", error);
+                         currentUser = null;
+                         progressStatus.textContent = 'Falha na autenticação. Progresso não será salvo.';
+                         progressStatus.className = 'text-sm font-medium text-red-600';
+                    }
+                }
+
+                // Adiciona os listeners de mudança depois que a autenticação for resolvida
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const key = checkbox.dataset.key;
+                        localProgress[key] = checkbox.checked;
+                        updateProgressBar();
+                        
+                        if (currentUser) {
+                           debouncedSave();
+                        }
+                    });
+                });
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            updateProgressBar();
+        });
+    </script>
+
+    <!-- Estilos CSS unificados (Tailwind + Custom) -->
+    <style>
+        /* Variáveis de cor ajustadas para Tailwind */
+        :root {
+            --background: rgb(245, 251, 255);
+            --color-primary-bg: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            --text-primary: #0C4A6E; /* sky-900 */
+            --text-secondary: #4a4a4a;
+            --white: #fff;
+            --success-color: #16a34a; /* green-600 */
+            --warning-color: #f59e0b; /* amber-500 */
+            --info-color: #0ea5e9; /* sky-500 */
+            --member-card-bg: var(--white);
+            --member-photo-bg: #e0e8f0;
+        }
+
+        /* Configurações de fonte e corpo */
+        body {
+            font-family: "Exo 2", sans-serif;
+            background: var(--color-primary-bg);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main { flex: 1; }
+        
+        /* Estilos de título */
+        h1, h2, h3, h4, h5, h6 { color: var(--text-primary); font-weight: 700; }
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; }
+        h3 { font-size: 1.75rem; }
+
+        /* Links */
+        a { color: #0c4a6e; transition: color 0.2s; }
+        a:hover { color: #075985; text-decoration: underline; }
+
+        /* Componentes Comuns */
+        .card-shadow { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
+        .highlight-success { color: var(--success-color); font-weight: bold; }
+        .highlight-info { color: var(--info-color); font-weight: bold; }
+        .highlight-warning { color: var(--warning-color); font-weight: bold; }
+        .destaque { color: #8B5CF6; font-weight: bold; } /* Roxo */
+
+        /* Estilos do sistema de progresso (Cores Tailwind Sky Blue padrão) */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1; /* sky-700 */
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc; /* sky-300 */
+            border-radius: 9999px;
+            background-color: #f0f9ff; /* sky-50 */
+            transition: background-color 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+            width: fit-content;
+        }
+        .completion-label:hover { background-color: #e0f2fe; } /* sky-100 */
+
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8; /* sky-400 */
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9; /* sky-500 */
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
 
 
-             .podcast-player-card audio::-webkit-media-controls-current-time-display,
-             .podcast-player-card audio::-webkit-media-controls-time-remaining-display {
-                color: var(--text-primary); 
-                font-size: 0.8rem; 
-                font-weight: 600; 
-            }
+        /* Linha do Tempo Customizada */
+        .timeline {
+            list-style-type: none;
+            padding-left: 0;
+            position: relative;
+        }
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #0C4A6E; 
+            opacity: 0.2;
+        }
 
+        .timeline-item {
+            margin-bottom: 2.5rem;
+            position: relative;
+            padding-left: 45px; 
+        }
 
-            .podcast-section-container h2 {
-                text-align: center;
-                margin-bottom: 1rem; 
-                font-weight: 700; 
-            }
-            .podcast-section-container > p { 
-                text-align: center;
-                margin-bottom: 1.5rem; 
-                font-size: 1rem; 
-                color: var(--text-secondary);
-            }
+        .timeline-icon {
+            position: absolute;
+            left: 8px; 
+            top: 0px;
+            width: 25px; 
+            height: 25px; 
+            border-radius: 50%;
+            background-color: #0C4A6E;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border: 2px solid var(--white); 
+            box-shadow: 0 0 0 3px #0C4A6E;
+        }
+        .timeline-icon-success { background-color: var(--success-color); box-shadow: 0 0 0 3px var(--success-color); }
+        .timeline-icon-warning { background-color: var(--warning-color); box-shadow: 0 0 0 3px var(--warning-color); }
+        .timeline-icon-info { background-color: var(--info-color); box-shadow: 0 0 0 3px var(--info-color); }
+        .timeline-icon-default { background-color: #9CA3AF; box-shadow: 0 0 0 3px #9CA3AF; }
 
-            /* Breadcrumb */
-            .breadcrumb {
-                font-size: 0.875rem; 
-                color: #555;
-                margin-bottom: 1rem; 
-                background-color: transparent; 
-                padding: 0.5rem 0; 
-            }
-    
-            .breadcrumb a {
-                text-decoration: none;
-                color: #0073e6;
-            }
-    
-            .breadcrumb a:hover {
-                text-decoration: underline;
-            }
-    
-            /* Título principal da página (se houver um específico além dos Hx) */
-            .page-title { 
-                font-size: 2rem;
-                font-weight: bold;
-                margin-bottom: 1.5rem;
-                color: #333;
-            }
-
-            /* Secção Membros da Empresa */
-            .members-section {
-                padding: 2rem 0;
-                background-color: var(--background); /* Fundo suave para a secção inteira */
-            }
-            .year-section {
-                margin-bottom: 3rem;
-            }
-            .year-title {
-                text-align: center;
-                font-size: 1.8rem;
-                font-weight: 700;
-                color: var(--text-primary);
-                margin-bottom: 2rem;
-                position: relative;
-                padding-bottom: 0.5rem;
-            }
-            .year-title::after { /* Linha decorativa abaixo do título do ano */
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80px;
-                height: 3px;
-                background-color: var(--podcast-player-accent);
-                border-radius: 2px;
-            }
-
-            .members-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Grid responsivo */
-                gap: 1.5rem;
-            }
-
-            .member-card {
-                background-color: var(--member-card-bg);
-                border-radius: 0.75rem;
-                box-shadow: 0 5px 15px var(--shadow-strong-color);
-                padding: 1.25rem;
-                text-align: center;
-                transition: transform 0.3s ease, box-shadow 0.3s ease;
-            }
-            .member-card:hover {
-                transform: translateY(-8px);
-                box-shadow: 0 10px 25px var(--shadow-strong-color);
-            }
-
-            .member-photo {
-                width: 120px;
-                height: 120px;
-                border-radius: 50%; /* Fotos redondas */
-                object-fit: cover; /* Garante que a foto preencha o círculo */
-                margin: 0 auto 1rem auto;
-                border: 3px solid var(--white);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                background-color: var(--member-photo-bg); /* Fundo para placeholders */
-            }
-
-            .member-name {
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: var(--text-primary);
-                margin-bottom: 0.25rem;
-            }
-
-            .member-role {
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-                margin-bottom: 0;
-            }
-    
-            /* Responsividade */
-            @media (max-width: 1024px) {
-                main.container { 
-                    padding-left: 15px;
-                    padding-right: 15px;
-                }
-            }
-    
-            @media (max-width: 768px) {
-                h1 { font-size: 2rem; }
-                h2 { font-size: 1.75rem; }
-                h3 { font-size: 1.5rem; }
-
-                header nav.container {
-                    flex-direction: column; 
-                    align-items: center;
-                    padding-top: 0.5rem;
-                    padding-bottom: 0.5rem;
-                }
-                header nav h1 {
-                    font-size: 1.5rem; 
-                    margin-bottom: 0.5rem; 
-                }
-                .ds-contact-container img {
-                    height: 40px; 
-                    margin-left: 0; 
-                }
-                .timeline:before {
-                    left: 12px; 
-                }
-                .timeline-item {
-                    padding-left: 35px; 
-                }
-                .timeline-icon {
-                    left: 0px; 
-                    width: 25px;
-                    height: 25px;
-                    font-size: 0.7rem;
-                }
-                .podcast-player-card {
-                    flex-direction: column; 
-                    padding: 1.25rem; 
-                    max-width: 95%; 
-                }
-                .podcast-cover-art {
-                    width: 120px; 
-                    height: 120px;
-                    margin-bottom: 1rem; 
-                }
-                 .podcast-cover-art .fa-headphones-simple {
-                    font-size: 3.5rem; 
-                }
-                .podcast-info-controls {
-                    text-align: center; 
-                    align-items: center;
-                }
-                .podcast-title {
-                    font-size: 1.1rem; 
-                }
-                 .podcast-show-name {
-                    font-size: 0.8rem; 
-                }
-                .members-grid {
-                    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Ajuste para mobile */
-                }
-                .member-photo {
-                    width: 100px;
-                    height: 100px;
-                }
-            }
-        </style>
-    </head>
-<body>
+        .timeline-content {
+            background-color: var(--white);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 3px solid #0C4A6E;
+        }
+        .timeline-content strong { color: var(--text-primary); }
+        .timeline-content .text-muted { font-size: 0.85rem; display: block; margin-bottom: 0.5rem; color: #6B7280; }
+        
+        /* Podcast Player Customizado (Ajuste para Tailwind) */
+        .podcast-player-card {
+            background-color: var(--white);
+            border-radius: 0.85rem; 
+            padding: 1.5rem; 
+            box-shadow: 0 10px 30px rgba(0, 30, 58, 0.12);
+            display: flex;
+            flex-direction: row; 
+            align-items: center;
+            gap: 1.5rem; 
+            max-width: 700px; 
+            margin: 1.5rem auto;
+            transition: all 0.3s ease;
+        }
+        .podcast-player-card:hover {
+            transform: translateY(-4px); 
+            box-shadow: 0 15px 35px rgba(0, 30, 58, 0.18);
+        }
+        .podcast-cover-art {
+            width: 100px; 
+            height: 100px;
+            border-radius: 0.5rem; 
+            overflow: hidden; 
+            flex-shrink: 0; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            border: 2px solid #E5E7EB; 
+        }
+        .podcast-cover-art img { width: 100%; height: 100%; object-fit: cover; }
+        .podcast-title { font-size: 1.2rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .podcast-show-name { font-size: 0.9rem; margin-bottom: 0; color: #6B7280; }
+        
+        /* Membros Grid */
+        .members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 1.5rem;
+        }
+        .member-card {
+            background-color: var(--member-card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0, 30, 58, 0.08);
+            padding: 1.25rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .member-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0, 30, 58, 0.15);
+        }
+        .member-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem auto;
+            border: 3px solid #E5E7EB;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .member-name { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem; }
+        .member-role { font-size: 0.9rem; color: #6B7280; margin-bottom: 0; }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .timeline:before { left: 12px; }
+            .timeline-item { padding-left: 35px; }
+            .timeline-icon { left: 0px; width: 22px; height: 22px; font-size: 0.7rem; }
+            .podcast-player-card { flex-direction: column; text-align: center; gap: 1rem; }
+            .podcast-info-controls { width: 100%; text-align: center; align-items: center; }
+            .podcast-title, .podcast-show-name { text-align: center; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Vlibra -->
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
         <div vw-plugin-wrapper>
-          <div class="vw-plugin-top-wrapper"></div>
+            <div class="vw-plugin-top-wrapper"></div>
         </div>
     </div>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
@@ -743,136 +398,189 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-    <header>
-        <nav class="container">
-            <a href="/EJECT_Trilha_de_Conhecimento/index.html">
-                <h1>Hub de Conhecimentos</h1>
-            </a>
-            <div class="ds-contact-container">
-                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                    <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT">
-                </a>
+    <!-- HEADER (Estrutura Tailwind) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="/EJECT_Trilha_de_Conhecimento/index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="file-text" class="h-6 w-6"></i>
+                    </button>
+                    <button id="exportPdfBtn" title="Exportar Conteúdo para PDF" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="download" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
-    <main class="container py-4">
-        <section class="mb-3">
-            <a class="btn btn-primary" href="/EJECT_Trilha_de_Conhecimento">Voltar</a>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <input type="hidden" id="trilha-id" value="historia_eject" />
+        
+        <!-- Botão Voltar -->
+        <section class="mb-6">
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar
+            </a>
         </section>
 
-        <section class="mb-5" id="section-historia-eject">
-            <label class="completion-label">
-                <input type="checkbox" class="topic-checkbox" data-key="historia">
-                <span>Concluído</span>
-            </label>
-            <h2>História da EJECT</h2> 
-            <p id="historia-eject-text">A <strong>EJECT</strong>, Empresa Júnior da Escola de Ciências e Tecnologia da Universidade Federal do Rio Grande do Norte (UFRN), foi fundada em <strong>15 de julho de 2010</strong> por 14 estudantes. A iniciativa teve origem com o discente <strong>Victor Fonseca</strong>, que contou com o apoio de 12 colegas e a orientação dos professores <strong>Rex Antônio</strong> e <strong>Efrain Pantaleón.</strong> O principal objetivo da EJECT era <strong>inserir os profissionais de Ciências e Tecnologia no mercado de trabalho</strong>, oferecendo-lhes a oportunidade de atuar na área profissional durante a graduação. Destaca-se por ser a <strong>primeira empresa júnior do curso de Ciências e Tecnologia no Brasil.</strong></p>
-            <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT comemorativo" class="img-fluid rounded my-3" style="max-width: 80%; height: auto; display: block; margin-left: auto; margin-right: auto;"> 
+        <!-- Barra de Progresso (Adicionada para Consistência) -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium">Carregando...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
         </section>
 
-        <section class="mb-5">
-            <label class="completion-label">
-                <input type="checkbox" class="topic-checkbox" data-key="origem">
-                <span>Concluído</span>
-            </label>
-            <h2>Origem</h2> 
-            <ul>
-                <li><strong>2010:</strong> Fundação da EJECT e formação da primeira diretoria executiva, composta por:
-                    <ul class="mt-2"> 
-                        <li>Victor Fonseca (Presidente)</li>
-                        <li>Silvano Lopes (Administrativo-Financeiro)</li>
-                        <li>Vanessa Porto (Gestão de Pessoas)</li>
-                        <li>Golda Acuña (Marketing)</li>
-                        <li>Márcio Costa (Projetos)</li>
-                        <li>Yuri Sarmento, Rex Medeiros e Efrain Pantaleón (Conselho Fiscal)</li>
-                    </ul>
-                </li>
-            </ul>
-        </section>
-
-        <section class="mb-5">
-            <label class="completion-label">
-                <input type="checkbox" class="topic-checkbox" data-key="missao-visao-valores">
-                <span>Concluído</span>
-            </label>
-            <h2>Missão, Visão e Valores</h2> 
-            <p class="mb-2"><strong>Missão:</strong></p>
-            <ul>
-                <li>Transformar, por meio de microrrevoluções, pessoas em protagonistas do empreendedorismo.</li>
-            </ul>
-            <p class="mt-3 mb-2"><strong>Visão:</strong></p>
-            <ul>
-                <li>Ser referência em excelência e impacto na formação de jovens empreendedores.</li>
-            </ul>
-            <p class="mt-3 mb-2"><strong>Valores:</strong></p>
-            <ul>
-                <li><strong>#SouEJECT: </strong> Paixão, felicidade, vontade de mudar, compromisso e foco em resultados.</li>
-                <li><strong>Empatia: </strong> Compreensão e acolhimento às diferentes realidades.</li>
-                <li><strong>Pra Cima: </strong> Ousadia, superação de desafios e busca por novas iniciativas.</li>
-                <li><strong>Compromisso: </strong> Responsabilidade pelas ações individuais e seu impacto na empresa.</li>
-                <li><strong>Transparência: </strong> Ética e compromisso com a verdade.</li>
-            </ul>
-        </section>
-
-        <section class="mb-5" id="section-core-business">
-            <label class="completion-label">
-                <input type="checkbox" class="topic-checkbox" data-key="core-business">
-                <span>Concluído</span>
-            </label>
-            <h2>Mudança de Core Business e Crescimento</h2> 
-            <p id="core-business-text"> A EJECT passou por uma transformação significativa em seu core business ao longo dos anos. Inicialmente, a empresa oferecia uma variedade de serviços, incluindo Meio Ambiente e Inovação. Contudo, em 2016, a EJECT decidiu concentrar seus esforços exclusivamente em soluções digitais, especialmente em Tecnologia da Informação (TI). Essa mudança estratégica resultou em um crescimento notável, com um aumento de <span class="highlight-success">1.073% no faturamento</span> em relação ao ano anterior (2015). </p>
+        <!-- Seção 1: História e Origem -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-start mb-4">
+                 <h1 class="text-4xl font-bold text-sky-800">A Jornada da EJECT</h1>
+                 <label class="completion-label mt-2" for="historia">
+                    <input type="checkbox" class="topic-checkbox" data-key="historia" id="historia">
+                    <span>Concluído</span>
+                </label>
+            </div>
             
-            <p id="current-services-text">Atualmente, a EJECT oferece os seguintes serviços:</p>
-            <ul>
-                <li><strong>Sites Responsivos: </strong> Sites que se adaptam a diferentes dispositivos.</li>
-                <li><strong>Sistemas Web: </strong> Ferramentas para facilitar e automatizar processos empresariais.</li>
-                <li><strong>E-commerce: </strong> Plataformas virtuais para compra e venda de produtos.</li>
-                <li><strong>Concepção Digital: </strong> Criação de MVPs e Mockups.</li>
+            <p class="text-lg leading-relaxed text-gray-700">A <strong>EJECT</strong>, Empresa Júnior da Escola de Ciências e Tecnologia da UFRN, foi fundada em <strong>15 de julho de 2010</strong> por 14 estudantes. É a **primeira empresa júnior do curso de Ciências e Tecnologia no Brasil**, destacando-se por seu objetivo inicial de inserir os profissionais da área no mercado de trabalho.</p>
+            <img src="../img/logo.svg" alt="Logotipo da EJECT" class="w-40 h-auto rounded my-3 mx-auto"> 
+
+            <h2 class="text-2xl font-bold text-sky-700 mt-6 border-b pb-2">Origem e Primeira Gestão</h2>
+            <div class="flex justify-between items-start mt-4">
+                <p class="text-gray-700">O embrião da EJECT surgiu com o discente **Victor Fonseca**, com apoio de 12 colegas e orientação dos professores **Rex Antônio** e **Efrain Pantaleón**.</p>
+                 <label class="completion-label flex-shrink-0" for="origem">
+                    <input type="checkbox" class="topic-checkbox" data-key="origem" id="origem">
+                    <span>Concluído</span>
+                </label>
+            </div>
+
+            <h3 class="text-xl font-semibold text-sky-700 mt-4">Primeira Diretoria Executiva (2010):</h3>
+            <ul class="list-disc list-inside text-gray-700 ml-4">
+                <li>Victor Fonseca (Presidente)</li>
+                <li>Silvano Lopes (Administrativo-Financeiro)</li>
+                <li>Vanessa Porto (Gestão de Pessoas)</li>
+                <li>Golda Acuña (Marketing)</li>
+                <li>Márcio Costa (Projetos)</li>
+                <li>Conselho Fiscal: Yuri Sarmento, Rex Medeiros e Efrain Pantaleón.</li>
             </ul>
         </section>
 
-        <section class="mb-5">
-            <label class="completion-label">
-                <input type="checkbox" class="topic-checkbox" data-key="marcos-historicos">
-                <span>Concluído</span>
-            </label>
-            <h2>Marcos Históricos e Melhorias Contínuas</h2> 
-            <p>A trajetória da EJECT é marcada por uma busca constante por evolução e excelência. Abaixo, alguns dos principais marcos e melhorias implementadas ao longo dos anos:</p>
+        <!-- Seção 2: Missão, Visão e Valores (Cultura) -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+             <div class="flex justify-between items-start mb-4">
+                <h2 class="text-3xl font-bold text-sky-700 flex items-center">
+                    <i data-lucide="book-open-text" class="h-6 w-6 mr-2 text-sky-600"></i>
+                    Cultura, Missão, Visão e Valores
+                </h2>
+                 <label class="completion-label mt-2" for="missao-visao-valores">
+                    <input type="checkbox" class="topic-checkbox" data-key="missao-visao-valores" id="missao-visao-valores">
+                    <span>Concluído</span>
+                </label>
+            </div>
+
+            <h3 class="text-xl font-bold text-sky-700 mb-2">Missão:</h3>
+            <p class="text-gray-700 ml-4 border-l-4 border-sky-400 pl-3">Transformar, por meio de microrrevoluções, pessoas em protagonistas do empreendedorismo.</p>
+
+            <h3 class="text-xl font-bold text-sky-700 mt-4 mb-2">Visão:</h3>
+            <p class="text-gray-700 ml-4 border-l-4 border-sky-400 pl-3">Ser referência em excelência e impacto na formação de jovens empreendedores.</p>
+
+            <h3 class="text-xl font-bold text-sky-700 mt-4 mb-2">Valores:</h3>
+            <ul class="list-disc list-inside text-gray-700 ml-4 space-y-1">
+                <li><strong>#SouEJECT:</strong> Paixão, felicidade, vontade de mudar, compromisso e foco em resultados.</li>
+                <li><strong>Empatia:</strong> Compreensão e acolhimento às diferentes realidades.</li>
+                <li><strong>Pra Cima:</strong> Ousadia, superação de desafios e busca por novas iniciativas.</li>
+                <li><strong>Compromisso:</strong> Responsabilidade pelas ações individuais e seu impacto na empresa.</li>
+                <li><strong>Transparência:</strong> Ética e compromisso com a verdade.</li>
+            </ul>
+        </section>
+
+        <!-- Seção 3: Mudança de Core Business e Serviços -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+             <div class="flex justify-between items-start mb-4">
+                <h2 class="text-3xl font-bold text-sky-700 flex items-center">
+                    <i data-lucide="trending-up" class="h-6 w-6 mr-2 text-sky-600"></i>
+                    Core Business e Crescimento
+                </h2>
+                 <label class="completion-label mt-2" for="core-business">
+                    <input type="checkbox" class="topic-checkbox" data-key="core-business" id="core-business">
+                    <span>Concluído</span>
+                </label>
+            </div>
+            
+            <p class="text-gray-700 leading-relaxed">A EJECT passou por uma transformação, focando exclusivamente em **soluções digitais e TI** a partir de 2016. Essa mudança estratégica resultou em um crescimento notável, com um aumento de <span class="highlight-success">1.073% no faturamento</span> em relação a 2015.</p>
+            
+            <h3 class="text-xl font-bold text-sky-700 mt-4 mb-2">Serviços Atuais:</h3>
+            <ul class="list-disc list-inside text-gray-700 ml-4 space-y-1">
+                <li><strong>Sites Responsivos:</strong> Websites que se adaptam a diferentes dispositivos.</li>
+                <li><strong>Sistemas Web:</strong> Ferramentas para facilitar e automatizar processos empresariais.</li>
+                <li><strong>E-commerce:</strong> Plataformas virtuais para compra e venda de produtos.</li>
+                <li><strong>Concepção Digital:</strong> Criação de MVPs e Mockups (UX/UI Design).</li>
+            </ul>
+        </section>
+
+        <!-- Seção 4: Linha do Tempo de Marcos Históricos -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+             <div class="flex justify-between items-start mb-4">
+                <h2 class="text-3xl font-bold text-sky-700 flex items-center">
+                    <i data-lucide="clock-history" class="h-6 w-6 mr-2 text-sky-600"></i>
+                    Marcos Históricos
+                </h2>
+                 <label class="completion-label mt-2" for="marcos-historicos">
+                    <input type="checkbox" class="topic-checkbox" data-key="marcos-historicos" id="marcos-historicos">
+                    <span>Concluído</span>
+                </label>
+            </div>
+            
+            <p class="text-gray-700 mb-6">A trajetória da EJECT é marcada por uma busca constante por evolução e excelência. Acompanhe os principais momentos:</p>
             
             <ul class="timeline mt-4">
                 <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-info">🚀</div>
                     <div class="timeline-content">
                         <span class="text-muted">2010</span>
-                        <strong>Fundação da EJECT:</strong> Primeira Empresa Júnior de Ciências e Tecnologia do Brasil, um marco inicial de inovação e empreendedorismo.
+                        <strong>Fundação da EJECT:</strong> Primeira Empresa Júnior de Ciências e Tecnologia do Brasil.
                     </div>
                 </li>
                 <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-warning">🛠️</div>
                     <div class="timeline-content">
                         <span class="text-muted">2011 - 2012</span>
-                        <strong>Reestruturações Iniciais:</strong> Período de aprendizado e superação de desafios, fundamental para o fortalecimento da EJ.
+                        <strong>Reestruturações Iniciais:</strong> Período de aprendizado e superação de desafios.
                     </div>
                 </li>
                  <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-default">🤝</div>
                     <div class="timeline-content">
                         <span class="text-muted">2014</span>
-                        <strong>Reconhecimento e Federação:</strong> Primeiro case de sucesso aprovado no ESEJ e federação à RN Júnior, ampliando a rede e visibilidade.
+                        <strong>Reconhecimento e Federação:</strong> Primeiro case de sucesso aprovado no ESEJ e federação à RN Júnior.
                     </div>
                 </li>
                 <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-success">🏆</div>
                     <div class="timeline-content">
                         <span class="text-muted">2015</span>
-                        <strong>Primeiras Conquistas e Planejamento:</strong> Realização da SE7E e EJECT WEEKEND, reconhecimento no ENEJ15, elaboração do primeiro planejamento estratégico e premiação em "Comunicação" no Prêmio RN.
+                        <strong>Primeiras Conquistas:</strong> Reconhecimento no ENEJ15, elaboração do primeiro planejamento estratégico e premiação em "Comunicação".
                     </div>
                 </li>
                 <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-info">💡</div>
                     <div class="timeline-content">
                         <span class="text-muted">2016</span>
-                        <strong>Foco em TI e Crescimento Exponencial:</strong> Mudança estratégica do core business para TI, resultando em <span class="highlight-success">alto crescimento</span> e reconhecimento como EJ de alto crescimento da RN. Realização do primeiro Compilando.
+                        <strong>Foco em TI e Crescimento:</strong> Mudança estratégica do core business para TI, resultando em <span class="highlight-success">alto crescimento</span> (+1073%) e reconhecimento como EJ de alto crescimento da RN.
                     </div>
                 </li>
                 <li class="timeline-item">
@@ -886,14 +594,14 @@
                     <div class="timeline-icon timeline-icon-success">🌍</div>
                     <div class="timeline-content">
                         <span class="text-muted">2018</span>
-                        <strong>Impacto e Vivência:</strong> Aprovação de cases em eventos de destaque e premiações em "Impacto no Ecossistema" e "Vivência Empresarial".
+                        <strong>Impacto e Vivência:</strong> Premiações em "Impacto no Ecossistema" e "Vivência Empresarial".
                     </div>
                 </li>
                 <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-info">🎨</div>
                     <div class="timeline-content">
                         <span class="text-muted">2019</span>
-                        <strong>Inovação em Serviços:</strong> Reformulação contratual e adição da sub-área de <span class="highlight-info">UX/UI Design</span>, além de recorde de faturamento mensal.
+                        <strong>Inovação em Serviços:</strong> Adição da sub-área de <span class="highlight-info">UX/UI Design</span> e recorde de faturamento mensal.
                     </div>
                 </li>
                 <li class="timeline-item">
@@ -907,159 +615,179 @@
                     <div class="timeline-icon timeline-icon-warning">🔄</div>
                     <div class="timeline-content">
                         <span class="text-muted">2021 - 2023</span>
-                        <strong>Adaptação e Resiliência:</strong> Período de adaptação à pandemia, reorganizações internas, superação de metas e reestruturações de processos, demonstrando a capacidade de adaptação e melhoria contínua da EJ.
+                        <strong>Adaptação e Resiliência:</strong> Reorganizações internas, superação de metas e reestruturações de processos.
                     </div>
                 </li>
                 <li class="timeline-item">
                     <div class="timeline-icon timeline-icon-default">⏳</div>
                     <div class="timeline-content">
                         <span class="text-muted">2025</span>
-                        <strong>Futuro Promissor:</strong> Em andamento, com foco em novas conquistas e desenvolvimento contínuo.
+                        <strong>Futuro Promissor:</strong> Em andamento, com foco em novas conquistas.
                     </div>
                 </li>
             </ul>
-
-            <h3 class="mt-5">Cultura Organizacional: O Motor das Melhorias</h3> 
-            <p>A cultura da EJECT, caracterizada pela horizontalidade e colaboração entre suas seis células (Desenvolvimento Humano, Marketing, Projetos, Administrativo Financeiro, Vice-presidência e Presidência), é um pilar fundamental para as melhorias contínuas. O forte senso de comunidade, expresso pelo "#SouEJECT", impulsiona o engajamento e a busca por resultados.</p>
-            <p>O compromisso com o planejamento, organização e adaptação a novas realidades, evidenciado no Playbook de Cultura Organizacional, garante que a EJECT não apenas alcance marcos históricos, mas também aprenda e evolua com cada desafio e conquista.</p>
         </section>
 
-        <section class="mb-5 podcast-section-container">
-            <label class="completion-label">
-                <input type="checkbox" class="topic-checkbox" data-key="podcast">
-                <span>Concluído</span>
-            </label>
-            <h2>Podcast: A História da EJECT em Áudio 🎙️</h2>
-            <p>Ouça um episódio especial onde mergulhamos mais fundo nos momentos marcantes, desafios superados e nas vozes que construíram a EJECT. Uma experiência sonora para complementar a sua leitura!</p>
+        <!-- Seção 5: Podcast -->
+        <section class="mb-10 p-6 bg-sky-50 rounded-xl shadow-lg card-shadow border border-sky-200">
+             <div class="flex justify-between items-start mb-4">
+                <h2 class="text-3xl font-bold text-sky-700 flex items-center">
+                    <i data-lucide="mic" class="h-6 w-6 mr-2 text-sky-600"></i>
+                    Podcast: A História da EJECT em Áudio
+                </h2>
+                 <label class="completion-label mt-2" for="podcast">
+                    <input type="checkbox" class="topic-checkbox" data-key="podcast" id="podcast">
+                    <span>Concluído</span>
+                </label>
+            </div>
+            
+            <p class="text-gray-700 text-center mb-6">Ouça um episódio especial para complementar a sua leitura e sentir o espírito da EJECT!</p>
             
             <div class="podcast-player-card">
                 <div class="podcast-cover-art">
-                    <img src="https://placehold.co/180x180/003d73/ffffff?text=EJECT" alt="Capa do Podcast EJECT">
+                    <img src="https://placehold.co/180x180/0C4A6E/ffffff?text=EJECT" alt="Capa do Podcast EJECT">
                 </div>
-                <div class="podcast-info-controls">
+                <div class="podcast-info-controls flex-1">
                     <div class="podcast-track-info">
                         <h4 class="podcast-title">Episódio 1: A História da EJECT</h4>
                         <p class="podcast-show-name">EJECT Talks</p>
                     </div>
-                    <audio controls controlsList="nodownload" src="/EJECT_Trilha_de_Conhecimento/audio/Áudio do WhatsApp de 2025-05-24 à(s) 21.32.50_8ace87b3.mp3">
-                        O seu navegador não suporta o elemento de áudio. Considere atualizá-lo ou utilizar um navegador diferente.
+                    <!-- Nota: Audio local requer acesso à pasta /EJECT_Trilha_de_Conhecimento/audio/. Usando um placeholder genérico. -->
+                    <audio controls controlsList="nodownload" class="w-full h-10 accent-sky-700">
+                        <source src="../audio/audio_historia.mp3" type="audio/mp3">
+                        O seu navegador não suporta o elemento de áudio.
                     </audio>
                 </div>
             </div>
         </section>
 
-        <section class="members-section">
-            <div class="container"> <h2 class="text-center mb-5">Conheça os Membros da EJECT ao Longo dos Anos</h2>
+        <!-- Seção 6: Membros da Empresa -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-3xl font-bold text-sky-700 text-center mb-6">Conheça os Membros da EJECT</h2>
 
-                <section class="year-section">
-                    <h3 class="year-title">2024</h3>
-                    <div class="members-grid">
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/003d73/ffffff?text=Membro+1" alt="Foto do Membro 1" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Carlos Henrique</h5>
-                                <p class="member-role">Presidente</p>
-                            </div>
-                        </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/003d73/ffffff?text=Membro+1" alt="Foto do Membro 1" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Maria Luiza</h5>
-                                <p class="member-role">Diretora de Vice Presidência</p>
-                            </div>
-                        </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/17a2b8/ffffff?text=Membro+2" alt="Foto do Membro 2" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Pedro Otávio</h5>
-                                <p class="member-role">Diretor de Projetos</p>
-                            </div>
-                        </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/28a745/ffffff?text=Membro+3" alt="Foto do Membro 3" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Ronald Guilherme</h5>
-                                <p class="member-role">Diretora de Marketing</p>
-                            </div>
-                        </div>
-                         <div class="member-card">
-                            <img src="https://placehold.co/240x240/ffc107/000000?text=Membro+4" alt="Foto do Membro 4" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">João Victor Albano</h5>
-                                <p class="member-role">Gerente de Projetos</p>
-                            </div>
-                        </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/ffc107/000000?text=Membro+4" alt="Foto do Membro 4" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Maria Larissa</h5>
-                                <p class="member-role">Assessora do Administrativo Financeiro</p>
-                            </div>
+            <!-- Ano 2024 -->
+            <section class="year-section border-b pb-6 mb-6">
+                <h3 class="year-title text-2xl font-extrabold text-sky-800 relative mb-6">2024</h3>
+                <div class="members-grid">
+                    <!-- Membro 1 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/0C4A6E/ffffff?text=C.H." alt="Foto de Carlos Henrique" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Carlos Henrique</h5>
+                            <p class="member-role">Presidente</p>
                         </div>
                     </div>
-                </section>
-
-                <section class="year-section">
-                    <h3 class="year-title">2023</h3>
-                    <div class="members-grid">
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/003d73/ffffff?text=Membro+1" alt="Foto do Membro 1" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Carlos Henrique</h5>
-                                <p class="member-role">Presidente</p>
-                            </div>
-                        </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/17a2b8/ffffff?text=Membro+2" alt="Foto do Membro 2" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Bruno Costa</h5>
-                                <p class="member-role">Diretor de Projetos</p>
-                            </div>
-                        </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/28a745/ffffff?text=Membro+3" alt="Foto do Membro 3" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Carla Dias</h5>
-                                <p class="member-role">Diretora de Marketing</p>
-                            </div>
-                        </div>
-                         <div class="member-card">
-                            <img src="https://placehold.co/240x240/ffc107/000000?text=Membro+4" alt="Foto do Membro 4" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Daniel Faria</h5>
-                                <p class="member-role">Consultor de TI</p>
-                            </div>
+                    <!-- Membro 2 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/0EA5E9/ffffff?text=M.L." alt="Foto de Maria Luiza" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Maria Luiza</h5>
+                            <p class="member-role">Diretora de Vice Presidência</p>
                         </div>
                     </div>
-                </section>
-
-                <section class="year-section">
-                    <h3 class="year-title">2022</h3>
-                    <div class="members-grid">
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/6f42c1/ffffff?text=Membro+A" alt="Foto do Membro A" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Fernanda Lima</h5>
-                                <p class="member-role">Presidente</p>
-                            </div>
+                    <!-- Membro 3 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/10B981/ffffff?text=P.O." alt="Foto de Pedro Otávio" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Pedro Otávio</h5>
+                            <p class="member-role">Diretor de Projetos</p>
                         </div>
-                        <div class="member-card">
-                            <img src="https://placehold.co/240x240/fd7e14/ffffff?text=Membro+B" alt="Foto do Membro B" class="member-photo">
-                            <div class="member-info">
-                                <h5 class="member-name">Gustavo Pereira</h5>
-                                <p class="member-role">Diretor Financeiro</p>
-                            </div>
+                    </div>
+                    <!-- Membro 4 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/F59E0B/ffffff?text=R.G." alt="Foto de Ronald Guilherme" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Ronald Guilherme</h5>
+                            <p class="member-role">Diretora de Marketing</p>
                         </div>
+                    </div>
+                    <!-- Membro 5 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/8B5CF6/ffffff?text=J.V.A." alt="Foto de João Victor Albano" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">João Victor Albano</h5>
+                            <p class="member-role">Gerente de Projetos</p>
                         </div>
-                </section>
+                    </div>
+                    <!-- Membro 6 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/EC4899/ffffff?text=M.L." alt="Foto de Maria Larissa" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Maria Larissa</h5>
+                            <p class="member-role">Assessora do Administrativo Financeiro</p>
+                        </div>
+                    </div>
                 </div>
+            </section>
+
+            <!-- Ano 2023 -->
+            <section class="year-section border-b pb-6 mb-6">
+                <h3 class="year-title text-2xl font-extrabold text-sky-800 relative mb-6">2023</h3>
+                <div class="members-grid">
+                    <!-- Membro 1 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/0C4A6E/ffffff?text=C.H." alt="Foto de Carlos Henrique" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Carlos Henrique</h5>
+                            <p class="member-role">Presidente</p>
+                        </div>
+                    </div>
+                    <!-- Membro 2 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/0EA5E9/ffffff?text=B.C." alt="Foto de Bruno Costa" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Bruno Costa</h5>
+                            <p class="member-role">Diretor de Projetos</p>
+                        </div>
+                    </div>
+                    <!-- Membro 3 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/10B981/ffffff?text=C.D." alt="Foto de Carla Dias" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Carla Dias</h5>
+                            <p class="member-role">Diretora de Marketing</p>
+                        </div>
+                    </div>
+                    <!-- Membro 4 -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/F59E0B/ffffff?text=D.F." alt="Foto de Daniel Faria" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Daniel Faria</h5>
+                            <p class="member-role">Consultor de TI</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+             <!-- Ano 2022 -->
+            <section class="year-section">
+                <h3 class="year-title text-2xl font-extrabold text-sky-800 relative mb-6">2022</h3>
+                <div class="members-grid">
+                    <!-- Membro A -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/8B5CF6/ffffff?text=F.L." alt="Foto de Fernanda Lima" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Fernanda Lima</h5>
+                            <p class="member-role">Presidente</p>
+                        </div>
+                    </div>
+                    <!-- Membro B -->
+                    <div class="member-card">
+                        <img src="https://placehold.co/240x240/EC4899/ffffff?text=G.P." alt="Foto de Gustavo Pereira" class="member-photo">
+                        <div class="member-info">
+                            <h5 class="member-name">Gustavo Pereira</h5>
+                            <p class="member-role">Diretor Financeiro</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </section>
+
     </main>
     
-    <footer>
-        <p>Feito com <strong>foco </strong>e <strong>compromisso</strong> pela EJECT&copy; - Todos os direitos reservados.</p>
+    <footer class="bg-sky-900 text-white text-center py-8 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
-
-    
 </body>
 </html>

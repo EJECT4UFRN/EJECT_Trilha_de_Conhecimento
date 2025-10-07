@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Hub de Conhecimentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="img/eject_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
+
+    <script>
+        // Tailwind Custom Configuration
+        tailwind.config = {
+            darkMode: 'media', // or 'class' if you want to toggle manually
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Exo 2"', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        'eject-blue-dark': 'rgb(0, 61, 115)',
+                        'eject-blue-light': 'rgb(17, 167, 241)',
+                        'eject-text-primary-light': 'rgb(0, 61, 115)',
+                        'eject-text-primary-dark': '#e0e0e0',
+                        'eject-text-secondary-light': '#4a4a4a',
+                        'eject-text-secondary-dark': '#b0b0b0',
+                        'eject-bg-light': 'rgb(245, 251, 255)',
+                        'eject-bg-dark': '#1e1e1e',
+                        'eject-card-bg-light': '#ffffff',
+                        'eject-card-bg-dark': '#2c2c2c',
+                        'eject-input-bg-light': '#ffffff',
+                        'eject-input-bg-dark': '#3a3a3a',
+                        'eject-input-border-light': '#aaa',
+                        'eject-input-border-dark': '#555',
+                        'eject-input-focus-light': 'rgb(9, 149, 219)',
+                        'eject-input-focus-dark': '#64b5f6',
+                        'eject-placeholder-light': '#aaa',
+                        'eject-placeholder-dark': '#888',
+                        'eject-modal-bg-light': '#fefefe',
+                        'eject-modal-bg-dark': '#333333',
+                        'eject-modal-border-light': '#888',
+                        'eject-modal-border-dark': '#444',
+                        'eject-modal-header-border-light': '#eee',
+                        'eject-modal-header-border-dark': '#4f4f4f',
+                        // Cores personalizadas para o banner Prosempre
+                        'prosempre-orange': 'rgb(255, 153, 0)',
+                        'prosempre-dark-bg': 'rgb(15, 15, 25)', // Um preto azulado muito escuro
+                        'prosempre-panel-bg': 'rgba(255, 153, 0, 0.1)', // Laranja translúcido mais suave
+                        'prosempre-light-text': 'rgb(250, 250, 250)', // Texto quase branco
+                    },
+                    backgroundImage: {
+                        'eject-body-gradient-light': 'linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%)',
+                        'eject-body-gradient-dark': 'linear-gradient(275.04deg, #1a202c 1.05%, #121212 100%)', 
+                        'eject-button-gradient-light': 'linear-gradient(92.07deg, rgb(9, 149, 219) 1.84%, rgb(17, 167, 241) 100%)',
+                        'eject-button-gradient-dark': 'linear-gradient(92.07deg, rgb(12, 120, 180) 1.84%, rgb(20, 140, 210) 100%)',
+                        'eject-gemini-gradient-light': 'linear-gradient(92.07deg, #4A00E0 1.84%, #8E2DE2 100%)',
+                        'eject-gemini-gradient-dark': 'linear-gradient(92.07deg, #580fc0 1.84%, #a04dff 100%)',
+                        'eject-gift-gradient': 'linear-gradient(45deg, #ffcc00, #ff33cc, #6633ff, #33ccff)',
+                        'prosempre-button-gradient': 'linear-gradient(90deg, rgb(255, 153, 0) 0%, rgb(255, 204, 0) 100%)',
+                        // Novo gradiente radial para o fundo do banner
+                        'prosempre-radial-gradient': 'radial-gradient(circle at center, rgba(255, 153, 0, 0.05) 0%, rgba(15, 15, 25, 1) 70%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="css/custom-tailwind.css">
+    <!-- Noticeable Widget Styles -->
+    <style type="text/css">
+      #counter {
+        align-items: center;
+        color: rgb(0, 252, 255); /* Cyan color for counter text */
+        display: none; /* Initially hidden, JS will show it */
+        font-size: 12px;
+        font-weight: 800;
+        height: 18px;
+        justify-content: center;
+        margin-left: 8px;
+        padding: 3px;
+        pointer-events: none;
+        position: relative;
+        text-align: center;
+        width: 18px;
+        line-height: 1; /* Ensure text is centered in the small circle */
+      }
+      #counter::after {
+        align-items: center;
+        animation: spin 2.2s infinite linear;
+        background: transparent;
+        bottom: 0;
+        border: 2px dashed rgb(198, 186, 249); /* Light purple dashed border */
+        border-radius: 50%;
+        content: '';
+        display: flex;
+        left: 0;
+        justify-content: center;
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+       #noticeable-widget {
+        align-items: center;
+        background-image: linear-gradient(92.07deg, #4A00E0 1.84%, #8E2DE2 100%); /* EJECT Gemini Gradient */
+        border-radius: 8px; /* Consistent with ds-btn */
+        color: white;
+        display: inline-flex;
+        font-size: 13px; /* Similar to text-sm */
+        font-weight: 600; /* Similar to font-bold */
+        /* height: auto; Let padding define height */
+        justify-content: center;
+        padding: 10px 18px; /* Adjusted padding to be closer to ds-btn (py-2.5 px-5) */
+        text-transform: uppercase;
+        user-select: none;
+        flex-shrink: 0; 
+        transition: opacity 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Smooth transition for hover */
+      }
+      #noticeable-widget:hover {
+        opacity: 0.9;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(74, 0, 224, 0.4); /* Shadow similar to ds-btn-gemini hover */
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+
+</head>
+<body class="font-sans"> 
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <header class="w-full min-h-[90px] flex items-center px-4 shadow-lg bg-eject-bg-light dark:bg-eject-bg-dark shadow-slate-200/50 dark:shadow-black/30">
+        <nav class="w-full max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center py-2 md:py-0">
+            <a href="index.html" class="no-underline">
+                <h1 class="font-bold text-eject-text-primary-light dark:text-eject-text-primary-dark text-2xl md:text-3xl m-0 mb-2 md:mb-0">Hub de Conhecimentos</h1>
+            </a>
+            <div class="flex items-center space-x-4 sm:space-x-5">
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <!-- Substituído o caminho local por um placeholder para evitar 404 -->
+                        <img src="img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                    <a href="SIGAV/login.html" id="loginIconContainer" aria-label="Login" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-colors">
+                        <span id="loginIcon" class="material-symbols-outlined text-3xl md:text-4xl">
+                            account_circle
+                        </span>
+                    </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-1 py-5">
+        <section id="ds-card-list-section" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <br>
+            <section class="gift-section flex flex-col justify-center items-center text-center text-white p-6 rounded-2xl shadow-lg bg-eject-gift-gradient">
+                <h1 class="text-3xl md:text-[2rem] mb-2 font-semibold">Hub de Conhecimentos</h1>
+                <p class="text-lg md:text-[1.1rem] mb-0">Boas-vindas, Astronauta! Selecione uma trilha para começar o aprendizado.</p>
+            </section>
+            
+            <section class="mb-8">
+                <h2 class="text-2xl lg:text-3xl mt-6 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Mais acessados da semana</h2>
+                <div class="carousel-container relative">
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-15px] md:left-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-content cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <div id="trilhaProjetosCarousel" class="carousel flex overflow-x-auto snap-x snap-mandatory gap-6 py-4 scroll-smooth scrollbar-hide">
+                        <!-- Cards dos mais acessados da semana serão inseridos aqui dinamicamente -->
+                    </div>
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-15px] md:right-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                </div>
+            </section>
+
+            <h2 class="text-2xl lg:text-3xl mt-8 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Todas as Trilhas</h2>
+            <section class="filter-search-controls my-6">
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 max-w-3xl mx-auto">
+                    <div class="search-container flex-grow w-full md:w-auto min-w-[200px]">
+                        <input type="text" id="searchInput" class="input-styled" placeholder="Pesquise nas trilhas abaixo...">
+                    </div>
+                    <div class="filter-container flex-grow w-full md:w-auto min-w-[200px]">
+                        <select id="filterSelect" class="input-styled appearance-none bg-white dark:bg-gray-700 bg-no-repeat bg-right pr-8" title="Filter options" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E');">
+                            <option value="all">Todos</option>
+                            <option value="alphabetical">Ordem Alfabética</option>
+                            <option value="available">Disponíveis</option>
+                            <option value="soon">Em Breve</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+            <br>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="cardContainer">
+                <!-- Card especial EJECT 15 Anos -->
+                <div>
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="EJECT 15 Anos">
+                        <img src="https://placehold.co/600x400/8A2BE2/FFFFFF?text=EJECT+15+Anos" alt="Banner comemorativo EJECT 15 Anos" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
+                        <div class="p-4 flex flex-col items-center text-center flex-grow">
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">EJECT 15 Anos</h3>
+                            <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
+                                <a class="ds-btn-primary" href="anivessario/presente01/index.html" aria-label="Acessar conteúdo especial EJECT 15 Anos">ACESSAR ESPECIAL 🎁</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Cards das trilhas serão inseridos aqui dinamicamente -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-modal-content">
+            <div class="login-modal-header">
+                <span class="close-button" id="closeModal">&times;</span>
+                <h2 class="text-2xl font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Login</h2>
+            </div>
+            <form id="loginForm" class="space-y-4 mt-4">
+                <div>
+                    <label for="email" class="block mb-1 font-medium text-eject-text-secondary-light dark:text-eject-text-secondary-dark">Email</label>
+                    <input type="email" id="email" class="input-styled" placeholder="seuemail@exemplo.com" required>
+                </div>
+                <div>
+                    <label for="password" class="block mb-1 font-medium text-eject-text-secondary-light dark:text-eject-text-secondary-dark">Senha</label>
+                    <input type="password" id="password" class="input-styled" placeholder="Sua senha" required>
+                </div>
+                <p id="loginError" class="text-red-500 text-sm hidden">Email ou senha inválidos.</p>
+                <div class="flex flex-col gap-3">
+                    <button type="submit" class="ds-btn-primary w-full">Entrar</button>
+                    <a href="SIGAV/login.html" class="ds-btn-secondary w-full text-center">Registrar</a>
+                </div>
+                <div class="text-center pt-2">
+                    <a href="SIGAV/recuperar-senha.html" class="text-sm text-eject-blue-light hover:underline">Esqueceu a senha?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <footer class="w-full bg-slate-800 dark:bg-gray-900 py-6 px-4 mt-auto">
+        <p class="text-sm text-center text-gray-300 dark:text-gray-400 m-0">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Config from external file -->
+    <script src="SIGAV/firebase-config.js"></script>
+
+    <!-- Progress module: adiciona barra em cada card e salva no Firestore por usuário -->
+    <script src="SIGAV/progress.js"></script>
+    
+    <script>
+        /**
+         * Aplica filtros de pesquisa e seleção às trilhas de conhecimento.
+         * Esta função é chamada sempre que o input de pesquisa ou o select de filtro é alterado.
+         */
+        function applyFiltersAndSearch() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filterValue = document.getElementById('filterSelect').value;
+            const cardContainer = document.getElementById('cardContainer');
+            const allCols = Array.from(cardContainer.children);
+
+            let colsToDisplay = [];
+
+            allCols.forEach(col => {
+                const card = col.querySelector('.ds-card');
+                if (!card) {
+                    col.style.display = 'none';
+                    return;
+                }
+                const titleElement = card.querySelector('h3');
+                const accessButton = card.querySelector('a.ds-btn-base, a.ds-btn-primary, a.ds-btn-soon');
+                if (!titleElement || !accessButton) {
+                    col.style.display = 'none';
+                    return;
+                }
+                const title = titleElement.textContent.toLowerCase();
+                const isSoonCard = accessButton.classList.contains('ds-btn-soon');
+                let passesSearch = title.includes(searchQuery);
+                let passesFilter = false;
+
+                if (filterValue === 'all') {
+                    passesFilter = true;
+                } else if (filterValue === 'available') {
+                    passesFilter = !isSoonCard;
+                } else if (filterValue === 'soon') {
+                    passesFilter = isSoonCard;
+                } else if (filterValue === 'alphabetical') {
+                    passesFilter = true;
+                }
+
+                if (passesSearch && passesFilter) {
+                    col.style.display = '';
+                    colsToDisplay.push(col);
+                } else {
+                    col.style.display = 'none';
+                }
+            });
+
+            if (filterValue === 'alphabetical') {
+                colsToDisplay.sort((a, b) => {
+                    const cardA = a.querySelector('.ds-card');
+                    const cardB = b.querySelector('.ds-card');
+                    const titleAEl = cardA ? cardA.querySelector('h3') : null;
+                    const titleBEl = cardB ? cardB.querySelector('h3') : null;
+                    const titleA = titleAEl ? titleAEl.textContent.trim().toLowerCase() : '';
+                    const titleB = titleBEl ? titleBEl.textContent.trim().toLowerCase() : '';
+                    return titleA.localeCompare(titleB);
+                });
+                colsToDisplay.forEach(col => cardContainer.appendChild(col));
+            }
+        }
+
+        /**
+         * Função para rolar o carrossel de trilhas.
+         * @param {number} direction - A direção da rolagem (-1 para esquerda, 1 para direita).
+         * @param {string} carouselId - O ID do elemento do carrossel a ser rolado.
+         */
+        function scrollCarousel(direction, carouselId) {
+            const carouselElement = document.getElementById(carouselId);
+            if (!carouselElement) {
+                console.error(`Elemento do carrossel com ID "${carouselId}" não encontrado.`);
+                return;
+            }
+            // Tenta encontrar o primeiro slide visível para calcular a largura da rolagem
+            const firstSlide = carouselElement.querySelector('.shrink-0.snap-center:not([style*="display: none"])');
+            
+            if (firstSlide) {
+                const slideWidth = firstSlide.offsetWidth; 
+                const carouselStyle = getComputedStyle(carouselElement);
+                const gapValue = carouselStyle.gap; 
+                let gap = 0;
+
+                // Calcula o valor do gap para incluí-lo na rolagem
+                if (gapValue && gapValue !== 'normal') {
+                    if (gapValue.includes('rem')) {
+                        gap = parseFloat(gapValue) * parseFloat(getComputedStyle(document.documentElement).fontSize);
+                    } else if (gapValue.includes('px')) {
+                        gap = parseFloat(gapValue);
+                    }
+                }
+                
+                // Realiza a rolagem suavemente
+                carouselElement.scrollBy({
+                    left: direction * (slideWidth + gap), 
+                    behavior: 'smooth'
+                });
+            } else {
+                // Fallback: se não encontrar slides, rola uma porcentagem da largura do carrossel
+                carouselElement.scrollBy({ left: direction * carouselElement.offsetWidth * 0.8, behavior: 'smooth' });
+                console.warn(`Nenhum item de card encontrado ou visível no carrossel "${carouselId}" para calcular a distância de rolagem precisa. Usando fallback.`);
+            }
+        }
+
+        /**
+         * Funções Firebase para contagem de acessos
+         */
+        
+        // Registra um acesso à trilha no Firebase
+        async function registrarAcesso(trilhaId) {
+            console.log('🎯 Tentando registrar acesso para:', trilhaId);
+            
+            try {
+                // Verifica se o Firebase está disponível
+                if (typeof firebase === 'undefined' || typeof db === 'undefined') {
+                    console.warn('⚠️ Firebase não disponível. Simulando registro de acesso localmente.');
+                    
+                    // Simula o registro localmente
+                    if (trilhasConfig[trilhaId + '.html']) {
+                        trilhasConfig[trilhaId + '.html'].acessosSemana = (trilhasConfig[trilhaId + '.html'].acessosSemana || 0) + 1;
+                        console.log(`📊 Acesso local registrado para ${trilhaId}: ${trilhasConfig[trilhaId + '.html'].acessosSemana}`);
+                        regenerarCarrossel();
+                    }
+                    return;
+                }
+                
+                console.log('✅ Firebase disponível, registrando acesso...');
+                
+                const hoje = new Date();
+                const inicioSemana = new Date(hoje.setDate(hoje.getDate() - hoje.getDay()));
+                inicioSemana.setHours(0, 0, 0, 0);
+                
+                const docRef = db.collection('acessos_trilhas').doc(trilhaId);
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    console.log('📊 Atualizando contador existente para:', trilhaId);
+                    await docRef.update({
+                        acessos_semana: firebase.firestore.FieldValue.increment(1),
+                        ultimo_acesso: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    console.log('🆕 Criando novo registro para:', trilhaId);
+                    await docRef.set({
+                        trilha_id: trilhaId,
+                        acessos_semana: 1,
+                        inicio_semana: inicioSemana,
+                        ultimo_acesso: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                console.log('✅ Acesso registrado com sucesso!');
+                
+                // Atualiza o carrossel após registrar o acesso
+                setTimeout(async () => {
+                    await atualizarRankingDinamico();
+                }, 500);
+                
+            } catch (error) {
+                console.error('❌ Erro ao registrar acesso:', error);
+            }
+        }
+        
+        // Busca os dados de acesso do Firebase
+        async function buscarDadosAcesso() {
+            try {
+                // Verifica se o Firebase está disponível
+                if (typeof firebase === 'undefined' || typeof db === 'undefined') {
+                    console.warn('⚠️ Firebase não disponível. Usando dados locais.');
+                    return {};
+                }
+                
+                console.log('📡 Buscando dados de acesso do Firebase...');
+                const snapshot = await db.collection('acessos_trilhas').get();
+                const acessos = {};
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    acessos[doc.id] = data.acessos_semana || 0;
+                    console.log(`📊 ${doc.id}: ${data.acessos_semana || 0} acessos`);
+                });
+                
+                console.log('✅ Dados carregados:', acessos);
+                return acessos;
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados de acesso:', error);
+                return {};
+            }
+        }
+        
+        // Atualiza o ranking dinamicamente com dados do Firebase
+        async function atualizarRankingDinamico() {
+            const acessosFirebase = await buscarDadosAcesso();
+            const temDadosFirebase = Object.keys(acessosFirebase).length > 0;
+            
+            if (temDadosFirebase) {
+                console.log('📊 Usando dados do Firebase');
+            } else {
+                console.log('⚠️ Usando dados locais (Firebase indisponível)');
+            }
+            
+            // Atualiza a configuração local com os dados do Firebase
+            Object.keys(trilhasConfig).forEach(filename => {
+                const trilhaId = filename.replace('.html', '');
+                const acessosFirebaseVal = acessosFirebase[trilhaId];
+                
+                // Se temos dados do Firebase, usa eles. Senão, mantém os valores locais
+                if (temDadosFirebase) {
+                    trilhasConfig[filename].acessosSemana = acessosFirebaseVal || 0;
+                }
+            });
+            
+            // Regenera o carrossel com os novos dados
+            regenerarCarrossel();
+        }
+        
+        // Regenera o carrossel dos mais acessados
+        function regenerarCarrossel() {
+            const carousel = document.getElementById('trilhaProjetosCarousel');
+            carousel.innerHTML = '<!-- Cards dos mais acessados da semana serão inseridos aqui dinamicamente -->';
+            generateMaisAcessadosCarousel();
+            
+            // Atualiza o título para indicar se os dados são em tempo real
+            const titulo = document.querySelector('h2');
+            if (titulo && titulo.textContent.includes('Mais acessados da semana')) {
+                const isFirebaseActive = typeof db !== 'undefined';
+                const indicator = isFirebaseActive ? ' 🔴' : ' 📊';
+                const newText = 'Mais acessados da semana' + indicator;
+                
+                if (titulo.textContent !== newText) {
+                    titulo.textContent = newText;
+                    titulo.title = isFirebaseActive ? 'Dados em tempo real' : 'Dados locais';
+                }
+            }
+        }
+        
+        // Função para resetar dados da semana (usar apenas se necessário)
+        async function resetarDadosSemana() {
+            try {
+                const batch = db.batch();
+                const snapshot = await db.collection('acessos_trilhas').get();
+                
+                snapshot.forEach(doc => {
+                    batch.update(doc.ref, { acessos_semana: 0 });
+                });
+                
+                await batch.commit();
+                console.log('Dados da semana resetados com sucesso');
+                await atualizarRankingDinamico();
+            } catch (error) {
+                console.error('Erro ao resetar dados da semana:', error);
+            }
+        }
+        
+        // Função para verificar e resetar dados semanais automaticamente
+        async function verificarResetSemanal() {
+            try {
+                const configRef = db.collection('config').doc('semana_atual');
+                const configDoc = await configRef.get();
+                
+                const hoje = new Date();
+                const inicioSemanaAtual = new Date(hoje.setDate(hoje.getDate() - hoje.getDay()));
+                inicioSemanaAtual.setHours(0, 0, 0, 0);
+                
+                if (configDoc.exists) {
+                    const ultimoReset = configDoc.data().ultimo_reset?.toDate();
+                    
+                    if (!ultimoReset || ultimoReset < inicioSemanaAtual) {
+                        console.log('Nova semana detectada, resetando contadores...');
+                        await resetarDadosSemana();
+                        await configRef.set({
+                            ultimo_reset: firebase.firestore.FieldValue.serverTimestamp(),
+                            inicio_semana: inicioSemanaAtual
+                        });
+                    }
+                } else {
+                    // Primeira execução, criar documento de configuração
+                    await configRef.set({
+                        ultimo_reset: firebase.firestore.FieldValue.serverTimestamp(),
+                        inicio_semana: inicioSemanaAtual
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao verificar reset semanal:', error);
+            }
+        }
+        
+        // Função para administradores visualizarem dados de acesso (debug)
+        window.visualizarDadosAcesso = async function() {
+            try {
+                const acessos = await buscarDadosAcesso();
+                console.log('📊 Dados de Acesso da Semana:');
+                
+                const ranking = Object.entries(acessos)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([trilhaId, acessos], index) => {
+                        const config = trilhasConfig[trilhaId + '.html'];
+                        return {
+                            posicao: index + 1,
+                            trilha: config?.title || trilhaId,
+                            acessos: acessos
+                        };
+                    });
+                
+                console.table(ranking);
+                return ranking;
+            } catch (error) {
+                console.error('Erro ao visualizar dados:', error);
+            }
+        };
+        
+        // Função para administradores resetarem manualmente (debug)
+        window.resetarRankingSemanal = resetarDadosSemana;
+        
+        // Função de teste para verificar se o sistema está funcionando
+        window.testarSistemaAcessos = async function() {
+            console.log('🧪 Testando sistema de acessos...');
+            
+            // Testa conexão com Firebase
+            if (typeof db === 'undefined') {
+                console.error('❌ Firebase não disponível');
+                return false;
+            }
+            
+            // Testa registro de acesso
+            try {
+                await registrarAcesso('teste_sistema');
+                console.log('✅ Teste de registro funcionou!');
+                
+                // Testa busca de dados
+                const dados = await buscarDadosAcesso();
+                console.log('✅ Teste de busca funcionou!');
+                
+                return true;
+            } catch (error) {
+                console.error('❌ Erro no teste:', error);
+                return false;
+            }
+        };
+
+        /**
+         * Configuração das trilhas disponíveis
+         */
+        const trilhasConfig = {
+            'desenvolvimento_humano.html': {
+                title: 'Gestão de Pessoas',
+                image: 'https://media.licdn.com/dms/image/D4D12AQHkxwPuNCCBLA/article-cover_image-shrink_600_2000/0/1696281571014?e=2147483647&v=beta&t=jx27ZVMQKEi4EroaGoApIr5mcpFvcZPs-DnxmjSOxnY',
+                isNew: false,
+                available: true,
+                acessosSemana: 45
+            },
+            'django.html': {
+                title: 'Django & Rest',
+                image: 'https://imagedelivery.net/qc7VvyphMGWFiPVvTbB-ww/swapps.com/2016/02/simply-django-announcements.jpg/w=1024,h=576',
+                isNew: false,
+                available: true,
+                acessosSemana: 67
+            },
+            'financeiro.html': {
+                title: 'Financeiro',
+                image: 'https://blog.quantosobra.com.br/wp-content/uploads/2023/04/capa-controle-financeiro-quantosobra.png',
+                isNew: true,
+                available: true,
+                acessosSemana: 89
+            },
+            'gestao_de_tempo.html': {
+                title: 'Gestão de Tempo',
+                image: 'https://timeular.com/wp-content/uploads/2023/11/Copy-of-Copy-of-Blog-image-7.png',
+                isNew: false,
+                available: true,
+                acessosSemana: 123
+            },
+            'git_e_github.html': {
+                title: 'GIT e Github',
+                image: 'https://hermes.dio.me/articles/cover/d2489f96-d56f-4b82-bc7f-84fbc9fb1368.jpg',
+                isNew: true,
+                available: true,
+                acessosSemana: 156
+            },
+            'historia_eject.html': {
+                title: 'História da EJECT',
+                image: 'https://placehold.co/600x400/003366/FFFFFF?text=História+da+EJECT',
+                isNew: false,
+                available: true,
+                acessosSemana: 78
+            },
+            'html_e_css.html': {
+                title: 'HTML e CSS',
+                image: 'https://hotmart.s3.amazonaws.com/product_pictures/d2badee3-49a9-4627-9f7d-a5e51ae35384/sitehtmlcss1024x579.jpg',
+                isNew: false,
+                available: true,
+                acessosSemana: 134
+            },
+            'javaScript.html': {
+                title: 'JavaScript',
+                image: 'https://coodesh.com/blog/wp-content/uploads/2023/03/IDE-para-JavaScript.png',
+                isNew: false,
+                available: true,
+                acessosSemana: 145
+            },
+            'marketing_comercial.html': {
+                title: 'Marketing Comercial',
+                image: 'https://media.licdn.com/dms/image/D5612AQFrB74fzNtosA/article-cover_image-shrink_720_1280/0/1685585245706?e=2147483647&v=beta&t=KSjXVDN59S9EFVnoue5f4C_mn4rgg536TURjE9kq_QI',
+                isNew: false,
+                available: true,
+                acessosSemana: 98
+            },
+            'Metodologia_5S.html': {
+                title: 'Metodologia 5S',
+                image: 'https://isoflex.com.br/wp-content/uploads/2022/12/metodologia-5s.png',
+                isNew: true,
+                available: true,
+                acessosSemana: 112
+            },
+            'okrs_kpis_e_bpmn.html': {
+                title: 'OKRs, KPIs e BPMN',
+                image: 'https://agilealliance.org/wp-content/uploads/2022/10/fury-okrs-agile-blog.png',
+                isNew: true,
+                available: true,
+                acessosSemana: 87
+            },
+            'python_basico.html': {
+                title: 'Python',
+                image: 'https://marquesfernandes.com/wp-content/uploads/2020/08/kwi4bvgzths31.jpg',
+                isNew: false,
+                available: false,
+                acessosSemana: 0
+            },
+            'Scrum.html': {
+                title: 'Scrum',
+                image: 'https://erp-disk.ams3.digitaloceanspaces.com/portadas-tutoriales/small_portada_cm1gdlxji0065017b0k930xiv.webp',
+                isNew: true,
+                available: true,
+                acessosSemana: 167
+            },
+            'typescript.html': {
+                title: 'TypeScript',
+                image: 'https://static.wixstatic.com/media/c60f10_9605a49c09e948e6bf0195ac2738df23~mv2.png/v1/fit/w_1000,h_1000,al_c,q_80/file.jpg',
+                isNew: false,
+                available: true,
+                acessosSemana: 76
+            },
+            'ux_ui.html': {
+                title: 'UX e UI',
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLbQDxmV2E6ZfAlhNMrPE1o-sPSIFiAjmngg&s',
+                isNew: false,
+                available: true,
+                acessosSemana: 92
+            },
+            'vue.html': {
+                title: 'Vue.js',
+                image: 'https://dkrn4sk0rn31v.cloudfront.net/uploads/2020/06/VUE.png',
+                isNew: false,
+                available: true,
+                acessosSemana: 65
+            },
+            'wordpress.html': {
+                title: 'Wordpress',
+                image: 'https://cityhost.ua/upload_img/blog5f352fc3b2393_wp.png',
+                isNew: true,
+                available: true,
+                acessosSemana: 103
+            }
+        };
+
+        /**
+         * Gera dinamicamente o carrossel dos mais acessados da semana
+         */
+        function generateMaisAcessadosCarousel() {
+            const carousel = document.getElementById('trilhaProjetosCarousel');
+            
+            // Filtra apenas trilhas disponíveis e ordena por acessos da semana (decrescente)
+            const maisAcessados = Object.entries(trilhasConfig)
+                .filter(([filename, config]) => config.available && config.acessosSemana >= 0)
+                .sort((a, b) => b[1].acessosSemana - a[1].acessosSemana)
+                .slice(0, 6); // Pega apenas os 6 mais acessados
+
+            maisAcessados.forEach(([filename, config]) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]';
+                cardDiv.innerHTML = `
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="${config.title}">
+                        <img src="${config.image}" alt="Imagem da trilha ${config.title}" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
+                        ${config.isNew ? '<span class="new-badge">NOVA</span>' : ''}
+                        <div class="p-4 flex flex-col items-center text-center flex-grow">
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">${config.title}</h3>
+                            <p class="text-xs text-eject-text-secondary-light dark:text-eject-text-secondary-dark mb-2">${config.acessosSemana} acessos esta semana</p>
+                            <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
+                                <a class="ds-btn-primary trilha-link" href="Trilhas/${filename}" data-trilha-id="${filename.replace('.html', '')}" aria-label="Acessar trilha ${config.title}">ACESSAR</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                carousel.appendChild(cardDiv);
+            });
+        }
+
+        /**
+         * Gera dinamicamente os cards das trilhas
+         */
+        function generateTrilhaCards() {
+            const cardContainer = document.getElementById('cardContainer');
+            
+            // Ordena as trilhas alfabeticamente por título
+            const sortedTrilhas = Object.entries(trilhasConfig).sort((a, b) => 
+                a[1].title.localeCompare(b[1].title)
+            );
+
+            sortedTrilhas.forEach(([filename, config]) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.innerHTML = `
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="${config.title}">
+                        <img src="${config.image}" alt="Imagem da trilha ${config.title}" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
+                        ${config.isNew ? '<span class="new-badge">NOVA</span>' : ''}
+                        <div class="p-4 flex flex-col items-center text-center flex-grow">
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">${config.title}</h3>
+                            <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
+                                ${config.available 
+                                    ? `<a class="ds-btn-primary trilha-link" href="Trilhas/${filename}" data-trilha-id="${filename.replace('.html', '')}" aria-label="Acessar trilha ${config.title}">ACESSAR</a>`
+                                    : `<a class="ds-btn-soon" href="#" aria-label="Trilha ${config.title} em breve" aria-disabled="true">EM BREVE</a>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                cardContainer.appendChild(cardDiv);
+            });
+        }
+
+        /**
+         * Lógica de Autenticação e Modal com Firebase
+         */
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inicializando sistema de contagem de acessos...');
+            
+            // Verifica se o Firebase está disponível
+            let firebaseDisponivel = false;
+            
+            try {
+                console.log('🔄 Aguardando Firebase carregar...');
+                // Aguarda um pouco mais para o Firebase carregar completamente
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Verifica se Firebase, auth e db estão disponíveis
+                if (typeof firebase !== 'undefined' && 
+                    typeof db !== 'undefined' && 
+                    typeof auth !== 'undefined' &&
+                    db !== null) {
+                    
+                    // Testa se o Firestore está realmente funcionando
+                    await db.collection('test').limit(1).get();
+                    console.log('✅ Firebase totalmente disponível!');
+                    firebaseDisponivel = true;
+                    
+                    // Verifica se é uma nova semana e reseta os dados se necessário
+                    await verificarResetSemanal();
+                    
+                    // Inicializa os dados de acesso do Firebase
+                    await atualizarRankingDinamico();
+                } else {
+                    throw new Error('Firebase não completamente inicializado');
+                }
+            } catch (error) {
+                console.warn('⚠️ Firebase não disponível. Usando dados locais:', error.message);
+                firebaseDisponivel = false;
+            }
+            
+            // SEMPRE gera o carrossel dos mais acessados da semana (com ou sem Firebase)
+            console.log('🎠 Gerando carrossel dos mais acessados...');
+            generateMaisAcessadosCarousel();
+            
+            // SEMPRE gera os cards das trilhas dinamicamente (com ou sem Firebase)
+            console.log('📚 Gerando cards das trilhas...');
+            generateTrilhaCards();
+            
+            console.log(`🏁 Sistema inicializado! Firebase: ${firebaseDisponivel ? '✅' : '❌'}`);
+
+            // Configura event delegation para capturar cliques em trilhas
+            document.addEventListener('click', function(e) {
+                // Verifica se o clique foi em um link de trilha
+                if (e.target.matches('a.trilha-link') || e.target.closest('a.trilha-link')) {
+                    const link = e.target.matches('a.trilha-link') ? e.target : e.target.closest('a.trilha-link');
+                    const trilhaId = link.getAttribute('data-trilha-id');
+                    
+                    if (trilhaId) {
+                        console.log('🖱️ Clique detectado na trilha:', trilhaId);
+                        registrarAcesso(trilhaId);
+                    }
+                }
+            });
+
+            // Configura listener em tempo real para atualizações de acesso
+            if (typeof db !== 'undefined') {
+                console.log('🔄 Configurando listener em tempo real...');
+                db.collection('acessos_trilhas').onSnapshot((snapshot) => {
+                    console.log('📡 Dados de acesso atualizados em tempo real');
+                    // Pequeno delay para evitar atualizações muito frequentes
+                    setTimeout(async () => {
+                        await atualizarRankingDinamico();
+                    }, 1000);
+                });
+            } else {
+                console.warn('⚠️ Firebase não disponível para listener em tempo real');
+            }
+
+            // Setup de Filtros e Pesquisa
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', applyFiltersAndSearch);
+            }
+            const filterSelect = document.getElementById('filterSelect');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', applyFiltersAndSearch);
+            }
+            applyFiltersAndSearch();
+
+            // Setup de Autenticação
+            const loginModal = document.getElementById('loginModal');
+            const loginIconContainer = document.getElementById('loginIconContainer');
+            const loginIcon = document.getElementById('loginIcon');
+            const closeModal = document.getElementById('closeModal');
+            const loginForm = document.getElementById('loginForm');
+            const loginError = document.getElementById('loginError');
+
+            const updateLoginIcon = (user) => {
+                if (user) {
+                    loginIcon.textContent = 'dashboard'; // Ícone de dashboard
+                    loginIconContainer.setAttribute('aria-label', 'Acessar Dashboard');
+                } else {
+                    loginIcon.textContent = 'account_circle';
+                    loginIconContainer.setAttribute('aria-label', 'Login');
+                }
+            };
+
+            // Observador do estado de autenticação do Firebase
+            auth.onAuthStateChanged(user => {
+                updateLoginIcon(user);
+            });
+
+            loginIconContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                const user = auth.currentUser;
+                if (user) {
+                    // Se estiver logado, redireciona para o dashboard
+                    window.location.href = 'SIGAV/dashboard.html';
+                } else {
+                    // Se não estiver logado, abre o modal de login
+                    loginModal.style.display = 'block';
+                }
+            });
+
+            closeModal.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+                loginError.classList.add('hidden');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    loginModal.style.display = 'none';
+                    loginError.classList.add('hidden');
+                }
+            });
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                loginError.classList.add('hidden');
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Login bem-sucedido
+                        loginModal.style.display = 'none';
+                        window.location.href = 'SIGAV/dashboard.html'; // Redireciona para o dashboard
+                    })
+                    .catch((error) => {
+                        // Trata erros de login
+                        console.error("Erro de login:", error.code, error.message);
+                        loginError.textContent = "Email ou senha inválidos. Tente novamente.";
+                        loginError.classList.remove('hidden');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

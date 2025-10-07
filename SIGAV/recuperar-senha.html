@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Recuperar Senha</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script src="firebase-config.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            height: 100vh;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="modal-content">
+        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-12 mx-auto mb-6">
+        <h2 class="text-3xl font-bold text-sky-700 mb-4">Recuperar Senha</h2>
+        <p class="text-gray-600 mb-6">Insira seu e-mail para receber o link de redefinição de senha.</p>
+        
+        <form id="recuperar-senha-form">
+            <div class="space-y-4">
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Seu e-mail" 
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                <button 
+                    type="submit"
+                    class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg shadow transition duration-150 ease-in-out"
+                >
+                    Enviar Link
+                </button>
+            </div>
+             <div id="mensagem" class="mt-4 text-center h-5"></div>
+        </form>
+        <a href="login.html" class="text-sky-600 hover:underline text-sm mt-4 inline-block">Voltar para o login</a>
+    </div>
+
+    <!-- Firebase Config e Lógica de Autenticação -->
+    <script>
+        // A variável 'auth' já é inicializada em firebase-config.js
+        const form = document.getElementById('recuperar-senha-form');
+        const emailInput = document.getElementById('email');
+        const mensagemDiv = document.getElementById('mensagem');
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            
+            // Desabilitar botão e mostrar feedback
+            submitButton.disabled = true;
+            submitButton.textContent = 'Enviando...';
+            mensagemDiv.innerHTML = '';
+
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    mensagemDiv.innerHTML = '<p class="text-green-500">E-mail de redefinição enviado! Verifique sua caixa de entrada.</p>';
+                    // Mantém o botão desabilitado para evitar reenvios
+                })
+                .catch((error) => {
+                    console.error("Erro ao enviar e-mail de redefinição:", error);
+                    let mensagemErro = 'Ocorreu um erro. Tente novamente.';
+                    if (error.code === 'auth/user-not-found') {
+                        mensagemErro = 'Nenhum usuário encontrado com este e-mail.';
+                    }
+                    mensagemDiv.innerHTML = `<p class="text-red-500">${mensagemErro}</p>`;
+                    
+                    // Reabilitar botão em caso de erro
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Enviar Link';
+                });
+        });
+    </script>
+</body>
+</html>
