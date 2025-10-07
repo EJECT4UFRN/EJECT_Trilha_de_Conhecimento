@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         currentUser = null;
                         // Se não houver usuário, redireciona para a página de login para evitar inconsistências.
                         console.log('Usuário não autenticado. Redirecionando para login...');
-                        window.location.href = './login.html';
+                        window.location.href = '../SIGAV/login.html';
                     }
                 });
             } catch (error) {
