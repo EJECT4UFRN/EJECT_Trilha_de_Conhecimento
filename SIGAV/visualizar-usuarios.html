@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Visualizar Usuários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: "Inter", sans-serif; background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%); }
+    </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <span class="text-2xl font-bold text-sky-700">Visualizar Usuários</span>
+                <div class="flex items-center space-x-4">
+                    <a href="./dashboard.html" title="Voltar ao Dashboard" class="p-2 rounded-full text-sky-600 hover:bg-sky-100"><i data-lucide="layout-dashboard" class="h-6 w-6"></i></a>
+                    <a href="https://www.ejectufrn.com.br/" target="_blank"><img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10"></a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold text-sky-800 mb-8 flex items-center"><i data-lucide="users" class="h-8 w-8 mr-3"></i>Lista de Usuários Cadastrados</h1>
+        <div id="userListContainer" class="bg-white rounded-xl shadow-lg p-6">
+            <p id="loadingMessage">Carregando usuários...</p>
+            <!-- Lista de usuários será inserida aqui -->
+        </div>
+    </main>
+
+    <script src="./firebase-config.js"></script>
+    <script>
+        function renderUserList(users) {
+            const container = document.getElementById('userListContainer');
+            container.innerHTML = '';
+
+            if (!users || Object.keys(users).length === 0) {
+                container.innerHTML = '<p>Nenhum usuário encontrado.</p>';
+                return;
+            }
+
+            const sortedUsers = Object.values(users).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+            sortedUsers.forEach(user => {
+                const userElement = document.createElement('div');
+                userElement.className = 'flex items-center justify-between py-3 border-b last:border-b-0';
+                userElement.innerHTML = `
+                    <div>
+                        <p class="font-semibold">${user.name || 'Nome não definido'}</p>
+                        <p class="text-sm text-gray-500">${user.email || 'E-mail não definido'}</p>
+                    </div>
+                `;
+                container.appendChild(userElement);
+            });
+        }
+
+        async function initUserListPage() {
+            lucide.createIcons();
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = './dashboard.html';
+                    return;
+                }
+
+                const adminSnapshot = await db.ref(`admins/${user.uid}`).once('value');
+                const isStandardAdmin = adminSnapshot.exists();
+                const isSuperAdmin = user.email === 'educhior@hotmail.com';
+
+                if (isStandardAdmin || isSuperAdmin) {
+                    db.ref('users').on('value', snapshot => {
+                        const users = snapshot.val() || {};
+                        renderUserList(users);
+                    }, error => {
+                        console.error("Erro ao carregar dados:", error);
+                        document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados. Verifique as permissões.';
+                    });
+                } else {
+                    alert('Acesso negado. Esta área é restrita para administradores.');
+                    window.location.href = './dashboard.html';
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initUserListPage);
+    </script>
+</body>
+</html>

@@ -6,7 +6,55 @@
         <title>EJECT | História da EJECT</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
         <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/svgs/logo-eject.svg">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/                .member-role {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                margin-bottom: 0;
+            }
+
+            .completion-label {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                color: #374151;
+                cursor: pointer;
+                padding: 0.25rem 0.5rem;
+                border-radius: 9999px;
+                background-color: #f3f4f6;
+                transition: background-color 0.2s;
+                margin-bottom: 1rem;
+                width: fit-content;
+                margin-left: auto;
+            }
+            .completion-label:hover {
+                background-color: #e5e7eb;
+            }
+            .completion-label input {
+                width: 1.15em;
+                height: 1.15em;
+                border-radius: 0.25rem;
+                border-color: #9ca3af;
+                color: #0d6efd;
+                transition: all 0.2s;
+            }
+            .completion-label input:focus {
+                box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.5);
+                outline: none;
+            }
+            .completion-label input:checked {
+                background-color: #0d6efd;
+                border-color: #0d6efd;
+            }
+            .completion-label span {
+                user-select: none;
+            }
+    
+            /* Responsividade */
+            @media (max-width: 1024px) {
+                main.container { 
+                    padding-left: 15px;font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <style>
             /* Importação da fonte */
             @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap');
@@ -713,12 +761,20 @@
         </section>
 
         <section class="mb-5" id="section-historia-eject">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="historia">
+                <span>Concluído</span>
+            </label>
             <h2>História da EJECT</h2> 
             <p id="historia-eject-text">A <strong>EJECT</strong>, Empresa Júnior da Escola de Ciências e Tecnologia da Universidade Federal do Rio Grande do Norte (UFRN), foi fundada em <strong>15 de julho de 2010</strong> por 14 estudantes. A iniciativa teve origem com o discente <strong>Victor Fonseca</strong>, que contou com o apoio de 12 colegas e a orientação dos professores <strong>Rex Antônio</strong> e <strong>Efrain Pantaleón.</strong> O principal objetivo da EJECT era <strong>inserir os profissionais de Ciências e Tecnologia no mercado de trabalho</strong>, oferecendo-lhes a oportunidade de atuar na área profissional durante a graduação. Destaca-se por ser a <strong>primeira empresa júnior do curso de Ciências e Tecnologia no Brasil.</strong></p>
             <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT comemorativo" class="img-fluid rounded my-3" style="max-width: 80%; height: auto; display: block; margin-left: auto; margin-right: auto;"> 
         </section>
 
         <section class="mb-5">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="origem">
+                <span>Concluído</span>
+            </label>
             <h2>Origem</h2> 
             <ul>
                 <li><strong>2010:</strong> Fundação da EJECT e formação da primeira diretoria executiva, composta por:
@@ -735,6 +791,10 @@
         </section>
 
         <section class="mb-5">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="missao-visao-valores">
+                <span>Concluído</span>
+            </label>
             <h2>Missão, Visão e Valores</h2> 
             <p class="mb-2"><strong>Missão:</strong></p>
             <ul>
@@ -755,6 +815,10 @@
         </section>
 
         <section class="mb-5" id="section-core-business">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="core-business">
+                <span>Concluído</span>
+            </label>
             <h2>Mudança de Core Business e Crescimento</h2> 
             <p id="core-business-text"> A EJECT passou por uma transformação significativa em seu core business ao longo dos anos. Inicialmente, a empresa oferecia uma variedade de serviços, incluindo Meio Ambiente e Inovação. Contudo, em 2016, a EJECT decidiu concentrar seus esforços exclusivamente em soluções digitais, especialmente em Tecnologia da Informação (TI). Essa mudança estratégica resultou em um crescimento notável, com um aumento de <span class="highlight-success">1.073% no faturamento</span> em relação ao ano anterior (2015). </p>
             
@@ -768,6 +832,10 @@
         </section>
 
         <section class="mb-5">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="marcos-historicos">
+                <span>Concluído</span>
+            </label>
             <h2>Marcos Históricos e Melhorias Contínuas</h2> 
             <p>A trajetória da EJECT é marcada por uma busca constante por evolução e excelência. Abaixo, alguns dos principais marcos e melhorias implementadas ao longo dos anos:</p>
             
@@ -857,6 +925,10 @@
         </section>
 
         <section class="mb-5 podcast-section-container">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="podcast">
+                <span>Concluído</span>
+            </label>
             <h2>Podcast: A História da EJECT em Áudio 🎙️</h2>
             <p>Ouça um episódio especial onde mergulhamos mais fundo nos momentos marcantes, desafios superados e nas vozes que construíram a EJECT. Uma experiência sonora para complementar a sua leitura!</p>
             

@@ -5,9 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Hub de Conhecimentos</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/eject_logo.png">
+    <link rel="icon" type="image/x-icon" href="img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
 
     <script>
         // Tailwind Custom Configuration
@@ -66,102 +82,7 @@
             }
         }
     </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-hide {
-            -ms-overflow-style: none;  
-            scrollbar-width: none;  
-          }
-        }
-        body {
-            @apply font-sans w-full min-h-screen flex flex-col leading-relaxed;
-            @apply bg-eject-body-gradient-light text-eject-text-secondary-light;
-            @apply dark:bg-eject-body-gradient-dark dark:text-eject-text-secondary-dark;
-        }
-        .ds-btn-base {
-            @apply text-sm font-bold uppercase text-white py-2.5 px-5 rounded-lg transition-all duration-200 ease-in-out inline-flex items-center justify-center min-w-[130px] w-full no-underline hover:scale-105 focus:scale-105;
-        }
-        .ds-btn-primary {
-            @apply ds-btn-base bg-eject-button-gradient-light dark:bg-eject-button-gradient-dark hover:shadow-md;
-        }
-        .ds-btn-soon {
-            @apply ds-btn-base bg-gray-400 dark:bg-gray-500 text-gray-800 dark:text-gray-300 cursor-not-allowed opacity-70 hover:transform-none hover:shadow-none;
-        }
-        .input-styled {
-            @apply w-full py-2.5 px-3 text-base rounded-lg border transition-colors duration-300;
-            @apply bg-eject-input-bg-light text-eject-text-secondary-light border-eject-input-border-light placeholder-eject-placeholder-light;
-            @apply dark:bg-eject-input-bg-dark dark:text-eject-text-primary-dark dark:border-eject-input-border-dark dark:placeholder-eject-placeholder-dark;
-            @apply focus:outline-none focus:ring-2 focus:border-eject-input-focus-light dark:focus:border-eject-input-focus-dark focus:ring-eject-input-focus-light/25 dark:focus:ring-eject-input-focus-dark/25;
-        }
-        .new-badge {
-            @apply absolute top-2 right-2 bg-pink-500 text-white text-xs font-semibold px-2.5 py-0.5 rounded-full shadow-md;
-        }
-        /* Estilos específicos para o banner Prosempre */
-        .prosempre-banner {
-            @apply relative overflow-hidden;
-        }
-        .prosempre-banner-bg-animation {
-            @apply absolute inset-0 bg-prosempre-radial-gradient;
-            animation: radial-pulse 8s infinite ease-in-out;
-        }
-        .prosempre-dots-pattern {
-            @apply absolute inset-0 opacity-10;
-            background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%239C92AC\' fill-opacity=\'0.1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');
-        }
-        .prosempre-date-panel {
-            @apply flex items-center justify-center p-4 rounded-2xl shadow-xl transition-all duration-300 ease-in-out;
-            @apply bg-prosempre-panel-bg text-prosempre-orange;
-            backdrop-filter: blur(10px) saturate(180%); /* Blur mais forte e saturação para acrílico */
-            -webkit-backdrop-filter: blur(10px) saturate(180%);
-            border: 1px solid rgba(255, 153, 0, 0.2); /* Borda mais suave */
-            transform: translateY(0);
-        }
-        .prosempre-date-panel:hover {
-            transform: translateY(-8px) scale(1.02); /* Efeito de levantar e expandir no hover */
-            box-shadow: 0 20px 40px rgba(255, 153, 0, 0.3); /* Sombra mais intensa e espalhada */
-        }
-        .prosempre-date-num {
-            @apply text-5xl font-extrabold w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center;
-            animation: fade-in 1s ease-out forwards;
-        }
-        .prosempre-date-text {
-            @apply text-4xl font-extrabold px-6 py-4;
-            animation: fade-in 1s ease-out forwards;
-        }
-        .prosempre-button {
-            @apply ds-btn-base bg-prosempre-button-gradient text-gray-900 shadow-lg hover:shadow-xl hover:scale-105;
-            @apply w-full sm:w-auto px-8 py-4 text-lg rounded-full font-bold;
-            animation: pulse-subtle 2s infinite ease-in-out;
-        }
-
-        /* Keyframes para animações */
-        @keyframes fade-in-down {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-down {
-            animation: fade-in-down 1s ease-out forwards;
-        }
-
-        @keyframes radial-pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        @keyframes fade-in {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes pulse-subtle {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-    </style>
+    <link rel="stylesheet" href="css/custom-tailwind.css">
     <!-- Noticeable Widget Styles -->
     <style type="text/css">
       #counter {
@@ -244,10 +165,15 @@
             <a href="index.html" class="no-underline">
                 <h1 class="font-bold text-eject-text-primary-light dark:text-eject-text-primary-dark text-2xl md:text-3xl m-0 mb-2 md:mb-0">Hub de Conhecimentos</h1>
             </a>
-            <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="flex items-center space-x-4 sm:space-x-5">
                     <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
                         <!-- Substituído o caminho local por um placeholder para evitar 404 -->
-                        <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                        <img src="img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                    <a href="SIGAV/login.html" id="loginIconContainer" aria-label="Login" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-colors">
+                        <span id="loginIcon" class="material-symbols-outlined text-3xl md:text-4xl">
+                            account_circle
+                        </span>
                     </a>
             </div>
         </nav>
@@ -262,9 +188,11 @@
             </section>
             
             <section class="mb-8">
-                <h2 class="text-2xl lg:text-3xl mt-6 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">🏆 Top 10</h2>
+                <h2 class="text-2xl lg:text-3xl mt-6 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Top 10</h2>
                 <div class="carousel-container relative">
-                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-15px] md:left-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">&#8592;</button>
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-15px] md:left-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-content cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                    </button>
                     <div id="trilhaProjetosCarousel" class="carousel flex overflow-x-auto snap-x snap-mandatory gap-6 py-4 scroll-smooth scrollbar-hide">
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
                             <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Scrum">
@@ -273,33 +201,33 @@
                                <div class="p-4 flex flex-col items-center text-center flex-grow">
                                    <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Scrum</h3>
                                    <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                       <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/Scrum">Acessar</a>
+                                       <a class="ds-btn-primary" href="Trilhas/Scrum.html">ACESSAR</a>
                                    </div>
                                </div>
                             </div>
                         </div>
 
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia Moscow">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia 5S">
                                  <img src="https://isoflex.com.br/wp-content/uploads/2022/12/metodologia-5s.png" alt="Imagem do Metodologia 5S" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <span class="new-badge">NOVA</span>
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Metodologia 5S</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/Metodologia_5S" aria-label="Trilha Método Metodologia 5S" aria-disabled="true">Acessar</a>
+                                         <a class="ds-btn-primary" href="Trilhas/Metodologia_5S.html" aria-label="Trilha Método Metodologia 5S">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
                         </div>
                         
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia Moscow">
-                                 <img src="https://www.flowup.me/blog/wp-content/uploads/2023/12/FlowUp-imagens-2023-12-13T093821.902.png" alt="Imagem do Scrum" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Método MoSCow">
+                                 <img src="https://www.flowup.me/blog/wp-content/uploads/2023/12/FlowUp-imagens-2023-12-13T093821.902.png" alt="Imagem do Método MoSCow" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <span class="new-badge">NOVA</span>
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Método MoSCow</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-soon" href="#" aria-label="Trilha Método MoSCow em breve" aria-disabled="true">Em breve</a>
+                                         <a class="ds-btn-soon" href="#" aria-label="Trilha Método MoSCow em breve" aria-disabled="true">EM BREVE</a>
                                      </div>
                                  </div>
                             </div>
@@ -312,7 +240,7 @@
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">História da EJECT</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/historia_eject" aria-label="Acessar trilha História da EJECT">Acessar</a>
+                                         <a class="ds-btn-primary" href="Trilhas/historia_eject.html" aria-label="Acessar trilha História da EJECT">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
@@ -324,7 +252,7 @@
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">GIT e Github</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/git_e_github">Acessar</a>
+                                         <a class="ds-btn-primary" href="Trilhas/git_e_github.html">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
@@ -335,7 +263,7 @@
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Tempo</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/gestao_de_tempo.html">Acessar</a>
+                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/gestao_de_tempo.html">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
@@ -346,7 +274,7 @@
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Pessoas</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/desenvolvimento_humano">Acessar</a>
+                                         <a class="ds-btn-primary" href="Trilhas/desenvolvimento_humano.html">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
@@ -357,7 +285,7 @@
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Marketing Comercial</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/marketing_comercial">Acessar</a>
+                                         <a class="ds-btn-primary" href="Trilhas/marketing_comercial.html">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
@@ -369,13 +297,15 @@
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
                                      <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Django & Rest</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                         <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/django">ACESSAR</a>
+                                         <a class="ds-btn-primary" href="Trilhas/django.html">ACESSAR</a>
                                      </div>
                                  </div>
                             </div>
                         </div>
                     </div>
-                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-15px] md:right-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">&#8594;</button>
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-15px] md:right-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                    </button>
                 </div>
             </section>
 
@@ -404,7 +334,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">EJECT 15 Anos</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/anivessario/presente01/index" aria-label="Acessar conteúdo especial EJECT 15 Anos">Acessar Especial 🎁</a>
+                                <a class="ds-btn-primary" href="anivessario/presente01/index.html" aria-label="Acessar conteúdo especial EJECT 15 Anos">ACESSAR ESPECIAL 🎁</a>
                             </div>
                         </div>
                     </div>
@@ -412,11 +342,11 @@
                 <div>
                     <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="GIT e Github">
                         <img src="https://hermes.dio.me/articles/cover/d2489f96-d56f-4b82-bc7f-84fbc9fb1368.jpg" alt="Imagem do GitHub" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
+                        <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">GIT e Github</h3>
-                            <div class="new-badge">NOVA</div>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/git_e_github" aria-label="Acessar trilha GIT e Github">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/git_e_github.html" aria-label="Acessar trilha GIT e Github">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -427,7 +357,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Tempo</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/gestao_de_tempo.html" aria-label="Acessar trilha Gestão de Tempo">Acessar</a>
+                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/gestao_de_tempo.html" aria-label="Acessar trilha Gestão de Tempo">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -438,19 +368,19 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Pessoas</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/desenvolvimento_humano" aria-label="Acessar trilha Gestão de Pessoas">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/desenvolvimento_humano.html" aria-label="Acessar trilha Gestão de Pessoas">ACESSAR</a>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia Moscow">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia 5S">
                         <img src="https://isoflex.com.br/wp-content/uploads/2022/12/metodologia-5s.png" alt="Imagem do Metodologia 5S" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Metodologia 5S</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/Metodologia_5S" aria-label="Trilha Método Metodologia 5S" aria-disabled="true">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/Metodologia_5S.html" aria-label="Trilha Método Metodologia 5S">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -461,7 +391,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Marketing Comercial</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/marketing_comercial">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/marketing_comercial.html">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -473,7 +403,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Scrum</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/Scrum">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/Scrum.html">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -484,7 +414,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Django & Rest</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/django">ACESSAR</a>
+                                <a class="ds-btn-primary" href="Trilhas/django.html">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -496,7 +426,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Financeiro</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/financeiro" aria-label="Acessar trilha Financeiro">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/financeiro.html" aria-label="Acessar trilha Financeiro">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -507,7 +437,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">História da EJECT</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/historia_eject" aria-label="Acessar trilha História da EJECT">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/historia_eject.html" aria-label="Acessar trilha História da EJECT">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -518,7 +448,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">HTML e CSS</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/html_e_css" aria-label="Acessar trilha HTML e CSS">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/html_e_css.html" aria-label="Acessar trilha HTML e CSS">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -529,7 +459,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Vue.js</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/vue" aria-label="Acessar trilha Vue.js">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/vue.html" aria-label="Acessar trilha Vue.js">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -541,7 +471,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">OKRs, KPIs e BPMN</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/okrs_kpis_e_bpmn" aria-label="Acessar trilha OKRs, KPIs e BPMN">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/okrs_kpis_e_bpmn.html" aria-label="Acessar trilha OKRs, KPIs e BPMN">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -549,11 +479,11 @@
                 <div>
                     <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Wordpress">
                         <img src="https://cityhost.ua/upload_img/blog5f352fc3b2393_wp.png" alt="Imagem do Wordpress" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
+                        <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Wordpress</h3>
-                            <span class="new-badge">NOVA</span>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/wordpress" aria-label="Acessar trilha Wordpress">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/wordpress.html" aria-label="Acessar trilha Wordpress">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -564,7 +494,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">JavaScript</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/javaScript" aria-label="Acessar trilha JavaScript">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/javaScript.html" aria-label="Acessar trilha JavaScript">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -575,7 +505,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">TypeScript</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/typescript" aria-label="Acessar trilha TypeScript">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/typescript.html" aria-label="Acessar trilha TypeScript">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -586,7 +516,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">UX e UI</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/ux_ui" aria-label="Acessar trilha UX e UI">Acessar</a>
+                                <a class="ds-btn-primary" href="Trilhas/ux_ui.html" aria-label="Acessar trilha UX e UI">ACESSAR</a>
                             </div>
                         </div>
                     </div>
@@ -597,7 +527,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Python</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-soon" href="#" aria-label="Trilha Python em breve" aria-disabled="true">Em breve</a>
+                                <a class="ds-btn-soon" href="#" aria-label="Trilha Python em breve" aria-disabled="true">EM BREVE</a>
                             </div>
                         </div>
                     </div>
@@ -608,7 +538,7 @@
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
                             <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Looker Studio</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
-                                <a class="ds-btn-soon" href="#" aria-label="Trilha Looker Studio em breve" aria-disabled="true">Em breve</a>
+                                <a class="ds-btn-soon" href="#" aria-label="Trilha Looker Studio em breve" aria-disabled="true">EM BREVE</a>
                             </div>
                         </div>
                     </div>
@@ -617,14 +547,43 @@
         </section>
     </main>
 
+    <!-- Modal de Login -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-modal-content">
+            <div class="login-modal-header">
+                <span class="close-button" id="closeModal">&times;</span>
+                <h2 class="text-2xl font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Login</h2>
+            </div>
+            <form id="loginForm" class="space-y-4 mt-4">
+                <div>
+                    <label for="email" class="block mb-1 font-medium text-eject-text-secondary-light dark:text-eject-text-secondary-dark">Email</label>
+                    <input type="email" id="email" class="input-styled" placeholder="seuemail@exemplo.com" required>
+                </div>
+                <div>
+                    <label for="password" class="block mb-1 font-medium text-eject-text-secondary-light dark:text-eject-text-secondary-dark">Senha</label>
+                    <input type="password" id="password" class="input-styled" placeholder="Sua senha" required>
+                </div>
+                <p id="loginError" class="text-red-500 text-sm hidden">Email ou senha inválidos.</p>
+                <button type="submit" class="ds-btn-primary w-full">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+
     <footer class="w-full bg-slate-800 dark:bg-gray-900 py-6 px-4 mt-auto">
         <p class="text-sm text-center text-gray-300 dark:text-gray-400 m-0">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos reservados.</p>
     </footer>
 
-    <script>
-      !function(){'use strict';const e=['debug','destroy','do','help','identify','is','off','on','ready','render','reset','safe','set'];if(window.noticeable)console.warn('Noticeable SDK code snippet loaded more than once');else{const n=window.noticeable=window.noticeable||[];function t(e){return function(){const t=Array.prototype.slice.call(arguments);return t.unshift(e),n.push(t),n}}function o(){for(let o=0;o<e.length;o++){const c=e[o];n[c]=t(c)}}function c(){const e=document.createElement('script');e.async=!0,e.src='https://sdk.noticeable.io/l.js';const n=document.head;n.insertBefore(e,n.firstChild)}o(),c()}}();
-    </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Firebase Config from external file -->
+    <script src="SIGAV/firebase-config.js"></script>
 
+    <!-- Progress module: adiciona barra em cada card e salva no Firestore por usuário -->
+    <script src="SIGAV/progress.js"></script>
+    
     <script>
         /**
          * Aplica filtros de pesquisa e seleção às trilhas de conhecimento.
@@ -687,18 +646,6 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', applyFiltersAndSearch);
-            }
-            const filterSelect = document.getElementById('filterSelect');
-            if (filterSelect) {
-                filterSelect.addEventListener('change', applyFiltersAndSearch);
-            }
-            applyFiltersAndSearch();
-        });
-
         /**
          * Função para rolar o carrossel de trilhas.
          * @param {number} direction - A direção da rolagem (-1 para esquerda, 1 para direita).
@@ -739,6 +686,89 @@
                 console.warn(`Nenhum item de card encontrado ou visível no carrossel "${carouselId}" para calcular a distância de rolagem precisa. Usando fallback.`);
             }
         }
+
+        /**
+         * Lógica de Autenticação e Modal com Firebase
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup de Filtros e Pesquisa
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', applyFiltersAndSearch);
+            }
+            const filterSelect = document.getElementById('filterSelect');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', applyFiltersAndSearch);
+            }
+            applyFiltersAndSearch();
+
+            // Setup de Autenticação
+            const loginModal = document.getElementById('loginModal');
+            const loginIconContainer = document.getElementById('loginIconContainer');
+            const loginIcon = document.getElementById('loginIcon');
+            const closeModal = document.getElementById('closeModal');
+            const loginForm = document.getElementById('loginForm');
+            const loginError = document.getElementById('loginError');
+
+            const updateLoginIcon = (user) => {
+                if (user) {
+                    loginIcon.textContent = 'dashboard'; // Ícone de dashboard
+                    loginIconContainer.setAttribute('aria-label', 'Acessar Dashboard');
+                } else {
+                    loginIcon.textContent = 'account_circle';
+                    loginIconContainer.setAttribute('aria-label', 'Login');
+                }
+            };
+
+            // Observador do estado de autenticação do Firebase
+            auth.onAuthStateChanged(user => {
+                updateLoginIcon(user);
+            });
+
+            loginIconContainer.addEventListener('click', (e) => {
+                e.preventDefault();
+                const user = auth.currentUser;
+                if (user) {
+                    // Se estiver logado, redireciona para o dashboard
+                    window.location.href = 'SIGAV/dashboard.html';
+                } else {
+                    // Se não estiver logado, abre o modal de login
+                    loginModal.style.display = 'block';
+                }
+            });
+
+            closeModal.addEventListener('click', () => {
+                loginModal.style.display = 'none';
+                loginError.classList.add('hidden');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    loginModal.style.display = 'none';
+                    loginError.classList.add('hidden');
+                }
+            });
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                loginError.classList.add('hidden');
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Login bem-sucedido
+                        loginModal.style.display = 'none';
+                        window.location.href = 'SIGAV/dashboard.html'; // Redireciona para o dashboard
+                    })
+                    .catch((error) => {
+                        // Trata erros de login
+                        console.error("Erro de login:", error.code, error.message);
+                        loginError.textContent = "Email ou senha inválidos. Tente novamente.";
+                        loginError.classList.remove('hidden');
+                    });
+            });
+        });
     </script>
 </body>
 </html>

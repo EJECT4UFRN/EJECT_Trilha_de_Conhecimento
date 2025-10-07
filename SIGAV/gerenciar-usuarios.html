@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Gerenciar Usuários</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style> body { font-family: "Inter", sans-serif; background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%); } </style>
+</head>
+<body class="antialiased text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <span class="text-2xl font-bold text-sky-700">Gerenciar Usuários</span>
+                <div class="flex items-center space-x-4">
+                    <a href="./dashboard.html" title="Voltar ao Dashboard" class="p-2 rounded-full text-sky-600 hover:bg-sky-100"><i data-lucide="layout-dashboard" class="h-6 w-6"></i></a>
+                    <a href="https://www.ejectufrn.com.br/" target="_blank"><img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10"></a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold text-sky-800 mb-8 flex items-center"><i data-lucide="users" class="h-8 w-8 mr-3"></i>Lista de Usuários</h1>
+        <div id="userListContainer" class="bg-white rounded-xl shadow-lg p-6 space-y-4">
+            <p id="loadingMessage">Carregando usuários...</p>
+        </div>
+    </main>
+
+    <script src="./firebase-config.js"></script>
+    <script>
+        function renderUserList(users) {
+            const container = document.getElementById('userListContainer');
+            container.innerHTML = '';
+
+            if (!users || Object.keys(users).length === 0) {
+                container.innerHTML = '<p>Nenhum usuário encontrado.</p>';
+                return;
+            }
+
+            const sortedUsers = Object.entries(users).sort(([, a], [, b]) => (a.name || '').localeCompare(b.name || ''));
+
+            sortedUsers.forEach(([uid, user]) => {
+                const userElement = document.createElement('div');
+                userElement.className = 'p-4 border rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between';
+                userElement.innerHTML = `
+                    <div class="flex-grow">
+                        <input type="text" value="${user.name || ''}" id="name-${uid}" class="text-lg font-semibold border-b-2 border-transparent focus:border-sky-500 outline-none w-full bg-transparent" placeholder="Nome do usuário">
+                        <p class="text-sm text-gray-500">${user.email || 'E-mail não definido'}</p>
+                    </div>
+                    <div class="flex items-center space-x-2 mt-4 sm:mt-0">
+                        <button id="save-${uid}" class="p-2 bg-sky-100 text-sky-600 rounded-full hover:bg-sky-200" title="Salvar Nome"><i data-lucide="save" class="h-5 w-5"></i></button>
+                        <button id="reset-${uid}" class="p-2 bg-amber-100 text-amber-600 rounded-full hover:bg-amber-200" title="Resetar Progresso"><i data-lucide="rotate-cw" class="h-5 w-5"></i></button>
+                    </div>
+                `;
+                container.appendChild(userElement);
+
+                // Salvar nome
+                document.getElementById(`save-${uid}`).addEventListener('click', () => {
+                    const newName = document.getElementById(`name-${uid}`).value.trim();
+                    if (newName) {
+                        db.ref(`users/${uid}/name`).set(newName).then(() => alert('Nome salvo com sucesso!'));
+                    }
+                });
+
+                // Resetar progresso
+                document.getElementById(`reset-${uid}`).addEventListener('click', () => {
+                    if (confirm(`Tem certeza que deseja resetar o progresso de ${user.name || user.email}?`)) {
+                        db.ref(`users/${uid}/progress`).remove().then(() => alert('Progresso resetado com sucesso!'));
+                    }
+                });
+            });
+            lucide.createIcons();
+        }
+
+        async function initUserManagementPage() {
+            lucide.createIcons();
+            auth.onAuthStateChanged(async user => {
+                if (!user) {
+                    window.location.href = './dashboard.html';
+                    return;
+                }
+
+                const adminSnapshot = await db.ref(`admins/${user.uid}`).once('value');
+                const isStandardAdmin = adminSnapshot.exists();
+                const isSuperAdmin = user.email === 'educhior@hotmail.com';
+
+                if (isStandardAdmin || isSuperAdmin) {
+                    db.ref('users').on('value', snapshot => {
+                        renderUserList(snapshot.val() || {});
+                    });
+                } else {
+                    alert('Acesso negado. Esta área é restrita para administradores.');
+                    window.location.href = './dashboard.html';
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initUserManagementPage);
+    </script>
+</body>
+</html>

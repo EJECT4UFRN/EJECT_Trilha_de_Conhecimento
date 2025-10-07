@@ -3,18 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> EJECT | JavaScript</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="/EJECT_Trilha_de_Conhecimento/css/trilhas_styles.css">
-    <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/logo.svg">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>EJECT | JavaScript</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração da fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../SIGAV/firebase-config.js"></script>
+
+    <script src="../SIGAV/salvamento_nuvem.js"></script>
+    <script src="../SIGAV/trilha-progress.js"></script>
+
+    <!-- Lógica JavaScript (Firebase Modular v11 e Controle de Progresso) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Variáveis globais fornecidas pelo ambiente
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        let currentUser = null;
+        let localProgress = {};
+        const trilhaId = document.getElementById('trilha-id')?.value || 'javascript'; // ID Padronizado
+        const checkboxes = document.querySelectorAll('.topic-checkbox');
+        const totalTopics = checkboxes.length;
+
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressStatus = document.getElementById('progress-status');
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setPersistence(auth, browserLocalPersistence);
+        } else {
+            console.error("Firebase config is missing.");
+        }
+
+        function updateProgressBar() {
+            const completedCount = Object.values(localProgress).filter(Boolean).length;
+            const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+
+            progressBar.style.width = `${percentage}%`;
+            
+            // Alterna classes de cor para indicar 100% de conclusão
+            progressBar.classList.toggle('bg-green-600', percentage === 100);
+            progressBar.classList.toggle('bg-sky-600', percentage < 100);
+            
+            progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+        }
+        
+        function getProgressRef(userId, trilhaId) {
+            return doc(db, 'artifacts', appId, 'users', userId, 'trilha_progress', trilhaId);
+        }
+
+        async function saveProgressToDatabase() {
+            if (!currentUser || !db) return;
+            progressStatus.textContent = 'Salvando...';
+            progressStatus.className = 'text-sm font-medium text-yellow-600';
+
+            const userRef = getProgressRef(currentUser.uid, trilhaId);
+            
+            try {
+                await setDoc(userRef, localProgress, { merge: true });
+                progressStatus.textContent = 'Progresso salvo na nuvem';
+                progressStatus.className = 'text-sm font-medium text-green-600';
+            } catch (error) {
+                console.error("Erro ao salvar no Firestore: ", error);
+                progressStatus.textContent = 'Erro ao salvar';
+                progressStatus.className = 'text-sm font-medium text-red-600';
+            }
+        }
+
+        const debouncedSave = (() => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(saveProgressToDatabase, 1500);
+            };
+        })();
+        
+        function applyProgressToUI() {
+            checkboxes.forEach(checkbox => {
+                const key = checkbox.dataset.key;
+                checkbox.checked = !!localProgress[key];
+            });
+            updateProgressBar();
+        }
+
+        async function loadProgressFromDatabase(user) {
+            if (!user || !db) return;
+            progressStatus.textContent = 'Carregando...';
+            progressStatus.className = 'text-sm font-medium text-gray-500';
+
+            const userRef = getProgressRef(user.uid, trilhaId);
+            
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    localProgress = docSnap.data();
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Progresso carregado da nuvem';
+                    progressStatus.className = 'text-sm font-medium text-green-600';
+                } else {
+                    localProgress = {};
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Nenhum progresso salvo ainda';
+                    progressStatus.className = 'text-sm font-medium text-gray-500';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar do Firestore: ", error);
+                progressStatus.textContent = 'Erro ao carregar progresso';
+                progressStatus.className = 'text-sm font-medium text-red-600';
+            }
+        }
+        
+        // 1. Inicializa o estado de Autenticação/Carga
+        if (firebaseConfig) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadProgressFromDatabase(user);
+                } else {
+                    // Tenta o login automático via custom token ou anônimo
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            const anonUser = await signInAnonymously(auth);
+                            currentUser = anonUser.user;
+                            await loadProgressFromDatabase(currentUser);
+                        }
+                    } catch (error) {
+                         console.error("Erro de autenticação:", error);
+                         currentUser = null;
+                         progressStatus.textContent = 'Falha na autenticação. Progresso não será salvo.';
+                         progressStatus.className = 'text-sm font-medium text-red-600';
+                    }
+                }
+
+                // 2. Adiciona os listeners de mudança depois que a autenticação for resolvida
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const key = checkbox.dataset.key;
+                        localProgress[key] = checkbox.checked;
+                        updateProgressBar();
+                        
+                        if (currentUser) {
+                           debouncedSave();
+                        }
+                    });
+                });
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            updateProgressBar();
+        });
+    </script>
+
+    <!-- Estilos CSS unificados e responsivos -->
+    <style>
+        /* Estilos globais para consistência e estética */
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+        
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        
+        .topic-link {
+            transition: color 0.2s, background-color 0.2s;
+            color: #0c4a6e;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .topic-link:hover {
+            color: #075985;
+            text-decoration: underline;
+        }
+        
+        /* Estilos do sistema de progresso (Cores ajustadas para Tailwind Sky Blue padrão) */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1; /* sky-700 */
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc; /* sky-300 */
+            border-radius: 9999px;
+            background-color: #f0f9ff; /* sky-50 */
+            transition: background-color 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+            width: fit-content; /* Garante que o label não ocupe a largura total */
+        }
+        .completion-label:hover { background-color: #e0f2fe; } /* sky-100 */
+
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8; /* sky-400 */
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9; /* sky-500 */
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
+        
+        /* Estilos de layout para a seção principal */
+        .list-item-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.75rem;
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #f3f4f6; /* gray-100 */
+        }
+        /* Ajuste para desktop */
+        @media (min-width: 640px) {
+            .list-item-container {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="antialiased">
     <!-- Vlibra -->
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
         <div vw-plugin-wrapper>
-          <div class="vw-plugin-top-wrapper"></div>
+            <div class="vw-plugin-top-wrapper"></div>
         </div>
     </div>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
@@ -22,83 +289,161 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-    <header>
-        <nav class="container">
-            <a href="index">
-                <h1 href = "/EJECT_Trilha_de_Conhecimento/index">Hub de Conhecimentos</h1>
-            </a>
-            <div class="ds-contact-container">
-                <a href="https://www.ejectufrn.com.br/">
-                    <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT">
-                </a>
+    <!-- HEADER (Estrutura Tailwind) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="/EJECT_Trilha_de_Conhecimento/index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botões de Exportar (Mantidos pelo design) -->
+                    <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="file-text" class="h-6 w-6"></i>
+                    </button>
+                    <button id="exportPdfBtn" title="Exportar Conteúdo para PDF" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="download" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
-    <main>
-        <section>
-            <a class="btn btn-primary" href="/EJECT_Trilha_de_Conhecimento">Voltar</a>
-        </section> <br>
 
-        <input type="hidden" id="trilha-nome" value="JavaScript" />
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <input type="hidden" id="trilha-id" value="javascript" />
 
-        <section>
-            <h2>JavaScript para iniciantes - Origamid</h2>
-            <p>Aprenda os conceitos fundamentais, estudando sobre variáveis até arrays.</p>
-            <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="https://www.origamid.com/curso/javascript-completo-es6/0201-variaveis" target="_blank" style="color: rgb(0, 61, 115);">[Link] Curso Origamid</a>
-                <div class="section-header">
-                </div>
-            </div>
+        <!-- Botão Voltar -->
+        <section class="mb-6">
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar
+            </a>
         </section>
-    
-        <section>
-            <h2>DOM para iniciantes - Origamid</h2>
-            <p>Aprofunde-se na principal ferramenta do JavaScript para o desenvolvimento web. </p>
-            <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="https://www.origamid.com/curso/javascript-completo-es6/0301-o-que-e-o-dom-1" target="_blank" style="color: rgb(0, 61, 115);">[Link] Curso Origamid</a>
-                <div class="section-header">
-                </div>
+
+        <!-- Barra de Progresso -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium">Carregando...</span>
             </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
         </section>
-    
-        <section>
-            <h2>Métodos de array - Alura</h2>
-            <p>Aprenda a utilizar os principais métodos de array do JavaScript</p>
-            <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="https://cursos.alura.com.br/course/javascript-metodos-array" target="_blank" style="color: rgb(0, 61, 115);">[Link] Curso Alura</a>
-                <div class="section-header">
-                </div>
+        
+        <!-- Introdução da Trilha -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h1 class="text-4xl font-bold text-sky-800 mb-4">Trilha de Conhecimento - JavaScript Essencial</h1>
+            <p class="text-lg leading-relaxed text-gray-700">Esta trilha foca nos pilares do JavaScript, essenciais para qualquer desenvolvedor web. Você dominará os fundamentos da linguagem, aprenderá a manipular o DOM para interatividade na web e explorará o uso de APIs para gerenciar dados e realizar operações CRUD (Criar, Ler, Atualizar, Deletar).</p>
+        </section>
+
+        <!-- Módulo 1: Fundamentos e DOM -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="cpu" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 1: Fundamentos da Linguagem e DOM</h2>
             </div>
             
-        </section>
-    
-        <section>
-            <h2>Manipulando objetos - Alura</h2>
-            <p>Entenda o que são e como manipular objetos no JavaScript
-                Conecte o projeto a um armazenador de dados do navegador(a API localStorage)</p>
-                <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                    <a href="https://cursos.alura.com.br/course/javascript-manipulando-objetos" target="_blank" style="color: rgb(0, 61, 115);">[Link] Curso Alura</a>
-                    <div class="section-header">
+            <ul class="space-y-4 text-gray-700">
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">JavaScript para iniciantes - Origamid</span>
+                        <p class="text-sm text-gray-500 mb-2">Aprenda os conceitos fundamentais, estudando sobre variáveis, funções e arrays.</p>
+                        <a href="https://www.origamid.com/curso/javascript-completo-es6/0201-variaveis" target="_blank" rel="noopener noreferrer" class="topic-link text-sm">
+                            <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                            [Link] Curso Origamid
+                        </a>
                     </div>
-                </div>
-        </section>
-    
-        <section>
-            <h2>Implementando CRUD com requisições HTTP - Alura</h2>
-            <p>Aprenda as bases do desenvolvimento web com JavaScript
-                Manipule dados com operações CRUD (Create, Read, Update e Delete)</p>
-                <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                    <a href="https://cursos.alura.com.br/course/javascript-implementando-crud-requisicoes-http" target="_blank" style="color: rgb(0, 61, 115);">[Link] Curso Alura</a>
-                    <div class="section-header">
-                    </div>
-                </div>
+                    <label class="completion-label" for="js-iniciante-origamid">
+                        <input type="checkbox" class="topic-checkbox" data-key="js-iniciante-origamid" id="js-iniciante-origamid">
+                        <span>Concluído</span>
+                    </label>
+                </li>
                 
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">DOM para iniciantes - Origamid</span>
+                        <p class="text-sm text-gray-500 mb-2">Aprofunde-se na principal ferramenta do JavaScript para o desenvolvimento web: o Document Object Model (DOM).</p>
+                        <a href="https://www.origamid.com/curso/javascript-completo-es6/0301-o-que-e-o-dom-1" target="_blank" rel="noopener noreferrer" class="topic-link text-sm">
+                            <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                            [Link] Curso Origamid
+                        </a>
+                    </div>
+                    <label class="completion-label" for="dom-iniciante-origamid">
+                        <input type="checkbox" class="topic-checkbox" data-key="dom-iniciante-origamid" id="dom-iniciante-origamid">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
         </section>
-     
+
+        <!-- Módulo 2: Manipulação de Dados e APIs -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="database" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 2: Manipulação de Dados e APIs (Alura)</h2>
+            </div>
+            
+            <ul class="space-y-4 text-gray-700">
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">Métodos de array - Alura</span>
+                        <p class="text-sm text-gray-700 mb-2">Aprenda a utilizar os principais métodos de array do JavaScript (map, filter, reduce, etc.).</p>
+                        <a href="https://cursos.alura.com.br/course/javascript-metodos-array" target="_blank" rel="noopener noreferrer" class="topic-link text-sm text-sky-700 hover:text-sky-800">
+                            <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                            [Link] Curso Alura
+                        </a>
+                    </div>
+                    <label class="completion-label" for="metodos-array-alura">
+                        <input type="checkbox" class="topic-checkbox" data-key="metodos-array-alura" id="metodos-array-alura">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">Manipulando objetos - Alura</span>
+                        <p class="text-sm text-gray-700 mb-2">Entenda o que são e como manipular objetos, o coração do JavaScript. (Foco em dados e persistência).</p>
+                        <a href="https://cursos.alura.com.br/course/javascript-manipulando-objetos" target="_blank" rel="noopener noreferrer" class="topic-link text-sm text-sky-700 hover:text-sky-800">
+                            <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                            [Link] Curso Alura
+                        </a>
+                    </div>
+                    <label class="completion-label" for="manipulando-objetos-alura">
+                        <input type="checkbox" class="topic-checkbox" data-key="manipulando-objetos-alura" id="manipulando-objetos-alura">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">Implementando CRUD com requisições HTTP - Alura</span>
+                        <p class="text-sm text-gray-700 mb-2">Aprenda a interagir com servidores e manipular dados com operações CRUD (Create, Read, Update e Delete) usando Fetch API.</p>
+                        <a href="https://cursos.alura.com.br/course/javascript-implementando-crud-requisicoes-http" target="_blank" rel="noopener noreferrer" class="topic-link text-sm text-sky-700 hover:text-sky-800">
+                            <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                            [Link] Curso Alura
+                        </a>
+                    </div>
+                    <label class="completion-label" for="crud-http-alura">
+                        <input type="checkbox" class="topic-checkbox" data-key="crud-http-alura" id="crud-http-alura">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+        </section>
+
     </main>
 
-    <footer class="text-center py-4">
-        <p>Feito com <strong>foco </strong>e <strong>compromisso</strong> pela EJECT&copy; - Todos os direitos reservados.</p>
+    <footer class="bg-sky-900 text-white text-center py-8 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
 
 </body>

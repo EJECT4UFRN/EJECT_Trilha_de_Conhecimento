@@ -1,218 +1,569 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EJECT | UX e UI</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        <!-- Se for visualizar localmente, remova: "/EJECT_Trilha_de_Conhecimento/" dos linkamento -->
-        <link rel="stylesheet" href="/EJECT_Trilha_de_Conhecimento/css/trilhas_styles.css">
-        <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/logo.svg">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | UX e UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração da fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../SIGAV/firebase-config.js"></script>
+
+    <script src="../SIGAV/salvamento_nuvem.js"></script>
+    <script src="../SIGAV/trilha-progress.js"></script>
+
+    <!-- Importações Firebase modular (v9+) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // As variáveis globais serão definidas pelo ambiente
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        let currentUser = null;
+        let localProgress = {};
+        const trilhaId = document.getElementById('trilha-id')?.value || 'ux_ui';
+        const checkboxes = document.querySelectorAll('.topic-checkbox');
+        const totalTopics = checkboxes.length;
+
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressStatus = document.getElementById('progress-status');
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            // Configura a persistência para que o login dure
+            setPersistence(auth, browserLocalPersistence);
+        } else {
+            console.error("Firebase config is missing.");
+        }
+
+        function updateProgressBar() {
+            const completedCount = Object.values(localProgress).filter(Boolean).length;
+            const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+
+            progressBar.style.width = `${percentage}%`;
+            
+            // Alterna classes de cor para indicar 100% de conclusão
+            progressBar.classList.toggle('bg-green-600', percentage === 100);
+            progressBar.classList.toggle('bg-sky-600', percentage < 100);
+            
+            progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+        }
+        
+        // Função para obter a referência correta do documento no Firestore (dados privados do usuário)
+        function getProgressRef(userId, trilhaId) {
+            return doc(db, 'artifacts', appId, 'users', userId, 'trilha_progress', trilhaId);
+        }
+
+        async function saveProgressToDatabase() {
+            if (!currentUser || !db) return;
+            progressStatus.textContent = 'Salvando...';
+            progressStatus.className = 'text-sm font-medium text-yellow-600';
+
+            const userRef = getProgressRef(currentUser.uid, trilhaId);
+            
+            try {
+                // Usamos setDoc com merge: true para salvar ou atualizar
+                await setDoc(userRef, localProgress, { merge: true });
+                progressStatus.textContent = 'Progresso salvo na nuvem';
+                progressStatus.className = 'text-sm font-medium text-green-600';
+            } catch (error) {
+                console.error("Erro ao salvar no Firestore: ", error);
+                progressStatus.textContent = 'Erro ao salvar';
+                progressStatus.className = 'text-sm font-medium text-red-600';
+            }
+        }
+
+        // debounce para evitar chamadas de escrita excessivas
+        const debouncedSave = (() => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(saveProgressToDatabase, 1500);
+            };
+        })();
+        
+        function applyProgressToUI() {
+            checkboxes.forEach(checkbox => {
+                const key = checkbox.dataset.key;
+                checkbox.checked = !!localProgress[key];
+            });
+            updateProgressBar();
+        }
+
+        async function loadProgressFromDatabase(user) {
+            if (!user || !db) return;
+            progressStatus.textContent = 'Carregando...';
+            progressStatus.className = 'text-sm font-medium text-gray-500';
+
+            const userRef = getProgressRef(user.uid, trilhaId);
+            
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    localProgress = docSnap.data();
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Progresso carregado da nuvem';
+                    progressStatus.className = 'text-sm font-medium text-green-600';
+                } else {
+                    localProgress = {};
+                    applyProgressToUI(); // Aplica 0%
+                    progressStatus.textContent = 'Nenhum progresso salvo ainda';
+                    progressStatus.className = 'text-sm font-medium text-gray-500';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar do Firestore: ", error);
+                progressStatus.textContent = 'Erro ao carregar progresso';
+                progressStatus.className = 'text-sm font-medium text-red-600';
+            }
+        }
+        
+        // 1. Inicializa o estado de Autenticação/Carga
+        if (firebaseConfig) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadProgressFromDatabase(user);
+                } else {
+                    // Tenta o login automático via custom token ou anônimo
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            // Se não houver token, faz o login anônimo
+                            const anonUser = await signInAnonymously(auth);
+                            currentUser = anonUser.user;
+                            await loadProgressFromDatabase(currentUser);
+                        }
+                    } catch (error) {
+                         console.error("Erro de autenticação:", error);
+                         // Se a autenticação falhar, continua como não logado (progresso local/temporário)
+                         currentUser = null;
+                         progressStatus.textContent = 'Falha na autenticação. Progresso não será salvo.';
+                         progressStatus.className = 'text-sm font-medium text-red-600';
+                    }
+                }
+
+                // 2. Adiciona os listeners de mudança depois que a autenticação for resolvida
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const key = checkbox.dataset.key;
+                        localProgress[key] = checkbox.checked;
+                        updateProgressBar();
+                        
+                        // Só tenta salvar se houver um usuário autenticado (mesmo que anônimo)
+                        if (currentUser) {
+                           debouncedSave();
+                        }
+                    });
+                });
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            // Inicializa ícones Lucide
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            // Chama o update inicial (para mostrar 0% antes do carregamento do DB)
+            updateProgressBar();
+        });
+        
+    </script>
+
+
+    <style>
+        /* Estilos globais para consistência e estética */
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+        
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        
+        .topic-link {
+            transition: color 0.2s, background-color 0.2s;
+            color: #0c4a6e; /* Cor padrão para links de tópico */
+            font-weight: 500;
+        }
+        .topic-link:hover {
+            color: #075985;
+            text-decoration: underline;
+        }
+        /* FIM Estilos globais */
+        
+        /* Estilos do sistema de progresso */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1;
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc;
+            border-radius: 9999px;
+            background-color: #f0f9ff;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        .completion-label:hover { background-color: #e0f2fe; }
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8;
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9;
+            background-color: #e0f2fe;
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
+        
+        /* Estilo para vídeos responsivos (Tailwind padrão não tem 'ratio-16x9') */
+        .responsive-embed {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+        .responsive-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+    </style>
+</head>
+<body class="antialiased">
     <!-- Vlibra -->
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
         <div vw-plugin-wrapper>
-          <div class="vw-plugin-top-wrapper"></div>
+            <div class="vw-plugin-top-wrapper"></div>
         </div>
     </div>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script> 
+    <script>
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-<header>
-    <nav class="container">
-        <a href="index">
-            <h1 href = "/EJECT_Trilha_de_Conhecimento/index">Hub de Conhecimentos</h1>
-        </a>
-        <div class="ds-contact-container">
-            <a href="https://www.ejectufrn.com.br/">
-                <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT">
+    <!-- HEADER (Recuperado o estilo e a responsividade do código original) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="../index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botões de Exportar (Mantidos pelo design, mas funcionalidade removida para focar na correção) -->
+                    <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="file-text" class="h-6 w-6"></i>
+                    </button>
+                    <button id="exportPdfBtn" title="Exportar Conteúdo para PDF" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="download" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <input type="hidden" id="trilha-id" value="ux_ui" />
+
+        <!-- Botão Voltar -->
+        <section class="mb-6">
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar
             </a>
-        </div>
-    </nav>
-</header>
+        </section>
 
-    <main>
-        <section>
-            <a class="btn btn-primary" href="/EJECT_Trilha_de_Conhecimento">Voltar</a>
-        </section> <br>
+        <!-- Barra de Progresso -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium">Carregando...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
+        </section>
 
-        <input type="hidden" id="trilha-nome" value="UX UI" />
-
-        <section>
-            <section>
-                <h2>UX Design - Domine o Figma</h2> <br>
-                <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="section-header">
-                    </div>
-                </div>
-            </section>
+        <!-- Título e Introdução da Trilha -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h1 class="text-4xl font-bold text-sky-800 mb-4">UX Design - Domine o Figma</h1>
+            <p class="text-lg leading-relaxed text-gray-700 mb-4">O Figma é uma ferramenta de design colaborativo baseada na web, amplamente utilizada para criar interfaces de usuário e protótipos. Com uma interface intuitiva e recursos poderosos, o Figma permite que equipes trabalhem juntas em tempo real, facilitando o processo de design e aumentando a produtividade. Neste módulo, você aprenderá a dominar o Figma e a aplicar suas habilidades de design em projetos práticos.</p>
+            <p class="text-lg leading-relaxed text-gray-700">Aprenda os conceitos básicos na ferramenta Figma, muito utilizada para gerar interfaces de maneira rápida e prática na web.</p>
             
-            <p>Aprenda os conceitos básicos na ferramenta Figma, muito utilizada para gerar interfaces de maneira rápida e prática na web.</p> <br>
-            <div class="ratio ratio-16x9 mb-4">
+            <div class="responsive-embed mb-4 mt-4 rounded-xl">
                 <iframe src="https://www.youtube.com/embed/5rEWrhYRBqw?si=8SpgZpr_NSEpgOPN" title="UX design" allowfullscreen></iframe>
-            </div> <br>
+            </div>
             
+            <label class="completion-label inline-flex mt-4" for="introducao-ux-ui-check">
+                <input type="checkbox" class="topic-checkbox" data-key="introducao-ux-ui" id="introducao-ux-ui-check">
+                <span>Concluído: Introdução à Trilha</span>
+            </label>
         </section>
 
-        <section>
-            <h2>UX Design - Guia básico para criar uma interface</h2> <br>
-            <p>Um guia básico para criar uma interface antes de abrir o Figma.</p> <br>
-            <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                <a href="https://brasil.uxdesign.cc/um-guia-b%C3%A1sico-para-criar-uma-interface-antes-de-abrir-o-figma-87d1c651c91f" target="_blank" style="color: rgb(0, 61, 115);">Acesse o curso</a>
-                <div class="section-header">
-                </div>
-            </div> <br>
-        </section>
-
-        <section>
-            <h2>Alguns princípios de UI Design</h2> <br>
-            <ul>
-                <li>
-                    <p> Espaço em Branco: O elemento principal de uma boa Interface</p>
-                    <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                        <a href="https://gabrielsilvestri.com.br/espaco/" target="_blank" style="color: rgb(0, 61, 115);">Acesse o curso</a>
-                        <div class="section-header">
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <p>Alinhamento em Interfaces: posicionando elementos corretamente</p>
-                    <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                        <a href="https://gabrielsilvestri.com.br/alinhamento/" target="_blank" style="color: rgb(0, 61, 115);">Acesse o curso</a>
-                        <div class="section-header"> 
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <p>Ferramentas para criar uma paleta de cores</p>
-                    <a href="https://color.adobe.com/pt/explore" target="_blank" style="color: rgb(0, 61, 115);">Color Adobe</a>
-                    <br>
-                    <a href="https://paletton.com/#uid=13+0u0klllljXRzkDurm1cfmJ39" target="_blank" style="color: rgb(0, 61, 115);">Paletton</a>
-                </li>
-            </ul> <br>
-        </section>
-
-        <section>
-            <section>
-                <h2>Capacitação sobre prototipação e telas interativas no figma</h2> <br>
-                <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="section-header">
-                    </div>
-                </div> <br>
-            </section>
-            
-
-            <section>
-                <section>
-                    <div class="ratio ratio-16x9 mb-4">
-                        <iframe src="https://www.youtube.com/embed/lsIMESGt6p0?si=FIkVzXkaD_DzyXvu" title="ProSEmpre 2023.1 | UX UI - Capacitação em Mockups Interativos" allowfullscreen></iframe>
-                    </div>
-                </section> <br>
-            </section>
-
-            
-        </section>
-
-        <section>
-            <h2>UX/UI Design - Origamid</h2> <br>
-            <p>Vamos aprofundar os conhecimentos sobre UX/UI Design, cujas competências serão muito importantes para exercer sua função nos projetos que virão a seguir.</p>
-            <p>Cada curso possui um projeto a ser concluído ao final, que você já pode incluir em seu portfólio pessoal e utilizar como comprovação da sua Trilha na EJECT! 🚀</p>
-            <ul>
-                <li>
-                    <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                        <a href="https://www.origamid.com/curso/ui-design-para-iniciantes" target="_blank" style="color: rgb(0, 61, 115);">UI Design para Iniciantes</a>
-                        <div class="section-header">
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                        <a href="https://www.origamid.com/curso/ui-design-avancado" target="_blank" style="color: rgb(0, 61, 115);">UI Design Avançado</a>
-                        <div class="section-header">
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                        <a href="https://www.origamid.com/curso/ux-design-heuristicas" target="_blank" style="color: rgb(0, 61, 115);">UX Design Heurísticas</a>
-                        <div class="section-header">
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <div class="wrapper" style="display: flex; justify-content: space-between; align-items: center;">
-                        <a href="https://www.origamid.com/curso/tipografia-avancada" target="_blank" style="color: rgb(0, 61, 115);">Tipografia Avançada</a>
-                        <div class="section-header">
-                        </div>
-                    </div>
-                </li>
-            </ul> <br>
-        </section>
-        
-        <section>
-            <h2>UX/UI - Trilha de Estudo Extra</h2>
-            <p>
-                Conteúdos extras sobre UX/UI.
-            </p>
-            <div class="ratio ratio-16x9 mb-4">
-                <iframe src="https://www.youtube.com/embed/Gg2cH_VuckE?si=x7KRS5BmpABMgGIq" title="Design Responsivo" allowfullscreen></iframe>
+        <!-- Guia Básico Interface -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-4 flex items-center">
+                <i data-lucide="book-open" class="h-6 w-6 text-sky-600 mr-2"></i>
+                UX Design - Guia básico para criar uma interface
+            </h2>
+            <p class="text-lg leading-relaxed text-gray-700 mb-4">Um guia básico para criar uma interface antes de abrir o Figma.</p>
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <a href="https://brasil.uxdesign.cc/um-guia-b%C3%A1sico-para-criar-uma-interface-antes-de-abrir-o-figma-87d1c651c91f" target="_blank" class="topic-link flex items-center text-base">
+                    <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                    Acesse o artigo: Guia Básico UX Design
+                </a>
+                <label class="completion-label" for="guia-basico-interface-check">
+                    <input type="checkbox" class="topic-checkbox" data-key="guia-basico-interface" id="guia-basico-interface-check">
+                    <span>Concluído</span>
+                </label>
             </div>
-            <div class="ratio ratio-16x9 mb-4">
-                <iframe src="https://www.youtube.com/embed/6nlO05bMuPY?si=S2pzUZ-ax9z7NjbV" title="Design Responsivo" allowfullscreen></iframe>
-            </div>
-
-            <ul>
-                <li>
-                    <a href="https://www.alura.com.br/curso-online-figma-criando-evoluindo-componentes-interface" target="_blank" style="color: rgb(0, 61, 115);">Figma: componentes, auto layout e máscaras</a>
-                </li>
-                <li>
-                    <a href="https://cursos.alura.com.br/extra/alura-mais/auto-layout-no-figma-c1584" target="_blank" style="color: rgb(0, 61, 115);">Auto layout no Figma - Parte 1</a>
-                </li>
-                <li>
-                    <a href="https://cursos.alura.com.br/extra/alura-mais/auto-layout-no-figma-c323" target="_blank" style="color: rgb(0, 61, 115);">Auto layout no Figma - Parte 2</a>
-                </li>
-            </ul> <br>
-
         </section>
-        
-        <section>
-            <h2>UX/UI - Trilha de Estudo Extra</h2>
-            <p>
-                Conteúdos extras sobre UX/UI.
-            </p>
-            <div class="ratio ratio-16x9 mb-4">
-                <iframe src="https://www.youtube.com/embed/Gg2cH_VuckE?si=x7KRS5BmpABMgGIq" title="Design Responsivo" allowfullscreen></iframe>
-            </div>
-            <div class="ratio ratio-16x9 mb-4">
-                <iframe src="https://www.youtube.com/embed/6nlO05bMuPY?si=S2pzUZ-ax9z7NjbV" title="Design Responsivo" allowfullscreen></iframe>
-            </div>
 
-            <ul>
-                <li>
-                    <a href="https://www.alura.com.br/curso-online-figma-criando-evoluindo-componentes-interface" target="_blank" style="color: rgb(0, 61, 115);">Figma: componentes, auto layout e máscaras</a>
+        <!-- Princípios UI Design -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-6 flex items-center pb-2 border-b-2 border-sky-300">
+                <i data-lucide="palette" class="h-6 w-6 text-sky-600 mr-2"></i>
+                Alguns Princípios de UI Design
+            </h2>
+            <ul class="space-y-4">
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="font-medium text-gray-800">Espaço em Branco: O elemento principal de uma boa Interface</p>
+                        <label class="completion-label" for="espaco-branco-check">
+                            <input type="checkbox" class="topic-checkbox" data-key="espaco-branco" id="espaco-branco-check">
+                            <span>Concluído</span>
+                        </label>
+                    </div>
+                    <a href="https://gabrielsilvestri.com.br/espaco/" target="_blank" class="topic-link text-sm flex items-center">
+                        <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                        Acesse o artigo
+                    </a>
                 </li>
-                <li>
-                    <a href="https://cursos.alura.com.br/extra/alura-mais/auto-layout-no-figma-c1584" target="_blank" style="color: rgb(0, 61, 115);">Auto layout no Figma - Parte 1</a>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="font-medium text-gray-800">Alinhamento em Interfaces: posicionando elementos corretamente</p>
+                        <label class="completion-label" for="alinhamento-interfaces-check">
+                            <input type="checkbox" class="topic-checkbox" data-key="alinhamento-interfaces" id="alinhamento-interfaces-check">
+                            <span>Concluído</span>
+                        </label>
+                    </div>
+                    <a href="https://gabrielsilvestri.com.br/alinhamento/" target="_blank" class="topic-link text-sm flex items-center">
+                        <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                        Acesse o artigo
+                    </a>
                 </li>
-                <li>
-                    <a href="https://cursos.alura.com.br/extra/alura-mais/auto-layout-no-figma-c323" target="_blank" style="color: rgb(0, 61, 115);">Auto layout no Figma - Parte 2</a>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="font-medium text-gray-800">Ferramentas para criar uma paleta de cores</p>
+                        <label class="completion-label" for="paleta-cores-check">
+                            <input type="checkbox" class="topic-checkbox" data-key="paleta-cores" id="paleta-cores-check">
+                            <span>Concluído</span>
+                        </label>
+                    </div>
+                    <div class="flex space-x-4 text-sm">
+                        <a href="https://color.adobe.com/pt/explore" target="_blank" class="topic-link flex items-center">
+                            <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                            Color Adobe
+                        </a>
+                        <a href="https://paletton.com/#uid=13+0u0klllljXRzkDurm1cfmJ39" target="_blank" class="topic-link flex items-center">
+                            <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                            Paletton
+                        </a>
+                    </div>
                 </li>
             </ul>
-
         </section>
 
+        <!-- Prototipação no Figma -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-4 flex items-center">
+                <i data-lucide="mouse-pointer-2" class="h-6 w-6 text-sky-600 mr-2"></i>
+                Capacitação sobre prototipação e telas interativas no Figma
+            </h2>
+            <div class="responsive-embed mb-4 rounded-xl">
+                <iframe src="https://www.youtube.com/embed/lsIMESGt6p0?si=FIkVzXkaD_DzyXvu" title="ProSEmpre 2023.1 | UX UI - Capacitação em Mockups Interativos" allowfullscreen></iframe>
+            </div>
+            <label class="completion-label inline-flex" for="prototipacao-figma-check">
+                <input type="checkbox" class="topic-checkbox" data-key="prototipacao-figma" id="prototipacao-figma-check">
+                <span>Concluído</span>
+            </label>
+        </section>
+
+        <!-- Cursos Origamid -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-4 flex items-center pb-2 border-b-2 border-sky-300">
+                <i data-lucide="zap" class="h-6 w-6 text-sky-600 mr-2"></i>
+                Aprofundamento em UX/UI Design - Origamid
+            </h2>
+            <p class="text-lg leading-relaxed text-gray-700 mb-2">Vamos aprofundar os conhecimentos sobre UX/UI Design, cujas competências serão muito importantes para exercer sua função nos projetos que virão a seguir.</p>
+            <p class="text-lg leading-relaxed text-gray-700 mb-4">Cada curso possui um projeto a ser concluído ao final, que você já pode incluir em seu portfólio pessoal e utilizar como comprovação da sua Trilha na EJECT! 🚀</p>
+            
+            <label class="completion-label inline-flex mb-4" for="origamid-completo-check">
+                <input type="checkbox" class="topic-checkbox" data-key="origamid-completo" id="origamid-completo-check">
+                <span>Marcar todo o módulo Origamid como Concluído</span>
+            </label>
+            
+            <ul class="space-y-3">
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://www.origamid.com/curso/ui-design-para-iniciantes" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        UI Design para Iniciantes
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="ui-design-iniciantes-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="ui-design-iniciantes" id="ui-design-iniciantes-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://www.origamid.com/curso/ui-design-avancado" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        UI Design Avançado
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="ui-design-avancado-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="ui-design-avancado" id="ui-design-avancado-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://www.origamid.com/curso/ux-design-heuristicas" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        UX Design Heurísticas
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="ux-design-heuristicas-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="ux-design-heuristicas" id="ux-design-heuristicas-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://www.origamid.com/curso/tipografia-avancada" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        Tipografia Avançada
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="tipografia-avancada-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="tipografia-avancada" id="tipografia-avancada-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+        </section>
+        
+        <!-- Trilha Extra -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-4 flex items-center pb-2 border-b-2 border-sky-300">
+                <i data-lucide="lightbulb" class="h-6 w-6 text-sky-600 mr-2"></i>
+                UX/UI - Trilha de Estudo Extra
+            </h2>
+            <p class="text-lg leading-relaxed text-gray-700 mb-4">Conteúdos extras sobre UX/UI para complementar seu aprendizado.</p>
+            
+            <div class="space-y-4 mb-6">
+                <div class="responsive-embed rounded-xl">
+                    <iframe src="https://www.youtube.com/embed/Gg2cH_VuckE?si=x7KRS5BmpABMgGIq" title="Design Responsivo" allowfullscreen></iframe>
+                </div>
+                <div class="responsive-embed rounded-xl">
+                    <iframe src="https://www.youtube.com/embed/6nlO05bMuPY?si=S2pzUZ-ax9z7NjbV" title="Design Responsivo" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <label class="completion-label inline-flex mb-4" for="trilha-extra-check">
+                <input type="checkbox" class="topic-checkbox" data-key="trilha-extra" id="trilha-extra-check">
+                <span>Marcar todo o material Extra como Concluído</span>
+            </label>
+            
+            <ul class="space-y-3">
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://www.alura.com.br/curso-online-figma-criando-evoluindo-componentes-interface" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        Figma: componentes, auto layout e máscaras (Alura)
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="figma-componentes-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="figma-componentes" id="figma-componentes-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://cursos.alura.com.br/extra/alura-mais/auto-layout-no-figma-c1584" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        Auto layout no Figma - Parte 1 (Alura)
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="auto-layout-parte1-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="auto-layout-parte1" id="auto-layout-parte1-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                <li class="p-3 bg-gray-50 rounded-lg border border-gray-100 flex justify-between items-center">
+                    <a href="https://cursos.alura.com.br/extra/alura-mais/auto-layout-no-figma-c323" target="_blank" class="topic-link text-base flex items-center">
+                        <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                        Auto layout no Figma - Parte 2 (Alura)
+                    </a>
+                    <label class="completion-label !px-3 !py-1" for="auto-layout-parte2-check">
+                        <input type="checkbox" class="topic-checkbox" data-key="auto-layout-parte2" id="auto-layout-parte2-check">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+        </section>
+        
     </main>
 
-    <footer class="text-center py-4">
-        <p>Feito com <strong>foco </strong>e <strong>compromisso</strong> pela EJECT&copy; - Todos os direitos reservados.</p>
+    <footer class="bg-sky-900 text-white text-center py-8 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka6PYS2ZTMj7Do35tWl53KIkazN1l5Hb9Kjk7aaJ5RrbZZgZ9KmbxKt0qKZ1dQF" crossorigin="anonymous"></script>
 </body>
 </html>

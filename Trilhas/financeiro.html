@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -16,18 +17,90 @@
         body {
             font-family: "Exo 2", sans-serif;
             background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
-            color: white;
+            color: #1f2937; /* Cor padrão para o corpo */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             transition: background-color 0.3s, color 0.3s;
         }
+        .dark-mode {
+            background: #121212;
+            color: #e0e0e0;
+        }
+        .dark-mode header, .dark-mode .bg-white {
+            background-color: #1e1e1e !important;
+            border-color: #333 !important;
+        }
+        .dark-mode [class*="text-gray-"], .dark-mode [class*="text-sky-"], .dark-mode [class*="text-violet-"] {
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .text-sky-700, .dark-mode .text-sky-800, .dark-mode .text-sky-600, .dark-mode .text-violet-700 {
+            color: #7dd3fc !important; /* Light blue for highlights */
+        }
+        .dark-mode a:not(.btn-gemini) {
+            color: #7dd3fc !important;
+        }
+        .dark-mode a:not(.btn-gemini):hover {
+            color: #bae6fd !important;
+        }
+        .dark-mode .task-section, .dark-mode .p-6.border-sky-200, .dark-mode .bg-sky-50 {
+            background-color: #2a2a2a !important;
+            border-color: #444 !important;
+        }
+        .dark-mode .task-answer {
+            background-color: #333 !important;
+            color: #e0e0e0 !important;
+            border-color: #555 !important;
+        }
+        .dark-mode .modal-content {
+            background-color: #2a2a2a !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .modal-header {
+            border-bottom-color: #444 !important;
+        }
+        .dark-mode .modal-title {
+            color: #7dd3fc !important;
+        }
+        .dark-mode .modal-body pre {
+            background-color: #333 !important;
+        }
+        .dark-mode #pageLinkInput {
+            background-color: #333 !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .copy-link-btn {
+            background-color: #0369a1 !important;
+        }
+        .dark-mode #accessibilityPanel {
+            background-color: #2a2a2a !important;
+            color: #e0e0e0 !important;
+        }
+        .dark-mode .accessibility-section h4 {
+            color: #7dd3fc !important;
+            border-bottom-color: #444 !important;
+        }
+        .dark-mode .accessibility-controls button, .dark-mode .accessibility-controls select {
+            background-color: #333 !important;
+            color: #e0e0e0 !important;
+            border-color: #555 !important;
+        }
+        .dark-mode .accessibility-controls button:hover, .dark-mode .accessibility-controls select:hover {
+            background-color: #444 !important;
+        }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .dark-mode ::-webkit-scrollbar-track { background: #2a2a2a; }
         ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 10px; }
+        .dark-mode ::-webkit-scrollbar-thumb { background: #0369a1; }
         ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+        .dark-mode ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
         code {
             background-color: #e5e7eb; color: #be123c; padding: 0.125rem 0.25rem;
             border-radius: 0.25rem; font-size: 0.875em;
+        }
+        .dark-mode code {
+            background-color: #333;
+            color: #fda4af; /* Light red for code in dark mode */
         }
         .vw-plugin-wrapper { z-index: 1000 !important; }
         .aspect-w-16 { position: relative; padding-bottom: calc(9 / 16 * 100%); }
@@ -226,7 +299,7 @@
 
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased text-gray-800">
     <!-- Vlibra -->
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
@@ -243,7 +316,7 @@
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
-                    <a href="/EJECT_Trilha_de_Conhecimento" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                    <a href="/EJECT_Trilha_de_Conhecimento/index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
                         Hub de Conhecimentos
                     </a>
                 </div>
@@ -264,7 +337,7 @@
                          </svg>
                      </button>
                      <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                         <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                         <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
                      </a>
                 </div>
             </div>
@@ -318,13 +391,21 @@
         </section>
 
         <section class="task-section mt-10 mb-10 p-6 bg-sky-50 rounded-xl shadow-lg text-gray-800 border border-sky-200">
-            <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Tarefa Prática: Análise de Objetivos Financeiros
-            </h3>
-            <p class="task-question text-gray-700 mb-4">Escolha um pequeno negócio fictício ou real que você conheça. Descreva um objetivo estratégico para esse negócio e, em seguida, explique como a administração financeira (focada em pelo menos dois dos pilares: valor da empresa, liquidez e gestão de riscos) pode ajudar a alcançá-lo.</p>
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Tarefa Prática: Análise de Objetivos Financeiros
+                    </h3>
+                    <p class="task-question text-gray-700 mb-4">Escolha um pequeno negócio fictício ou real que você conheça. Descreva um objetivo estratégico para esse negócio e, em seguida, explique como a administração financeira (focada em pelo menos dois dos pilares: valor da empresa, liquidez e gestão de riscos) pode ajudar a alcançá-lo.</p>
+                </div>
+                <label class="completion-container mt-2 sm:mt-0">
+                    <input type="checkbox" class="topic-checkbox" data-key="T1_Objetivos">
+                    Concluído
+                </label>
+            </div>
             <textarea rows="5" class="task-answer w-full p-3 border border-sky-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-800 placeholder-gray-400" placeholder="Ex: Negócio: Uma loja de bolos artesanais. Objetivo: Abrir uma segunda unidade em 12 meses. Análise: A gestão financeira pode ajudar a garantir a liquidez necessária para a nova operação, controlando o fluxo de caixa para poupar o investimento..."></textarea>
         </section>
 
@@ -389,13 +470,21 @@
         </section>
 
         <section class="task-section mt-10 mb-10 p-6 bg-sky-50 rounded-xl shadow-lg text-gray-800 border border-sky-200">
-            <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Tarefa Prática: Análise de Custo e Lucro
-            </h3>
-            <p class="task-question text-gray-700 mb-4">Imagine que você é o proprietário de uma pequena padaria. Liste três exemplos de custos fixos e três exemplos de custos variáveis que a sua padaria teria. Explique como a análise desses custos pode te ajudar a definir o preço de venda de um pão de queijo e garantir o lucro.</p>
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Tarefa Prática: Análise de Custo e Lucro
+                    </h3>
+                    <p class="task-question text-gray-700 mb-4">Imagine que você é o proprietário de uma pequena padaria. Liste três exemplos de custos fixos e três exemplos de custos variáveis que a sua padaria teria. Explique como a análise desses custos pode te ajudar a definir o preço de venda de um pão de queijo e garantir o lucro.</p>
+                </div>
+                <label class="completion-container mt-2 sm:mt-0">
+                    <input type="checkbox" class="topic-checkbox" data-key="T2_CustoLucro">
+                    Concluído
+                </label>
+            </div>
             <textarea rows="5" class="task-answer w-full p-3 border border-sky-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-800 placeholder-gray-400" placeholder="Ex: Custos Fixos: Aluguel do espaço, salários dos padeiros... Custos Variáveis: Farinha, queijo... A análise desses custos me permite calcular a margem de contribuição..."></textarea>
         </section>
 
@@ -474,13 +563,21 @@
         </section>
 
         <section class="task-section mt-10 mb-10 p-6 bg-sky-50 rounded-xl shadow-lg text-gray-800 border border-sky-200">
-            <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Tarefa Prática: Análise de Fluxo de Caixa
-            </h3>
-            <p class="task-question text-gray-700 mb-4">Pense em uma pequena empresa (por exemplo, um carrinho de comida de rua). Descreva três tipos de entradas de caixa (receitas) e três tipos de saídas de caixa (despesas). Em seguida, explique por que é importante para o dono do negócio ter esse controle de fluxo de caixa.</p>
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Tarefa Prática: Análise de Fluxo de Caixa
+                    </h3>
+                    <p class="task-question text-gray-700 mb-4">Pense em uma pequena empresa (por exemplo, um carrinho de comida de rua). Descreva três tipos de entradas de caixa (receitas) e três tipos de saídas de caixa (despesas). Em seguida, explique por que é importante para o dono do negócio ter esse controle de fluxo de caixa.</p>
+                </div>
+                <label class="completion-container mt-2 sm:mt-0">
+                    <input type="checkbox" class="topic-checkbox" data-key="T3_FluxoCaixa">
+                    Concluído
+                </label>
+            </div>
             <textarea rows="5" class="task-answer w-full p-3 border border-sky-300 rounded-md shadow-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-gray-800 placeholder-gray-400" placeholder="Ex: Entradas: Venda de sanduíches, venda de sucos... Saídas: Compra de ingredientes, pagamento de taxas... É importante ter controle para prever a liquidez..."></textarea>
         </section>
 
@@ -1255,5 +1352,12 @@
 
         window.addEventListener('load', storeOriginalFontSizesAcc);
     </script>
+    <!-- Scripts Firebase e de Progresso -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <script src="../SIGAV/firebase-config.js"></script>
+    <script src="../SIGAV/trilha-progress.js"></script>
 </body>
 </html>

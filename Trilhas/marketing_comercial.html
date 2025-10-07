@@ -1,22 +1,303 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EJECT | Marketing Comercial</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        <!-- Se for visualizar localmente, remova: "/EJECT_Trilha_de_Conhecimento/" dos linkamento -->
-        <link rel="stylesheet" href="/EJECT_Trilha_de_Conhecimento/css/trilhas_styles.css">
-        <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/svgs/logo-eject.svg">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Marketing Comercial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração da fonte Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
 
-    </head>
-<body>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../SIGAV/firebase-config.js"></script>
+
+    <script src="../SIGAV/salvamento_nuvem.js"></script>
+    <script src="../SIGAV/trilha-progress.js"></script>
+
+    <!-- Lógica JavaScript (Firebase Modular v11 e Controle de Progresso) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Variáveis globais fornecidas pelo ambiente
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        let currentUser = null;
+        let localProgress = {};
+        const trilhaId = document.getElementById('trilha-id')?.value || 'marketing_comercial';
+        const checkboxes = document.querySelectorAll('.topic-checkbox');
+        const totalTopics = checkboxes.length;
+
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressStatus = document.getElementById('progress-status');
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setPersistence(auth, browserLocalPersistence);
+        } else {
+            console.error("Firebase config is missing.");
+        }
+
+        function updateProgressBar() {
+            const completedCount = Object.values(localProgress).filter(Boolean).length;
+            const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+
+            progressBar.style.width = `${percentage}%`;
+            
+            progressBar.classList.toggle('bg-green-600', percentage === 100);
+            progressBar.classList.toggle('bg-sky-600', percentage < 100);
+            
+            progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+        }
+        
+        function getProgressRef(userId, trilhaId) {
+            return doc(db, 'artifacts', appId, 'users', userId, 'trilha_progress', trilhaId);
+        }
+
+        async function saveProgressToDatabase() {
+            if (!currentUser || !db) return;
+            progressStatus.textContent = 'Salvando...';
+            progressStatus.className = 'text-sm font-medium text-yellow-600';
+
+            const userRef = getProgressRef(currentUser.uid, trilhaId);
+            
+            try {
+                await setDoc(userRef, localProgress, { merge: true });
+                progressStatus.textContent = 'Progresso salvo na nuvem';
+                progressStatus.className = 'text-sm font-medium text-green-600';
+            } catch (error) {
+                console.error("Erro ao salvar no Firestore: ", error);
+                progressStatus.textContent = 'Erro ao salvar';
+                progressStatus.className = 'text-sm font-medium text-red-600';
+            }
+        }
+
+        const debouncedSave = (() => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(saveProgressToDatabase, 1500);
+            };
+        })();
+        
+        function applyProgressToUI() {
+            checkboxes.forEach(checkbox => {
+                const key = checkbox.dataset.key;
+                checkbox.checked = !!localProgress[key];
+            });
+            updateProgressBar();
+        }
+
+        async function loadProgressFromDatabase(user) {
+            if (!user || !db) return;
+            progressStatus.textContent = 'Carregando...';
+            progressStatus.className = 'text-sm font-medium text-gray-500';
+
+            const userRef = getProgressRef(user.uid, trilhaId);
+            
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    localProgress = docSnap.data();
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Progresso carregado da nuvem';
+                    progressStatus.className = 'text-sm font-medium text-green-600';
+                } else {
+                    localProgress = {};
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Nenhum progresso salvo ainda';
+                    progressStatus.className = 'text-sm font-medium text-gray-500';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar do Firestore: ", error);
+                progressStatus.textContent = 'Erro ao carregar progresso';
+                progressStatus.className = 'text-sm font-medium text-red-600';
+            }
+        }
+        
+        // 1. Inicializa o estado de Autenticação/Carga
+        if (firebaseConfig) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadProgressFromDatabase(user);
+                } else {
+                    // Tenta o login automático via custom token ou anônimo
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            const anonUser = await signInAnonymously(auth);
+                            currentUser = anonUser.user;
+                            await loadProgressFromDatabase(currentUser);
+                        }
+                    } catch (error) {
+                         console.error("Erro de autenticação:", error);
+                         currentUser = null;
+                         progressStatus.textContent = 'Falha na autenticação. Progresso não será salvo.';
+                         progressStatus.className = 'text-sm font-medium text-red-600';
+                    }
+                }
+
+                // 2. Adiciona os listeners de mudança depois que a autenticação for resolvida
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const key = checkbox.dataset.key;
+                        localProgress[key] = checkbox.checked;
+                        updateProgressBar();
+                        
+                        if (currentUser) {
+                           debouncedSave();
+                        }
+                    });
+                });
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            updateProgressBar();
+        });
+    </script>
+
+    <!-- Estilos CSS unificados e responsivos -->
+    <style>
+        /* Estilos globais para consistência e estética */
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+        
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        
+        .topic-link {
+            transition: color 0.2s, background-color 0.2s;
+            color: #0c4a6e;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .topic-link:hover {
+            color: #075985;
+            text-decoration: underline;
+        }
+        
+        /* Estilos do sistema de progresso (Cores ajustadas para Tailwind Sky Blue padrão) */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1; /* sky-700 */
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc; /* sky-300 */
+            border-radius: 9999px;
+            background-color: #f0f9ff; /* sky-50 */
+            transition: background-color 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+            width: fit-content; /* Garante que o label não ocupe a largura total */
+        }
+        .completion-label:hover { background-color: #e0f2fe; } /* sky-100 */
+
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8; /* sky-400 */
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9; /* sky-500 */
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
+        
+        /* Estilos de layout para a seção principal */
+        .list-item-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0.75rem;
+            background-color: #f9fafb; /* gray-50 */
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid #f3f4f6; /* gray-100 */
+        }
+        /* Ajuste para desktop */
+        @media (min-width: 640px) {
+            .list-item-container {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        
+        /* Estilo para vídeos responsivos */
+        .responsive-embed {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .responsive-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+    </style>
+</head>
+<body class="antialiased">
     <!-- Vlibra -->
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
         <div vw-plugin-wrapper>
-          <div class="vw-plugin-top-wrapper"></div>
+            <div class="vw-plugin-top-wrapper"></div>
         </div>
     </div>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
@@ -24,344 +305,302 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-<header>
-    <nav class="container">
-        <a href="index">
-            <h1 href = "/EJECT_Trilha_de_Conhecimento/index">Hub de Conhecimentos</h1>
-        </a>
-        <div class="ds-contact-container">
-            <a href="https://www.ejectufrn.com.br/">
-                <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT">
+    <!-- HEADER (Estrutura Tailwind) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="/EJECT_Trilha_de_Conhecimento/index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botões de Exportar (Mantidos pelo design) -->
+                    <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="file-text" class="h-6 w-6"></i>
+                    </button>
+                    <button id="exportPdfBtn" title="Exportar Conteúdo para PDF" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="download" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <input type="hidden" id="trilha-id" value="marketing_comercial" />
+
+        <!-- Botão Voltar -->
+        <section class="mb-6">
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar
             </a>
-        </div>
-    </nav>
-</header>
-
-    <main>
-        <section>
-            <a class="btn btn-primary" href="/EJECT_Trilha_de_Conhecimento">Voltar</a>
-        </section> <br>
-
-        <input type="hidden" id="trilha-nome" value="Marketing Comercial" />
-
-
-        <!-- Conteúdo do Scrum -->
-        <section class="mb-5">
-            <h2>Marketing Comercial</h2> <br>
-            <p>O marketing comercial é essencial para empresas que buscam crescer de forma estratégica, atendendo às necessidades do mercado e gerando valor para o cliente.</p>
         </section>
 
-        <!-- Fundamentos do Scrum -->
-        <section>
-            <div class="section-header">
-                <h2>Qualificação de Leads</h2>
-            </div> <br>
-            <ul>
-                <p>A qualificação de leads é o processo de identificar quais clientes potenciais (leads) têm mais chances de fechar uma compra. Esse processo ajuda a direcionar o foco para os leads com maior probabilidade de sucesso, economizando tempo e recursos.</p>
-                <p>Principais Etapas:</p>
-                
-                <li>Definição do Lead Ideal (ICP - Ideal Customer Profile)</li> <br>
-                <p>Antes de qualificar leads, é essencial definir o perfil de cliente ideal. Esse perfil é uma combinação das características demográficas e comportamentais que um cliente precisa ter para aproveitar ao máximo seu produto ou serviço.</p> <br>
-                
-                <section>
-                    <section>
-                        <h3>O QUE É LEAD?</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/L5R_ZYo-_68?si=yJ0bwyUkB3iebkWc" title="O QUE É LEAD? (09 Dicas Práticas Para Gerar Leads de Sucesso)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-                <h4>Métodos de Qualificação:</h4> <br>
-
-                <li>BANT (Budget, Authority, Need, Timing)</li> <br>
-                <p>Avalia se o lead tem orçamento, autoridade para decidir, necessidade do produto e urgência para realizar a compra</p> <br>
-                
-                <li>GPCT (Goals, Plans, Challenges, Timeline)</li> <br>
-                <p>Analisa o desafio que o lead quer resolver, se tem autoridade, se pode arcar com o custo e se a compra é uma prioridade.</p> <br>
-                
-                <p><strong>Dicas Práticas</strong></p>
-                <p>1. Use ferramentas de CRM (Customer Relationship Management) para armazenar e acompanhar as informações dos leads.</p>
-                <p>2. Aplique questionários ou entrevistas curtas para entender melhor a intenção do lead.</p>
-                
-            </ul> <br>
-        </section>
-
-        <section>
-            <div class="section-header">
-                <h2>Público-Alvo e Pesquisa de Mercado</h2>
-            </div> <br>
-            <p>O público-alvo é o grupo de consumidores que a empresa deseja alcançar com seus produtos e serviços. Definir com precisão o público-alvo ajuda a orientar a comunicação, a oferta de produtos e as estratégias de vendas, tornando-as mais eficazes.</p>
-            <ul>
-                <p>Como Definir o Público-Alvo</p>
-                <li><strong>Dados Demográficos</strong></li> <br>
-                <p>Inclui informações básicas como idade, gênero, localização, nível de renda e ocupação.</p>
-                <p><strong>Exemplo:</strong> Uma loja de roupas infantis pode definir seu público-alvo como “pais entre 25 e 40 anos, com filhos de até 5 anos, residentes em áreas urbanas”.</p>
-                
-                <li><strong>Interesses e Comportamento</strong></li> <br>
-                <p>Identifique o que esse público gosta de fazer, quais são suas atividades, hobbies e preferências de compra.</p>
-                <p><strong>Exemplo:</strong> Para uma marca de produtos veganos, o público-alvo pode incluir pessoas que buscam um estilo de vida saudável e sustentável.</p>
-            
-                <li><strong>Necessidades e Problemas</strong></li> <br>
-                <p>Quais são as dores e desafios que o produto ou serviço da empresa resolve para esse público? Entender as necessidades específicas ajuda a criar uma mensagem mais atraente.</p>
-                <p><strong>Exemplo:</strong> O público-alvo de uma plataforma de ensino à distância pode ser composto por estudantes universitários que buscam flexibilidade para estudar a qualquer hora e em qualquer lugar.</p>
-                
-                <li><strong>Capacidade de Compra:</strong></li> <br>
-                <p>Avalie o poder aquisitivo desse público e ajuste a oferta de produtos e serviços para torná-los acessíveis e desejáveis.</p>
-                <p><strong>Exemplo:</strong> Uma marca de luxo pode focar em clientes de alta renda que valorizam exclusividade e qualidade superior.</p>
-                            
-                <section>
-                    <section>
-                        <h3>O QUE É PÚBLICO-ALVO?</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/qn5w9_q-kIE?si=yxuetb0Z5KI94ftp" title="O QUE É PÚBLICO-ALVO (06 Dicas Incríveis de Como Encontrar o Seu Público Ideal?)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-                <p>A pesquisa de mercado é o processo de coleta e análise de dados sobre o mercado, concorrentes e consumidores, que ajuda a empresa a entender o cenário competitivo e a tomar decisões informadas.</p> <br> <br>
-                
-                <section>
-                    <section>
-                        <h3>PESQUISA DE MERCADO | 07 Dicas PRÁTICAS DE COMO FAZER DO Jeito Certo</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/of44opSisKI?si=_rFIu0juEGt1Q2MZ" title="PESQUISA DE MERCADO | 07 Dicas PRÁTICAS DE COMO FAZER DO Jeito Certo" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-            </ul>
-        </section>
-
-
-        <section>
-            <div class="section-header">
-                <h2>Prospecção Comercial</h2>
-            </div> <br>
-            <ul>
-                <p>A prospecção é o processo de identificar e contatar clientes em potencial, seja por meio de estratégias de inbound (atrair leads) ou outbound (buscar leads ativamente).</p> <br>
-                
-                <h4>Tipos de Prospecção:</h4> <br>
-
-                <li><strong>Inbound Marketing</strong></li> <br>
-                <p>Inclui criar conteúdo relevante (como blogs, webinars e e-books) que atraia leads para o seu site ou redes sociais. É uma abordagem mais indireta, mas eficiente para construir relacionamentos a longo prazo.</p>
-                
-                <section>
-                    <section>
-                        <h3>INBOUND MARKETING O QUE É?</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/dpebeyJQrrc?si=IqG_s-TfMd3z1t9B" title="INBOUND MARKETING O QUE É (04 Passos Práticos Para Aplicar na Sua Empresa e Vender Mais)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-                
-                <li><strong>Outbound Marketing</strong></li> <br>
-                <p>Consiste em alcançar ativamente potenciais clientes, como via ligações frias (cold calling), e-mails de apresentação e networking em eventos do setor. Essa abordagem é mais direta e permite alcançar clientes que ainda não conhecem a empresa.</p> <br>
-                
-                <h4>Ferramentas Úteis</h4> <br>
-                <p>1. LinkedIn Sales Navigator: Ideal para encontrar e abordar leads em setores específicos.</p>
-                <p>2. Software de Automação de E-mail: Como Mailchimp ou HubSpot, que ajudam a enviar e-mails personalizados em grande escala, acompanhando a resposta dos leads.</p>
-                
-                <section>
-                    <section>
-                        <h3>BENCHMARKING O QUE É (Por que ele ajuda tanto todo tipo de negócio?)</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/ATcHu8wi6nk?si=97KcIaE4AIL2ziIU" title="BENCHMARKING O QUE É (Por que ele ajuda tanto todo tipo de negócio?)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-            </ul> <br>
-        </section>
-
-
-
-        <section>
-            <div class="section-header">
-                <h2>Briefing Comercial</h2>
-            </div> <br>
-            <ul>
-                <p>O briefing é um documento essencial para alinhar as expectativas entre a equipe de vendas e o cliente. Ele funciona como um guia estratégico, garantindo que todos os envolvidos tenham clareza sobre os objetivos e requisitos da campanha.</p>
-                <li>Estrutura do Briefing </li> <br>
-                <p><strong>Objetivo da Campanha:</strong> Descreva o objetivo principal, como aumentar as vendas de um produto ou divulgar uma nova linha.</p>
-                <p><strong>Público-Alvo:</strong> Detalhe o perfil do público-alvo, incluindo faixa etária, interesses e necessidades específicas.</p>
-                <p><strong>Mensagem-Chave:</strong> Defina a mensagem central da campanha e o valor que ela traz ao cliente.</p>
-                <p><strong>Canais de Divulgação:</strong> stabeleça os canais de comunicação onde a campanha será executada (e-mail, redes sociais, anúncios).</p>
-                <p><strong>Cronograma e Prazos:</strong> Inclua os prazos para criação, aprovação e lançamento da campanha.</p> <br>
-                
-                <p><strong>Exemplo de Briefing</strong></p>
-                <p>Imagine uma campanha para uma nova linha de produtos de tecnologia. O briefing deve definir o público-alvo (jovens entre 20 e 35 anos, interessados em inovação), a mensagem ("Tecnologia para quem quer estar sempre à frente"), os canais (Instagram, YouTube e anúncios no Google) e o cronograma de lançamento.</p>
-                
-                <section>
-                    <section>
-                        <h3>BRIEFING O QUE É ?</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/UlcEfta5U14?si=odzt14OGzOqy1NNM" title="BRIEFING O QUE É (Tradução e Passo-A-Passo para Montar Um Do Jeito Certo)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-            </ul>
-        </section>
-
-        <section>
-            <div class="section-header">
-                <h2>Precificação e Estratégias de Valor</h2>
-            </div> <br>
-            <ul>
-                <p>Definir o preço certo para produtos ou serviços é essencial para garantir a lucratividade e a competitividade da empresa. Existem diferentes estratégias para definir o preço, e cada uma depende de fatores como mercado, concorrência e valor percebido.</p> <br>
-                <h4>Métodos de Precificação</h4> <br>
-
-                <li><strong>Precificação Baseada em Custo</strong></li> <br>
-                <p>O preço é determinado somando-se os custos de produção a uma margem de lucro fixa. Funciona bem para produtos com pouca diferenciação.</p>
-                
-                <li><strong>Precificação Baseada no Valor Percebido</strong></li> <br>
-                <p>Considera quanto os consumidores estão dispostos a pagar pelo valor que enxergam no produto, independentemente do custo. É ideal para produtos premium ou com diferenciação significativa.</p>
-            
-                <li><strong>Precificação Competitiva</strong></li> <br>
-                <p>Define o preço com base nos concorrentes. É comum em mercados com muita concorrência e onde os produtos são semelhantes.</p>
-            
-                <p><strong>Estratégias de Ajuste de Preço</strong></p>
-                <p>Descontos Sazonais: Redução de preço em períodos específicos para aumentar o volume de vendas (ex: promoções de fim de ano).</p>
-                <p>Definir preços que criem uma percepção de "vantagem" para o consumidor, como valores terminados em "9" (ex: R$ 49,99).</p>
-                
-                <section>
-                    <section>
-                        <h3>TÉCNICAS DE VENDA (10 Dicas Que Funcionam de Verdade)</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/l6JAqtqKQiQ?si=jhGoBrml5l8y2E9d" title="TÉCNICAS DE VENDA (10 Dicas Que Funcionam de Verdade)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-            </ul>           
-        </section>
-
-
-        <section>
-            <div class="section-header">
-                <h2>Buyer Persona</h2>
-            </div> <br>
-            <ul>
-                <p>A Buyer Persona é uma representação semifictícia do cliente ideal, baseada em dados reais e insights sobre os clientes existentes e potenciais. Diferente do ICP (Ideal Customer Profile), que descreve o público-alvo em termos mais amplos, a buyer persona aprofunda-se nas características pessoais, comportamentos, desafios e objetivos do cliente ideal, proporcionando uma visão mais clara de como abordá-lo.</p>
-                
-                <section>
-                    <section>
-                        <h3>BUYER PERSONA | 04 Passos Práticos de Como Trabalhá-la do Jeito Certo</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/WIlXBukHMRE?si=VnmIp2CGkeO2w0yZ" title="BUYER PERSONA | 04 Passos Práticos de Como Trabalhá-la do Jeito Certo" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-            </ul> <br>
-        </section>
-
-        <section>
-            <div class="section-header">
-                <h2>Atendimento ao Cliente</h2>
-            </div> <br>
-            <p>O atendimento ao cliente é fundamental para garantir a satisfação e fidelidade dos clientes, impactando diretamente a reputação da marca e o crescimento das vendas. Um bom atendimento não se limita apenas à resolução de problemas; ele deve criar uma experiência positiva e memorável.</p>
-            <ul>
-                <p>Boas Práticas no Atendimento ao Cliente</p>
-                <li><strong>Escuta Ativa e Empatia</strong></li> <br>
-                <p>Pratique a escuta ativa para entender completamente as necessidades e expectativas do cliente. Mostre empatia, colocando-se no lugar do cliente e demonstrando que suas preocupações são válidas.</p>
-                <p><strong>Exemplo:</strong> Em um caso de reclamação, o atendente deve escutar pacientemente, sem interromper, e responder com empatia, reconhecendo o desconforto do cliente antes de oferecer soluções.</p>
-                
-                <li><strong>Personalização do Atendimento</strong></li> <br>
-                <p>Personalize o atendimento conforme o perfil do cliente, referindo-se ao cliente pelo nome e adaptando as respostas conforme o contexto e histórico de interação.</p>
-                <p><strong>Exemplo:</strong> Se um cliente entra em contato regularmente com a empresa, consulte as interações anteriores para dar um suporte mais específico e mostrar que a empresa se importa.</p>
-            
-                <li><strong>Resolução Rápida e Eficaz</strong></li> <br>
-                <p>Priorize a resolução rápida dos problemas e tenha procedimentos claros para as demandas mais comuns. Em caso de problemas complexos, mantenha o cliente informado sobre o status da resolução.</p>
-                <p><strong>Exemplo:</strong> Para um cliente que enfrenta dificuldades com um produto, ofereça soluções práticas imediatamente e acompanhe o caso até a resolução.</p>
-                
-                <li><strong>Proatividade e Antecipação de Problemas</strong></li> <br>
-                <p>Antecipe problemas comuns e compartilhe orientações e dicas úteis para ajudar o cliente a evitar frustrações. Ofereça um canal de suporte robusto com FAQs, tutoriais e suporte ao vivo, quando possível.</p>
-                <p><strong>Exemplo:</strong> Enviar e-mails com dicas de uso logo após a compra de um produto, esclarecendo pontos comuns que podem gerar dúvidas, cria uma experiência de acolhimento.</p>
-                
-                <li><strong>Feedback e Melhoria Contínua</strong></li> <br>
-                <p>Solicite feedback após cada atendimento para identificar pontos de melhoria e demonstrar ao cliente que a empresa valoriza a opinião dele. Utilize essas informações para aprimorar continuamente os processos.</p>
-                <p><strong>Exemplo:</strong> Após cada interação, envie uma pesquisa rápida de satisfação ou peça ao cliente para avaliar o atendimento, indicando se algo poderia ser aprimorado.</p>
-            
-                <section>
-                    <section>
-                        <h3>BOM ATENDIMENTO AO CLIENTE (08 Dicas BEM Simples para Melhorar o do seu Negócio)</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/84buoULe_10?si=m6uzx3lXQh9uOh8l" title="BOM ATENDIMENTO AO CLIENTE (08 Dicas BEM Simples para Melhorar o do seu Negócio)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-                <section>
-                    <section>
-                        <h3>FIDELIZAÇÃO DE CLIENTES (05 Dicas Incríveis Para Fidelizar Seus Clientes)</h3> <br>
-                        <div class="ratio ratio-16x9 mb-4">
-                            <iframe src="https://www.youtube.com/embed/oShdGfAy6dM?si=YSpjzRVSZHpx2liF" title="FIDELIZAÇÃO DE CLIENTES (05 Dicas Incríveis Para Fidelizar Seus Clientes)" allowfullscreen></iframe>
-                        </div>
-                    </section> <br>
-                </section>
-
-            </ul>
-        </section>
-
-        <section>
-            <div class="section-header">
-                <h2>Copywriting no Marketing Comercial</h2>
-            </div> <br>
-            <p>O copywriting é a arte de escrever textos persuasivos com o objetivo de vender produtos, serviços ou ideias. Ao contrário de um texto comum, o copywriting visa levar o leitor a tomar uma ação específica, como comprar, assinar, clicar ou se inscrever. Ele é fundamental no marketing comercial, pois traduz o valor de uma oferta de forma clara e envolvente.</p> <br>
-            <p><strong>Importância do Copywriting</strong></p> <br>
-            <p>O copywriting eficaz pode ser a chave para aumentar as taxas de conversão em campanhas de marketing. Um bom copywriter entende como captar a atenção do público, gerar interesse, criar desejo e levar o leitor a tomar a ação desejada. O objetivo é transformar um simples visitante em um cliente fiel.</p> <br>
-                        
-            <h4>Princípios Básicos do Copywriting</h4> <br>
-            <ul>
-                <li><strong>Conheça Seu Público-Alvo</strong></li> <br>
-                <p>Antes de escrever, é essencial entender profundamente o público para o qual você está escrevendo. Quais são suas dores, necessidades, aspirações e desejos? Isso ajudará a criar um conteúdo mais relevante e persuasivo.</p>
-                
-                <li><strong>Títulos Atraentes</strong></li> <br>
-                <p>O título é a primeira coisa que o leitor vê, e ele precisa ser irresistível. O bom copywriting começa com uma chamada de atenção forte, que desperte a curiosidade ou resolva um problema imediato.</p>
-                
-                <li><strong>Foco no Benefício, Não na Característica</strong></li> <br>
-                <p>Ao invés de apenas descrever as características do produto, foque nos benefícios que ele traz para o cliente. Como sua vida vai melhorar ao usar o produto ou serviço?</p>
-                
-                <li><strong>Prova Social e Testemunhos</strong></li> <br>
-                <p>Incluir testemunhos, depoimentos e provas sociais no texto ajuda a criar credibilidade e confiança. Os consumidores tendem a confiar mais na experiência de outros compradores do que na simples promessa do vendedor.</p>
-                
-                <li><strong>Criação de Urgência</strong></li> <br>
-                <p>O copywriting eficaz frequentemente utiliza gatilhos de urgência para incentivar o cliente a agir imediatamente. Isso pode ser feito através de ofertas limitadas, bônus ou promoções especiais.</p>
-                
-                <li><strong>Chamada para Ação (CTA) Clara</strong></li> <br>
-                <p>Toda peça de copywriting deve ter uma chamada clara para a ação (CTA). A CTA diz ao leitor o que ele deve fazer a seguir, seja "Compre Agora", "Assine Já", "Solicite uma Demonstração", etc.</p>
-            </ul> <br>
-
-            <section>
-                <section>
-                    <h3>O QUE É COPYWRITING? (07 Dicas Incríveis Para Encantar Seus Clientes e Aumentar Suas Vendas)</h3> <br>
-                    <div class="ratio ratio-16x9 mb-4">
-                        <iframe src="https://www.youtube.com/embed/cZsG9qRUu2M?si=VN5AD7aKb1CTxvNb" title="O QUE É COPYWRITING? (07 Dicas Incríveis Para Encantar Seus Clientes e Aumentar Suas Vendas)" allowfullscreen></iframe>
-                    </div>
-                </section> <br>
-            </section>
-        </section>
-      
-        <!-- Referências -->
-        <section>
-            <h2>Referências e Conteúdos Extras</h2> <br>
-            <ul>
-                <li>Cursos</li> <br>
-                <a href="https://cursos.alura.com.br/plano-marketing-eject-1714400005414-p761612" target="_blank"> [ALURA - Playlist EJECT] Plano Marketing</a><br>
-                <a href="https://cursos.alura.com.br/plano-comercial-eject-1714401512768-p761636" target="_blank"> [Alura - Playlist EJECT] Plano Comercial</a><br> <br>
-                <li>Vídeos</li> <br>
-                <a href="https://www.youtube.com/watch?v=kDPxoijU_Bw" target="_blank"> [YOUTUBE] PROSPECÇÃO DE CLIENTES (05 Dicas BEM Simples para Conquistar os Clientes Certos)</a><br>
-
-            </ul>
+        <!-- Barra de Progresso -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium">Carregando...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
         </section>
         
+        <!-- Introdução da Trilha -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h1 class="text-4xl font-bold text-sky-800 mb-4">Trilha de Conhecimento - Marketing Comercial</h1>
+            <p class="text-lg leading-relaxed text-gray-700">O marketing comercial é um conjunto de estratégias e ações voltadas para a promoção e venda de produtos ou serviços. Ele envolve o entendimento do mercado, a identificação do público-alvo e a criação de campanhas que gerem valor para o cliente e resultados para a empresa.</p>
+        </section>
+
+        <!-- Módulo 1: Qualificação e Público-Alvo -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="target" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 1: Qualificação e Definição de Público</h2>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Qualificação de Leads e ICP</h3>
+            <p class="text-gray-700 mb-4">A qualificação de leads ajuda a direcionar o foco para os clientes potenciais com maior probabilidade de sucesso (ICP - Ideal Customer Profile), otimizando tempo e recursos.</p>
+
+            <ul class="space-y-4 text-gray-700 mb-6">
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">O QUE É LEAD? (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/L5R_ZYo-_68?si=yJ0bwyUkB3iebkWc" title="O QUE É LEAD? (09 Dicas Práticas Para Gerar Leads de Sucesso)" allowfullscreen></iframe>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Fundamentos de Leads, ICP, Métodos BANT e GPCT, e Dicas Práticas.</p>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_lead_video">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_lead_video" id="mc_lead_video">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Público-Alvo e Pesquisa de Mercado</h3>
+            <p class="text-gray-700 mb-4">A definição precisa do público-alvo e a pesquisa de mercado são cruciais para orientar a comunicação e as estratégias de vendas.</p>
+
+            <ul class="space-y-4 text-gray-700">
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">O QUE É PÚBLICO-ALVO? (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/qn5w9_q-kIE?si=yxuetb0Z5KI94ftp" title="O QUE É PÚBLICO-ALVO (06 Dicas Incríveis de Como Encontrar o Seu Público Ideal?)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_publico_alvo">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_publico_alvo" id="mc_publico_alvo">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">PESQUISA DE MERCADO | 07 Dicas PRÁTICAS (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/of44opSisKI?si=_rFIu0juEGt1Q2MZ" title="PESQUISA DE MERCADO | 07 Dicas PRÁTICAS DE COMO FAZER DO Jeito Certo" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_pesquisa_mercado">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_pesquisa_mercado" id="mc_pesquisa_mercado">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Módulo 2: Prospecção e Briefing -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="users" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 2: Prospecção, Benchmarking e Briefing</h2>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Prospecção (Inbound vs. Outbound)</h3>
+            <p class="text-gray-700 mb-4">A prospecção é o processo de encontrar e contatar clientes em potencial. Conheça as estratégias de Inbound (atração) e Outbound (busca ativa).</p>
+
+            <ul class="space-y-4 text-gray-700 mb-6">
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">INBOUND MARKETING O QUE É? (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/dpebeyJQrrc?si=IqG_s-TfMd3z1t9B" title="INBOUND MARKETING O QUE É (04 Passos Práticos Para Aplicar na Sua Empresa e Vender Mais)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_inbound_marketing">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_inbound_marketing" id="mc_inbound_marketing">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">BENCHMARKING O QUE É (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/ATcHu8wi6nk?si=97KcIaE4AIL2ziIU" title="BENCHMARKING O QUE É (Por que ele ajuda tanto todo tipo de negócio?)" allowfullscreen></iframe>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Entenda a importância de analisar a concorrência para otimizar suas estratégias de prospecção.</p>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_benchmarking">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_benchmarking" id="mc_benchmarking">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Briefing Comercial</h3>
+            <p class="text-gray-700 mb-4">O briefing é o documento essencial para alinhar as expectativas sobre os objetivos e requisitos da campanha entre a equipe e o cliente.</p>
+            
+            <ul class="space-y-4 text-gray-700">
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">BRIEFING O QUE É? (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/UlcEfta5U14?si=odzt14OGzOqy1NNM" title="BRIEFING O QUE É (Tradução e Passo-A-Passo para Montar Um Do Jeito Certo)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_briefing_video">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_briefing_video" id="mc_briefing_video">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Módulo 3: Precificação, Atendimento e Copywriting -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="dollar-sign" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 3: Precificação, Atendimento e Copywriting</h2>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Precificação e Vendas</h3>
+            <p class="text-gray-700 mb-4">Aprenda a definir o preço certo (baseado em custo, valor ou competição) e as técnicas de vendas eficazes.</p>
+
+            <ul class="space-y-4 text-gray-700 mb-6">
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">TÉCNICAS DE VENDA (10 Dicas Que Funcionam) (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/l6JAqtqKQiQ?si=jhGoBrml5l8y2E9d" title="TÉCNICAS DE VENDA (10 Dicas Que Funcionam de Verdade)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_tecnicas_venda">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_tecnicas_venda" id="mc_tecnicas_venda">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+            
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Atendimento e Fidelização de Clientes</h3>
+            <p class="text-gray-700 mb-4">Boas práticas de atendimento para garantir satisfação, fidelidade e impacto positivo na reputação da marca.</p>
+
+            <ul class="space-y-4 text-gray-700 mb-6">
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">BOM ATENDIMENTO AO CLIENTE (08 Dicas) (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/84buoULe_10?si=m6uzx3lXQh9uOh8l" title="BOM ATENDIMENTO AO CLIENTE (08 Dicas BEM Simples para Melhorar o do seu Negócio)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_atendimento_cliente">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_atendimento_cliente" id="mc_atendimento_cliente">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+
+                <li class="list-item-container bg-sky-50 border-sky-200">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-sky-800">FIDELIZAÇÃO DE CLIENTES (05 Dicas Incríveis) (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/oShdGfAy6dM?si=YSpjzRVSZHpx2liF" title="FIDELIZAÇÃO DE CLIENTES (05 Dicas Incríveis Para Fidelizar Seus Clientes)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_fidelizacao_cliente">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_fidelizacao_cliente" id="mc_fidelizacao_cliente">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Copywriting e Buyer Persona</h3>
+            <p class="text-gray-700 mb-4">O Copywriting é a arte de escrever textos persuasivos. Ele deve ser feito com foco na **Buyer Persona**, a representação semifictícia do seu cliente ideal.</p>
+
+            <ul class="space-y-4 text-gray-700 mb-6">
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">BUYER PERSONA | 04 Passos Práticos (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/WIlXBukHMRE?si=VnmIp2CGkeO2w0yZ" title="BUYER PERSONA | 04 Passos Práticos de Como Trabalhá-la do Jeito Certo" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_buyer_persona">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_buyer_persona" id="mc_buyer_persona">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+                
+                <li class="list-item-container">
+                    <div class="flex-grow pr-4">
+                        <span class="block font-medium text-gray-800">O QUE É COPYWRITING? (07 Dicas Incríveis) (Vídeo YouTube)</span>
+                        <div class="responsive-embed">
+                            <iframe src="https://www.youtube.com/embed/cZsG9qRUu2M?si=VN5AD7aKb1CTxvNb" title="O QUE É COPYWRITING? (07 Dicas Incríveis Para Encantar Seus Clientes e Aumentar Suas Vendas)" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <label class="completion-label mt-2 sm:mt-0" for="mc_copywriting">
+                        <input type="checkbox" class="topic-checkbox" data-key="mc_copywriting" id="mc_copywriting">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+        </section>
+
+
+        <!-- Referências e Conteúdos Extras -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="list-checks" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Referências e Conteúdos Extras</h2>
+            </div>
+
+            <ul class="space-y-4 text-gray-700">
+                <li class="p-2">
+                    <h4 class="font-bold text-lg mb-1">Cursos Alura - Playlists EJECT</h4>
+                    <a href="https://cursos.alura.com.br/plano-marketing-eject-1714400005414-p761612" target="_blank" class="topic-link text-sm ml-2">
+                        <i data-lucide="bookmark" class="h-4 w-4 mr-1"></i>
+                        [ALURA] Plano Marketing
+                    </a><br>
+                    <a href="https://cursos.alura.com.br/plano-comercial-eject-1714401512768-p761636" target="_blank" class="topic-link text-sm ml-2">
+                        <i data-lucide="bookmark" class="h-4 w-4 mr-1"></i>
+                        [ALURA] Plano Comercial
+                    </a>
+                </li>
+                
+                <li class="p-2">
+                    <h4 class="font-bold text-lg mb-1">Vídeo Extra</h4>
+                    <a href="https://www.youtube.com/watch?v=kDPxoijU_Bw" target="_blank" class="topic-link text-sm ml-2">
+                        <i data-lucide="youtube" class="h-4 w-4 mr-1"></i>
+                        [YOUTUBE] PROSPECÇÃO DE CLIENTES (05 Dicas BEM Simples)
+                    </a>
+                </li>
+            </ul>
+        </section>
+
     </main>
 
-    <footer class="text-center py-4">
-        <p>Feito com <strong>foco </strong>e <strong>compromisso</strong> pela EJECT&copy; - Todos os direitos reservados.</p>
+    <footer class="bg-sky-900 text-white text-center py-8 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
-    
-    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka6PYS2ZTMj7Do35tWl53KIkazN1l5Hb9Kjk7aaJ5RrbZZgZ9KmbxKt0qKZ1dQF" crossorigin="anonymous"></script>
+
 </body>
 </html>

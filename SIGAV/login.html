@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Login</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            height: 100vh;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="modal-content hidden">
+        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-12 mx-auto mb-6">
+        <h2 class="text-3xl font-bold text-sky-700 mb-4">Acesso às Trilhas</h2>
+        <p class="text-gray-600 mb-6">Use seu e-mail e senha para acessar.</p>
+        
+        <div class="space-y-4">
+            <input 
+                type="text" 
+                id="nameInput" 
+                placeholder="Seu nome completo" 
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500 hidden"
+                autocomplete="name"
+            >
+            <input 
+                type="email" 
+                id="emailInput" 
+                placeholder="Seu e-mail" 
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                autocomplete="email"
+            >
+            <input 
+                type="password" 
+                id="passwordInput" 
+                placeholder="Sua senha" 
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                autocomplete="current-password"
+            >
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+            <button 
+                id="loginBtn" 
+                class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 rounded-lg shadow transition duration-150 ease-in-out"
+            >
+                Entrar
+            </button>
+            <button 
+                id="registerBtn" 
+                class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg shadow transition duration-150 ease-in-out"
+            >
+                Registrar
+            </button>
+        </div>
+        <p id="loginError" class="text-red-500 text-sm mt-4 h-4"></p>
+        <a href="#" id="backToLogin" class="text-sky-600 hover:underline text-sm mt-4 hidden">Voltar para o login</a>
+    </div>
+
+    <!-- Firebase Config e Lógica de Autenticação -->
+    <script src="firebase-config.js"></script>
+    <script>
+        const nameInput = document.getElementById('nameInput');
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const loginError = document.getElementById('loginError');
+        const backToLogin = document.getElementById('backToLogin');
+
+        let isRegisterMode = false;
+
+        // --- Funções de Autenticação ---
+
+        function handleLogin() {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            loginError.textContent = ''; // Limpa erros
+
+            if (!email || !password) {
+                loginError.textContent = 'Por favor, preencha e-mail e senha.';
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Login bem-sucedido, redireciona para o dashboard
+                    window.location.href = 'dashboard.html';
+                })
+                .catch((error) => {
+                    // Trata erros de login
+                    console.error("Erro de login:", error);
+                    switch (error.code) {
+                        case 'auth/user-not-found':
+                        case 'auth/wrong-password':
+                            loginError.textContent = 'E-mail ou senha inválidos.';
+                            break;
+                        case 'auth/invalid-email':
+                            loginError.textContent = 'Formato de e-mail inválido.';
+                            break;
+                        default:
+                            loginError.textContent = 'Ocorreu um erro ao tentar fazer login.';
+                    }
+                });
+        }
+
+        function handleRegister() {
+            const name = nameInput.value.trim();
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            loginError.textContent = ''; // Limpa erros
+
+            if (!name || !email || !password) {
+                loginError.textContent = 'Por favor, preencha nome, e-mail e senha.';
+                return;
+            }
+            if (password.length < 6) {
+                loginError.textContent = 'A senha deve ter no mínimo 6 caracteres.';
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Registro bem-sucedido, cria o perfil no banco de dados
+                    const user = userCredential.user;
+                    const db = firebase.database();
+                    db.ref('users/' + user.uid).set({
+                        email: user.email,
+                        name: name // Usa o nome completo fornecido
+                    }).then(() => {
+                        alert('Registro realizado com sucesso! Você será redirecionado.');
+                        window.location.href = 'dashboard.html';
+                    });
+                })
+                .catch((error) => {
+                    // Trata erros de registro
+                    console.error("Erro de registro:", error);
+                    switch (error.code) {
+                        case 'auth/email-already-in-use':
+                            loginError.textContent = 'Este e-mail já está em uso.';
+                            break;
+                        case 'auth/invalid-email':
+                            loginError.textContent = 'Formato de e-mail inválido.';
+                            break;
+                        case 'auth/weak-password':
+                            loginError.textContent = 'A senha é muito fraca.';
+                            break;
+                        default:
+                            loginError.textContent = 'Ocorreu um erro ao tentar se registrar.';
+                    }
+                });
+        }
+
+        function toggleRegisterMode(enable) {
+            isRegisterMode = enable;
+            loginError.textContent = '';
+
+            if (enable) {
+                // Entra no modo de registro
+                nameInput.classList.remove('hidden');
+                registerBtn.classList.add('hidden');
+                backToLogin.classList.remove('hidden');
+                loginBtn.textContent = 'Confirmar Registro';
+            } else {
+                // Volta para o modo de login
+                nameInput.classList.add('hidden');
+                registerBtn.classList.remove('hidden');
+                backToLogin.classList.add('hidden');
+                loginBtn.textContent = 'Entrar';
+            }
+        }
+
+
+        // --- Event Listeners ---
+        loginBtn.addEventListener('click', () => {
+            if (isRegisterMode) {
+                handleRegister();
+            } else {
+                handleLogin();
+            }
+        });
+
+        registerBtn.addEventListener('click', () => toggleRegisterMode(true));
+        backToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleRegisterMode(false);
+        });
+
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (isRegisterMode) {
+                    handleRegister();
+                } else {
+                    handleLogin();
+                }
+            }
+        });
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (isRegisterMode) {
+                    handleRegister();
+                } else {
+                    handleLogin();
+                }
+            }
+        });
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleRegister();
+        });
+
+
+        // --- Verificação de Estado de Autenticação ---
+        auth.onAuthStateChanged(user => {
+            const loginForm = document.querySelector('.modal-content');
+            if (user) {
+                // Se o usuário já está logado, redireciona para o dashboard
+                window.location.href = './dashboard.html';
+            } else {
+                // Se não há usuário, mostra o formulário de login
+                if(loginForm) loginForm.classList.remove('hidden');
+            }
+        });
+    </script>
+
+</body>
+</html>

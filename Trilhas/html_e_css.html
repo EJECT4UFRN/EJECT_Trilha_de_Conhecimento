@@ -1,21 +1,105 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>EJECT | HTML e CSS</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-        <!-- Se for visualizar localmente, remova: "/EJECT_Trilha_de_Conhecimento/" dos linkamento -->
-        <link rel="stylesheet" href="/EJECT_Trilha_de_Conhecimento/css/trilhas_styles.css">
-        <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/svgs/logo-eject.svg">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    </head>
-<body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | HTML e CSS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../SIGAV/firebase-config.js"></script>
+    
+    <style>
+        /* Estilos do sistema de progresso */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1;
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc;
+            border-radius: 9999px;
+            background-color: #f0f9ff;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        .completion-label:hover { background-color: #e0f2fe; }
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8;
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9;
+            background-color: #e0f2fe;
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
+    </style>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+
+        .topic-link {
+            transition: color 0.2s, background-color 0.2s;
+        }
+        .topic-link:hover {
+            color: #0c4a6e;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</head>
+<body class="antialiased">
     <!-- Vlibra -->
     <div vw class="enabled">
         <div vw-access-button class="active"></div>
         <div vw-plugin-wrapper>
-          <div class="vw-plugin-top-wrapper"></div>
+            <div class="vw-plugin-top-wrapper"></div>
         </div>
     </div>
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
@@ -23,118 +107,408 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-    <header>
-        <nav class="container">
-            <a href="index">
-                <h1 href = "/EJECT_Trilha_de_Conhecimento/index">Hub de Conhecimentos</h1>
-            </a>
-            <div class="ds-contact-container">
-                <a href="https://www.ejectufrn.com.br/">
-                    <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT">
-                </a>
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="/EJECT_Trilha_de_Conhecimento/index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <!-- Botão de Exportar Tarefas (para consistência de UI com o modelo) -->
+                    <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="file-text" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Botão de Exportar Conteúdo (para consistência de UI com o modelo) -->
+                    <button id="exportPdfBtn" title="Exportar Conteúdo para PDF" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="download" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
             </div>
         </nav>
     </header>
 
-    <!-- Conteúdo -->
-
-    <main>
-        <section>
-            <a class="btn btn-primary" href="/EJECT_Trilha_de_Conhecimento">Voltar</a>
-        </section> <br>
-
-        <input type="hidden" id="trilha-nome" value="HTML e CSS" />
-
-
-        <!-- Conteúdo do HTML e CSS -->
-        <section class="mb-5">
-            <h2>Aprimorando os conhecimentos em HTML 5 e CSS 3</h2> <br>
-            <p>Essa trilha de conhecimento terá como foco revisar e aprimorar os conhecimentos de HTML e CSS, abordando os principais pontos para o desenvolvimento web. Serão trabalhados tópicos como a semântica do HTML, o uso de CSS para criar layouts responsivos (incluindo Flexbox e Grid), e a adoção de boas práticas para garantir acessibilidade, performance e manutenção eficiente dos sites. O objetivo é proporcionar uma base sólida para desenvolver interfaces funcionais e visualmente atrativas, otimizadas para diversos dispositivos.</p>
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Botão Voltar -->
+        <section class="mb-6">
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar
+            </a>
         </section>
 
-        <!-- Fundamentos do HTML e CSS -->
-        <section>
-            <h2>HTML 5</h2> <br>
-            <ul>
-                <p>HTML (HyperText Markup Language) é a linguagem de marcação usada para estruturar o conteúdo de uma página web, criando elementos como títulos, parágrafos, imagens e links. Ele define a estrutura básica de uma página, permitindo que os navegadores exibam corretamente o conteúdo. É a base de qualquer site, sendo essencial para criar páginas navegáveis e acessíveis. </p>
-                <li>Documentação do HTML</li> <br> 
-                <a href="https://developer.mozilla.org/pt-BR/docs/Web/HTML">[LINK]  HTML: Linguagem de Marcação de Hipertexto</a> <br> <br> 
-
-                <h2>CSS 3</h2> <br>
-            <ul>
-                <p>CSS (Cascading Style Sheets) é a linguagem de estilo usada para definir a aparência visual de uma página HTML. Com CSS, é possível controlar cores, fontes, margens, espaçamentos, posicionamento de elementos e muito mais, criando layouts personalizados e responsivos. CSS permite separar a estrutura (HTML) da apresentação (design), o que facilita a manutenção e evolução do site. </p>
-                <li>Documentação do CSS</li> <br> 
-                <a href="https://developer.mozilla.org/pt-BR/docs/Web/CSS">[LINK]  CSS: Linguagem de Estilo</a> <br> <br> 
-            </ul>
+        <!-- Título e Introdução da Trilha -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h1 class="text-4xl font-bold text-sky-800 mb-4">Aprimorando os conhecimentos em HTML 5 e CSS 3</h1>
+            <input type="hidden" id="trilha-id" value="html_e_css" />
+            <p class="text-lg leading-relaxed text-gray-700">Essa trilha de conhecimento terá como foco revisar e aprimorar os conhecimentos de HTML e CSS, abordando os principais pontos para o desenvolvimento web. Serão trabalhados tópicos como a semântica do HTML, o uso de CSS para criar layouts responsivos (incluindo Flexbox e Grid), e a adoção de boas práticas para garantir acessibilidade, performance e manutenção eficiente dos sites. O objetivo é proporcionar uma base sólida para desenvolver interfaces funcionais e visualmente atrativas, otimizadas para diversos dispositivos.</p>
         </section>
 
-        <!-- 1º Semana -->
-        <section>
-        <div class="section-header">
-            <h2>Módulo 1 - HTML 5 e CSS 3</h2> <br>
-        </div>
+        <!-- Barra de Progresso -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium"></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
+        </section>
 
-            <ul>
-                <li>Crie uma página da Web</li> <br>
-                <a href="https://cursos.alura.com.br/course/html5-css3-primeiros-passos/task/53602">[LINK] HTML 5 e CSS 3 - Primeiros passos</a> <br> <br>
 
-                <li>Posicionamento, listas e navegação</li> <br>
-                <a href="https://cursos.alura.com.br/course/html5-css3-posicionamento-listas-navegacao/task/59053">[LINK] HTML 5 e CSS 3 - Posicionamento, listas e navegação</a> <br> <br>
+        <!-- Fundamentos do HTML e CSS (Cards lado a lado em desktop) -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold text-sky-700 mb-6 pb-2 border-b-2 border-sky-300">Fundamentos Essenciais</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                <li>Trabalhando com formulários e tabelas</li> <br>
-                <a href="https://cursos.alura.com.br/course/html5-css3-formularios-tabelas">[LINK] HTML 5 e CSS 3 - Trabalhando com formulários e tabelas</a> <br> <br>
+                <!-- Card HTML 5 -->
+                <div class="p-6 bg-sky-50 rounded-xl shadow-md border border-sky-200">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="code" class="h-8 w-8 text-sky-600 mr-3"></i>
+                        <h3 class="text-2xl font-bold text-sky-800">HTML 5</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4 leading-relaxed">HTML (HyperText Markup Language) é a linguagem de marcação usada para estruturar o conteúdo de uma página web, criando elementos como títulos, parágrafos, imagens e links. Ele define a estrutura básica de uma página, sendo a base de qualquer site.</p>
+                    <p class="font-semibold text-sky-700 mb-2">Documentação Principal:</p>
+                    <a href="https://developer.mozilla.org/pt-BR/docs/Web/HTML" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 hover:underline flex items-center text-sm">
+                        <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                        HTML: Linguagem de Marcação de Hipertexto (MDN)
+                    </a>
+                </div>
 
-                <li>Avançando no CSS</li> <br>
-                <a href="https://cursos.alura.com.br/course/html5-css3-avancando-css/task/63316">[LINK] HTML 5 e CSS 3 - Avançando no CSS</a> <br> <br>
+                <!-- Card CSS 3 -->
+                <div class="p-6 bg-sky-50 rounded-xl shadow-md border border-sky-200">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="palette" class="h-8 w-8 text-sky-600 mr-3"></i>
+                        <h3 class="text-2xl font-bold text-sky-800">CSS 3</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4 leading-relaxed">CSS (Cascading Style Sheets) é a linguagem de estilo usada para definir a aparência visual de uma página HTML. Com CSS, é possível controlar cores, fontes, layouts responsivos, facilitando a manutenção e a evolução do design.</p>
+                    <p class="font-semibold text-sky-700 mb-2">Documentação Principal:</p>
+                    <a href="https://developer.mozilla.org/pt-BR/docs/Web/CSS" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 hover:underline flex items-center text-sm">
+                        <i data-lucide="external-link" class="h-4 w-4 mr-1"></i>
+                        CSS: Linguagem de Estilo (MDN)
+                    </a>
+                </div>
+            </div>
+        </section>
 
-                <div class="section-header">
-                    <h2>Exercício semanal: </h2> <br>
+        <!-- Módulo 1 -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="layers" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-3xl font-semibold text-sky-700">Módulo 1 - HTML 5 e CSS 3 (Básico)</h2>
+            </div>
+            
+            <ul class="space-y-4 text-gray-700">
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    <div class="flex-grow">
+                        <span class="block font-medium mb-1">Crie uma página da Web</span>
+                        <a href="https://cursos.alura.com.br/course/html5-css3-primeiros-passos/task/53602" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                            <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                            [LINK] HTML 5 e CSS 3 - Primeiros passos (Alura)
+                        </a>
+                    </div>
                     <label class="completion-label">
-                        <input type="checkbox" class="topic-checkbox"> Marcar como Concluído
+                        <input type="checkbox" class="topic-checkbox" data-key="M1_webpage">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    <div class="flex-grow">
+                        <span class="block font-medium mb-1">Posicionamento, listas e navegação</span>
+                        <a href="https://cursos.alura.com.br/course/html5-css3-posicionamento-listas-navegacao/task/59053" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                            <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                            [LINK] HTML 5 e CSS 3 - Posicionamento, listas e navegação (Alura)
+                        </a>
+                    </div>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M1_pos_lists">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    <div class="flex-grow">
+                        <span class="block font-medium mb-1">Trabalhando com formulários e tabelas</span>
+                        <a href="https://cursos.alura.com.br/course/html5-css3-formularios-tabelas" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                            <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                            [LINK] HTML 5 e CSS 3 - Formulários e tabelas (Alura)
+                        </a>
+                    </div>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M1_forms_tables">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    <div class="flex-grow">
+                        <span class="block font-medium mb-1">Avançando no CSS</span>
+                        <a href="https://cursos.alura.com.br/course/html5-css3-avancando-css/task/63316" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                            <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                            [LINK] HTML 5 e CSS 3 - Avançando no CSS (Alura)
+                        </a>
+                    </div>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M1_adv_css">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+
+            <div class="mt-8 pt-4 border-t border-sky-300">
+                <div class="flex justify-between items-center mb-4 section-header">
+                    <h3 class="text-xl font-bold text-sky-700 flex items-center">
+                        <i data-lucide="check-circle" class="h-5 w-5 mr-2"></i>
+                        Exercício semanal: HTML e CSS para Iniciantes (Origamid)
+                    </h3>
+                    <!-- Checkbox principal do Exercício Semanal (mantido por questão de design) -->
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M1_Ex_Check"> <span>Marcar como Concluído</span>
                     </label> 
                 </div>
-                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/">[LINK] Seção 2</a> <br> <br>
-              
-                <li>Desenvolver os exercícios da seção 2 (Display do exercício)</li> <br>
-                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/">[LINK] HTML 5 e CSS 3 - Display do Exercício</a> <br> <br>
 
-                <li>Seção 3 (Posicionamento exercício 1-3)</li> <br>
-                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0309-posicionamento-exercicio-1/">[LINK] HTML 5 e CSS 3 - Posicionamento exercício 1-3</a> <br> <br>
-
-                <li>Refatorando exercício 1</li> <br>
-                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0506-refatorar-exercicio-1/">[LINK] HTML 5 e CSS 3 - Refatorando o exercício 1</a> <br> <br> <br>
-            </ul>
-        </section>
-
-        <!-- 2º Semana -->
-        <section>
-
-            <div class="section-header">
-                <h2>Módulo 2 - Responsividade e Flexbox</h2> <br>
+                <ul class="space-y-3 text-gray-700">
+                    <li class="text-base flex items-start justify-between p-2 bg-gray-50 rounded-lg border border-gray-100 group">
+                        <div class="flex-grow flex items-start">
+                            <i data-lucide="file-text" class="h-5 w-5 text-sky-500 mr-2 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <span class="font-medium block">Seção 2: Desenvolver os exercícios (Display do exercício)</span>
+                                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 block text-sm">
+                                    [LINK] Seção 2 Completa
+                                </a>
+                            </div>
+                        </div>
+                        <label class="completion-label">
+                            <input type="checkbox" class="topic-checkbox" data-key="M1_Ex_Sec2">
+                            <span>Concluído</span>
+                        </label>
+                    </li>
+                    <li class="text-base flex items-start justify-between p-2 bg-gray-50 rounded-lg border border-gray-100 group">
+                        <div class="flex-grow flex items-start">
+                            <i data-lucide="file-text" class="h-5 w-5 text-sky-500 mr-2 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <span class="font-medium block">Seção 3: Posicionamento (Exercício 1-3)</span>
+                                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0309-posicionamento-exercicio-1/" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 block text-sm">
+                                    [LINK] Posicionamento exercício 1-3
+                                </a>
+                            </div>
+                        </div>
+                        <label class="completion-label">
+                            <input type="checkbox" class="topic-checkbox" data-key="M1_Ex_Sec3">
+                            <span>Concluído</span>
+                        </label>
+                    </li>
+                    <li class="text-base flex items-start justify-between p-2 bg-gray-50 rounded-lg border border-gray-100 group">
+                        <div class="flex-grow flex items-start">
+                            <i data-lucide="file-text" class="h-5 w-5 text-sky-500 mr-2 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <span class="font-medium block">Refatorando exercício 1</span>
+                                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0506-refatorar-exercicio-1/" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 block text-sm">
+                                    [LINK] Refatorando o exercício 1
+                                </a>
+                            </div>
+                        </div>
+                        <label class="completion-label">
+                            <input type="checkbox" class="topic-checkbox" data-key="M1_Ex_Refactor">
+                            <span>Concluído</span>
+                        </label>
+                    </li>
+                </ul>
             </div>
-    
-            <ul>
-                <li>Trabalhando com responsividade</li> <br>
-                <a href="https://cursos.alura.com.br/course/html-css-responsividade-publicacao-projetos/task/119274">[LINK] [ALURA] HTML 5 e CSS 3 - Trabalhando com responsividade</a> <br> <br> 
-                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0601-responsivo/">[LINK] [ORIGAMID] HTML 5 e CSS 3 - Trabalhando com responsividade</a> <br> <br>
-
-                <li>Flexbox</li> <br>
-                <a href="https://www.origamid.com/curso/css-flexbox/2-1-display-flex/">[LINK] CSS 3 - Trabalhando com Display Flex</a> <br> <br>
-                <a href="https://cursos.alura.com.br/course/css-flexbox-layouts-responsivos/task/111926">[LINK] CSS 3 - Flexbox e layouts responsivos</a> <br> <br>
-
-                <div class="section-header">
-                    <h2>Exercício semanal: </h2> <br>
-                </div>
-                <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0606-responsivo-exercicio/">[LINK] CSS 3 - Responsividade Seção 6</a> <br> <br>
-            </ul>
         </section>
-    
+
+        <!-- Módulo 2 -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="layout-grid" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-3xl font-semibold text-sky-700">Módulo 2 - Responsividade e Flexbox</h2>
+            </div>
+            
+            <ul class="space-y-4 text-gray-700">
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    <div class="flex-grow">
+                        <span class="block font-medium mb-1">Trabalhando com responsividade</span>
+                        <div class="space-y-1">
+                            <a href="https://cursos.alura.com.br/course/html-css-responsividade-publicacao-projetos/task/119274" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                                <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                                [ALURA] Responsividade e Publicação
+                            </a>
+                            <a href="https://www.origamid.com/curso/html-e-css-para-iniciantes/0601-responsivo/" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                                <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                                [ORIGAMID] Responsivo
+                            </a>
+                        </div>
+                    </div>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M2_responsividade">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+
+                <li class="flex flex-col sm:flex-row sm:justify-between sm:items-center p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    <div class="flex-grow">
+                        <span class="block font-medium mb-1">Flexbox</span>
+                        <div class="space-y-1">
+                            <a href="https://www.origamid.com/curso/css-flexbox/2-1-display-flex/" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                                <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                                [ORIGAMID] Trabalhando com Display Flex
+                            </a>
+                            <a href="https://cursos.alura.com.br/course/css-flexbox-layouts-responsivos/task/111926" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm">
+                                <i data-lucide="link" class="h-4 w-4 mr-1"></i>
+                                [ALURA] Flexbox e layouts responsivos
+                            </a>
+                        </div>
+                    </div>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M2_flexbox">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </ul>
+            
+            <div class="mt-8 pt-4 border-t border-sky-300">
+                <div class="flex justify-between items-center mb-4 section-header">
+                    <h3 class="text-xl font-bold text-sky-700 flex items-center">
+                        <i data-lucide="check-circle" class="h-5 w-5 mr-2"></i>
+                        Exercício semanal: Responsividade (Origamid)
+                    </h3>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M2_Ex_Check"> <span>Marcar como Concluído</span>
+                    </label> 
+                </div>
+
+                <li class="text-base flex items-start justify-between p-2 bg-gray-50 rounded-lg border border-gray-100 group list-none mt-4">
+                    <a href="https://www.origamid.com/curso/html-e-css-for-iniciantes/0606-responsivo-exercicio/" target="_blank" class="topic-link text-sky-600 hover:text-sky-800 flex items-center text-sm p-1 flex-grow">
+                        <i data-lucide="external-link" class="h-4 w-4 mr-1 flex-shrink-0"></i>
+                        [LINK] CSS 3 - Responsividade Seção 6: Exercício prático
+                    </a>
+                    <label class="completion-label">
+                        <input type="checkbox" class="topic-checkbox" data-key="M2_Ex_Sec6">
+                        <span>Concluído</span>
+                    </label>
+                </li>
+            </div>
+        </section>
         
     </main>
 
-    <footer class="text-center py-4">
-        <p>Feito com <strong>foco </strong>e <strong>compromisso</strong> pela EJECT&copy; - Todos os direitos reservados.</p>
+    <footer class="bg-sky-900 text-white text-center py-8 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const db = firebase.database();
+            const auth = firebase.auth();
+
+            const trilhaId = document.getElementById('trilha-id').value;
+            const checkboxes = document.querySelectorAll('.topic-checkbox');
+            const totalTopics = checkboxes.length;
+
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const progressStatus = document.getElementById('progress-status');
+
+            let currentUser = null;
+            let localProgress = {};
+
+            function updateProgressBar() {
+                const completedCount = Object.values(localProgress).filter(Boolean).length;
+                const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+
+                progressBar.style.width = `${percentage}%`;
+                progressBar.classList.toggle('bg-green-600', percentage === 100);
+                progressBar.classList.toggle('bg-sky-600', percentage < 100);
+                progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+            }
+
+            function applyProgressToUI() {
+                checkboxes.forEach(checkbox => {
+                    const key = checkbox.dataset.key;
+                    checkbox.checked = !!localProgress[key];
+                });
+                updateProgressBar();
+            }
+
+            async function saveProgressToDatabase() {
+                if (!currentUser) return;
+                progressStatus.textContent = 'Salvando...';
+                progressStatus.className = 'text-sm font-medium text-yellow-600';
+
+                const progressRef = db.ref(`users/${currentUser.uid}/progress/${trilhaId}`);
+                try {
+                    await progressRef.set(localProgress);
+                    progressStatus.textContent = 'Progresso salvo na nuvem';
+                    progressStatus.className = 'text-sm font-medium text-green-600';
+                } catch (error) {
+                    console.error("Erro ao salvar no Realtime Database: ", error);
+                    progressStatus.textContent = 'Erro ao salvar';
+                    progressStatus.className = 'text-sm font-medium text-red-600';
+                }
+            }
+
+            const debouncedSave = (() => {
+                let timeout;
+                return () => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(saveProgressToDatabase, 1500);
+                };
+            })();
+
+            async function loadProgressFromDatabase() {
+                if (!currentUser) return;
+                progressStatus.textContent = 'Carregando...';
+                progressStatus.className = 'text-sm font-medium text-gray-500';
+
+                const progressRef = db.ref(`users/${currentUser.uid}/progress/${trilhaId}`);
+                try {
+                    const snapshot = await progressRef.once('value');
+                    if (snapshot.exists()) {
+                        localProgress = snapshot.val();
+                        applyProgressToUI();
+                        progressStatus.textContent = 'Progresso carregado da nuvem';
+                        progressStatus.className = 'text-sm font-medium text-green-600';
+                    } else {
+                        progressStatus.textContent = 'Nenhum progresso salvo na nuvem ainda';
+                        progressStatus.className = 'text-sm font-medium text-gray-500';
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar do Realtime Database: ", error);
+                    progressStatus.textContent = 'Erro ao carregar progresso';
+                    progressStatus.className = 'text-sm font-medium text-red-600';
+                }
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    const key = checkbox.dataset.key;
+                    localProgress[key] = checkbox.checked;
+                    updateProgressBar();
+                    debouncedSave();
+                });
+            });
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    loadProgressFromDatabase();
+                } else {
+                    currentUser = null;
+                    // Redireciona para o login se não estiver logado
+                    window.location.href = '../SIGAV/login.html';
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
+

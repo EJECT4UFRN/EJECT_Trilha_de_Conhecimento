@@ -4,590 +4,213 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Gestão de Tempo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/eject_logo.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        /* Importação da fonte */
-        @import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap');
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração da fonte Inter e Exo 2 (mantendo a Exo 2 do original) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Exo+2:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
 
-         /* Variáveis de cor */
-         :root {
-            --background: rgb(245, 251, 255);
-            --color-primary-bg: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
-            --text-primary: rgb(0, 61, 115);
-            --text-secondary: #4a4a4a;
-            --text-light-grey: #aaa;
-            --white: #fff;
-            --star-yellow: #FFBB3A;
-            --button-gradient: linear-gradient(92.07deg, rgb(9, 149, 219) 1.84%, rgb(17, 167, 241) 100%);
-            --button-gemini-gradient: linear-gradient(92.07deg, #4A00E0 1.84%, #8E2DE2 100%); /* Gradiente roxo para botões Gemini */
-            --shadow-color: rgb(224, 229, 241);
-            --danger-color: #ff4757;
-            --danger-hover-color: #ff6b81;
-            --gemini-purple: #6A1B9A; /* Cor para elementos Gemini */
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../SIGAV/firebase-config.js"></script>
+
+    <script src="../SIGAV/salvamento_nuvem.js"></script>
+    <script src="../SIGAV/trilha-progress.js"></script>
+
+    <!-- Lógica JavaScript (Firebase Modular v11 e Controle de Progresso/Gemini API) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Variáveis globais fornecidas pelo ambiente
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth;
+        let currentUser = null;
+        let localProgress = {};
+        const trilhaId = document.getElementById('trilha-id')?.value || 'gestao_de_tempo';
+        const checkboxes = document.querySelectorAll('.topic-checkbox');
+        const totalTopics = checkboxes.length;
+
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const progressStatus = document.getElementById('progress-status');
+
+        if (firebaseConfig) {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            setPersistence(auth, browserLocalPersistence);
+        } else {
+            console.error("Firebase config is missing.");
         }
 
-        /* Reset de estilo */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        function updateProgressBar() {
+            const completedCount = Object.values(localProgress).filter(Boolean).length;
+            const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+
+            progressBar.style.width = `${percentage}%`;
+            
+            progressBar.classList.toggle('bg-green-600', percentage === 100);
+            progressBar.classList.toggle('bg-sky-600', percentage < 100);
+            
+            progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+        }
+        
+        function getProgressRef(userId, trilhaId) {
+            return doc(db, 'artifacts', appId, 'users', userId, 'trilha_progress', trilhaId);
         }
 
-        /* Configurações de fonte e corpo */
-        html, body {
-            font-family: "Exo 2", sans-serif;
-            width: 100%;
-            height: 100%; /* Garante que o body possa ocupar 100% da altura da viewport */
-            background: var(--color-primary);
-        }
+        async function saveProgressToDatabase() {
+            if (!currentUser || !db) return;
+            progressStatus.textContent = 'Salvando...';
+            progressStatus.className = 'text-sm font-medium text-yellow-600';
 
-        html {
-            font-size: 16px;
-        }
-
-        body {
-            font-family: "Exo 2", sans-serif;
-            width: 100%;
-            min-height: 100vh;
-            background: var(--color-primary-bg);
-            color: var(--text-secondary);
-            display: flex;
-            flex-direction: column;
-            line-height: 1.6;
-        }
-
-        main {
-            flex: 1; /* Permite que o main cresça para preencher o espaço disponível */
-        }
-
-        /* Estilos de título */
-        h1, h2, h3, h4, h5, h6 {
-            margin-top: 0; /* Reset da margem superior padrão */
-            margin-bottom: 0.75rem; /* Espaçamento inferior padrão para títulos */
-            font-weight: 600; /* Peso da fonte padrão para títulos */
-            color: rgb(0, 61, 115); /* Cor padrão para títulos */
-        }
-
-        h1 { font-size: 2.5rem; }
-        h2 { font-size: 2rem; }
-        h3 { font-size: 1.75rem; }
-        h4 { font-size: 1.5rem; }
-        h5 { font-size: 1.25rem; }
-        h6 { font-size: 1rem; }
-
-
-        /* Estilos de links */
-        a {
-            text-decoration: none;
-            color: rgb(9, 149, 219); /* Cor padrão para links */
-            transition: color 0.2s ease-in-out;
-        }
-
-        /* Header */
-        header {
-            width: 100%;
-            min-height: 90px;
-            background: var(--background);
-            box-shadow: var(--shadow-color) 0px 4px 10px 0px;
-            display: flex;
-            align-items: center;
-            padding: 0 1rem;
-        }
-        nav.container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        nav h1 {
-            font-weight: bold;
-            color: var(--text-primary);
-            font-size: 1.75rem;
-            margin: 0;
-        }
-
-        .ds-contact-container {
-            display: flex;
-            align-items: center;
-        }
-
-        .ds-contact-container img {
-            margin-right: 10px;
-            height: 50px;
-        }
-
-        /* Estilos para listas */
-        ul {
-            padding-left: 1.5rem;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        /* Estilos de botão (se não usar apenas os do Bootstrap) */
-        .ds-btn, .login-button, .logout-button {
-            font-size: 1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            color: var(--white);
-            background: linear-gradient(92.07deg, rgb(9, 149, 219) 1.84%, rgb(17, 167, 241) 100%);
-            padding: 0.8rem 1.2rem;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 150px;
-            min-height: 50px;
-            border-color: transparent;
-        }
-
-        .ds-btn:hover, .login-button:hover, .logout-button:hover {
-            transform: scale(1.05);
-            color: var(--white);
-        }
-
-        /* Footer */
-        footer {
-            width: 100%;
-            background-color: rgb(10, 55, 78);
-            padding: 2rem 1rem;
-        }
-
-        footer p {
-            font-size: 1rem;
-            text-align: center;
-            color: var(--white);
-            margin-bottom: 0;
-        }
-
-        /* Removed empty rule for #logout-button */
-
-        .login-button:focus, .logout-button:focus, .close-button:focus, .modal .btn-close:focus {
-            outline: 2px solid rgb(9, 149, 219);
-            box-shadow: 0 0 0 0.25rem rgba(9, 149, 219, 0.5);
-        }
-
-        /* Estilo do destaque */
-        .destaque {
-            color: rgb(206, 34, 177);
-            font-weight: bold;
-        }
-
-        /* Estilo para a tag <code> */
-        code {
-            background-color: #e9ecef;
-            color: #c7254e;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.2rem;
-            font-size: 0.875em;
-        }
-
-        pre code {
-            display: block;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            overflow-x: auto;
-        }
-
-        /* Ajustes gerais de parágrafo */
-        p {
-            line-height: 1.7;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Video container para manter aspect ratio e adicionar espaçamento */
-        .video-container {
-            margin-bottom: 1.5rem;
-        }
-        .video-container h3 {
-            margin-bottom: 0.75rem;
-        }
-
-
-        /* Breadcrumb */
-        .breadcrumb {
-            font-size: 0.875rem;
-            color: #555;
-            margin-bottom: 1rem;
-        }
-
-        .breadcrumb a {
-            text-decoration: none;
-            color: #0073e6;
-        }
-
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-
-        /* Título principal da página (se houver um específico além dos Hx) */
-        .title {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-            color: #333;
-        }
-
-        /* Responsividade */
-        @media (max-width: 1024px) {
-            .content {
-                flex-direction: column;
-            }
-            .sidebar, .summary {
-                width: 100%;
-                position: static;
-                margin-top: 20px;
+            const userRef = getProgressRef(currentUser.uid, trilhaId);
+            
+            try {
+                await setDoc(userRef, localProgress, { merge: true });
+                progressStatus.textContent = 'Progresso salvo na nuvem';
+                progressStatus.className = 'text-sm font-medium text-green-600';
+            } catch (error) {
+                console.error("Erro ao salvar no Firestore: ", error);
+                progressStatus.textContent = 'Erro ao salvar';
+                progressStatus.className = 'text-sm font-medium text-red-600';
             }
         }
 
-        @media (max-width: 768px) {
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        const debouncedSave = (() => {
+            let timeout;
+            return () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(saveProgressToDatabase, 1500);
+            };
+        })();
+        
+        function applyProgressToUI() {
+            checkboxes.forEach(checkbox => {
+                const key = checkbox.dataset.key;
+                checkbox.checked = !!localProgress[key];
+            });
+            updateProgressBar();
+        }
 
-            .section-header h2 {
-                margin-bottom: 10px;
-                font-size: 1.6rem;
-            }
+        async function loadProgressFromDatabase(user) {
+            if (!user || !db) return;
+            progressStatus.textContent = 'Carregando...';
+            progressStatus.className = 'text-sm font-medium text-gray-500';
 
-            .completion-label {
-                padding: 4px 8px;
-                font-size: 0.85rem;
-                align-self: flex-start;
-                margin-top: 10px;
-            }
-
-            header nav h1 {
-                font-size: 1.5rem;
-            }
-            .ds-contact-container img {
-                height: 40px;
+            const userRef = getProgressRef(user.uid, trilhaId);
+            
+            try {
+                const docSnap = await getDoc(userRef);
+                if (docSnap.exists()) {
+                    localProgress = docSnap.data();
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Progresso carregado da nuvem';
+                    progressStatus.className = 'text-sm font-medium text-green-600';
+                } else {
+                    localProgress = {};
+                    applyProgressToUI();
+                    progressStatus.textContent = 'Nenhum progresso salvo ainda';
+                    progressStatus.className = 'text-sm font-medium text-gray-500';
+                }
+            } catch (error) {
+                console.error("Erro ao carregar do Firestore: ", error);
+                progressStatus.textContent = 'Erro ao carregar progresso';
+                progressStatus.className = 'text-sm font-medium text-red-600';
             }
         }
-    </style>
-</head>
-<body>
-    <div vw class="enabled">
-        <div vw-access-button class="active"></div>
-        <div vw-plugin-wrapper>
-          <div class="vw-plugin-top-wrapper"></div>
-        </div>
-    </div>
-    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-    <script>
-        new window.VLibras.Widget('https://vlibras.gov.br/app');
-    </script>
+        
+        // Inicializa o estado de Autenticação/Carga
+        if (firebaseConfig) {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    await loadProgressFromDatabase(user);
+                } else {
+                    // Tenta o login automático via custom token ou anônimo
+                    try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            const anonUser = await signInAnonymously(auth);
+                            currentUser = anonUser.user;
+                            await loadProgressFromDatabase(currentUser);
+                        }
+                    } catch (error) {
+                         console.error("Erro de autenticação:", error);
+                         currentUser = null;
+                         progressStatus.textContent = 'Falha na autenticação. Progresso não será salvo.';
+                         progressStatus.className = 'text-sm font-medium text-red-600';
+                    }
+                }
 
-    <header>
-        <nav class="container">
-            <a href="/EJECT_Trilha_de_Conhecimento/index.html">
-                <h1>Hub de Conhecimentos</h1>
-            </a>
-            <div class="ds-contact-container">
-                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                    <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT">
-                </a>
-            </div>
-        </nav>
-    </header>
-
-    <main class="container py-4">
-        <section class="mb-4">
-            <a class="btn btn-primary" href="/EJECT_Trilha_de_Conhecimento/index.html">Voltar</a>
-        </section>
-
-        <input type="hidden" id="trilha-nome" value="Gestão de Tempo" />
-
-        <article>
-            <section class="mb-4">
-                <h2>Gestão de Tempo</h2>
-            </section>
-            <p>A gestão de tempo nas empresas é uma habilidade estratégica essencial para maximizar a produtividade e garantir a eficiência das equipes. Em um ambiente corporativo, onde prazos, projetos e atividades concorrentes fazem parte da rotina, adotar práticas de gestão de tempo ajuda a alcançar melhores resultados e a desenvolver uma cultura organizacional mais saudável. Vamos explorar conceitos e técnicas de gestão de tempo aplicáveis no ambiente empresarial, com foco em produtividade, colaboração e alinhamento de prioridades.</p>
-        </article>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Definição de Prioridades e a Matriz de Eisenhower</h2>
-            </div>
-            <p>A Matriz de Eisenhower é uma ferramenta essencial para ajudar as equipes a identificar as tarefas mais importantes e urgentes, orientando o uso do tempo para atividades de maior impacto. No contexto empresarial, essa abordagem permite priorizar iniciativas de forma estratégica, de acordo com os objetivos corporativos.</p>
-            <ul>
-                <li>
-                    <strong>Tarefas urgentes e importantes</strong>
-                    <p>Demandam atenção imediata e, geralmente, impactam diretamente os resultados da equipe ou empresa. Incluem, por exemplo, resolução de crises e finalização de projetos críticos.</p>
-                </li>
-                <li>
-                    <strong>Tarefas importantes, mas não urgentes</strong>
-                    <p>Envolvem atividades de desenvolvimento a longo prazo, como treinamentos, planejamento estratégico e inovação. Reservar tempo para essas atividades evita a armadilha de estar sempre “apagando incêndios”.</p>
-                </li>
-                <li>
-                    <strong>Tarefas urgentes, mas não importantes</strong>
-                    <p>São atividades rotineiras que, embora exijam atenção, podem ser delegadas. Processos administrativos e algumas reuniões podem entrar nessa categoria.</p>
-                </li>
-                <li>
-                    <strong>Tarefas não urgentes e não importantes</strong>
-                    <p>Podem ser eliminadas ou minimizadas, pois não contribuem para os objetivos organizacionais, como o excesso de mensagens em chats e e-mails de baixo valor.</p>
-                </li>
-            </ul>
-            <div class="video-container mt-4 mb-4">
-                <h3>MATRIZ DE EISENHOWER (Como Priorizar as Tarefas Certas) | Gerenciamento de Tempo</h3>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube.com/embed/pFobgL9dfKY?si=VmKTzDvS3KgpAA4O" title="MATRIZ DE EISENHOWER (Como Priorizar as Tarefas Certas) | Gerenciamento de Tempo" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Planejamento Semanal e Gestão de Projetos</h2>
-            </div>
-            <p>Para empresas, o planejamento semanal permite coordenar as atividades de forma alinhada e com foco nos resultados. No entanto, o planejamento precisa estar integrado aos objetivos estratégicos de médio e longo prazo para garantir que todos trabalhem em direção às mesmas metas.</p>
-            <ul>
-                <li>
-                    <strong>Calendário e Metas Organizacionais</strong>
-                    <p>Comece com uma visão geral dos prazos e marcos principais. Use ferramentas como Google Calendar ou Microsoft Outlook para planejar as semanas de forma colaborativa e para definir lembretes de etapas importantes.</p>
-                </li>
-                <li>
-                    <strong>Planejamento Reverso de Projetos</strong>
-                    <p>A partir dos objetivos finais, desmembre o projeto em etapas e metas semanais. Isso facilita o monitoramento do progresso e assegura que as atividades críticas sejam concluídas a tempo.</p>
-                </li>
-                <li>
-                    <strong>Alocação de Recursos e Equipes</strong>
-                    <p>Verifique a disponibilidade de cada membro da equipe e ajuste o planejamento conforme a carga de trabalho. Ferramentas de gestão de projetos, como Asana ou Trello, são úteis para atribuir tarefas e monitorar a execução de cada etapa.</p>
-                </li>
-            </ul>
-        </section>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Metodologia SMART para Definição e Cumprimento de Metas</h2>
-            </div>
-            <p>A metodologia SMART (Specific, Measurable, Achievable, Relevant, Time-bound) pode ser usada para criar metas claras e focadas no ambiente corporativo.</p>
-            <ul>
-                <li>
-                    <strong>Específicas</strong>
-                    <p>Objetivos corporativos precisam ser específicos para evitar mal-entendidos e garantir que todos entendam as expectativas. Em vez de “melhorar a produtividade”, defina “reduzir o tempo de resposta do atendimento ao cliente para menos de 24 horas”.</p>
-                </li>
-                <li>
-                    <strong>Mensuráveis</strong>
-                    <p>Use indicadores-chave de desempenho (KPIs) para medir o progresso. O acompanhamento dos indicadores permite identificar gargalos e oportunidades de melhoria.</p>
-                </li>
-                <li>
-                    <strong>Alcançáveis</strong>
-                    <p>Metas realistas aumentam o engajamento da equipe e ajudam a manter a motivação.</p>
-                </li>
-                <li>
-                    <strong>Relevantes</strong>
-                    <p>Priorize objetivos que estejam alinhados aos objetivos estratégicos da empresa, como a expansão para novos mercados ou melhoria do serviço ao cliente.</p>
-                </li>
-                <li>
-                    <strong>Com prazo definido</strong>
-                    <p>As metas precisam ter datas de conclusão específicas, de modo que as equipes tenham um senso de urgência e de responsabilidade.</p>
-                </li>
-            </ul>
-            <div class="video-container mt-4 mb-4">
-                <h3>METAS SMART | O Que É, Exemplos e 03 Dicas BEM Simples</h3>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube.com/embed/-pfobFeLnTA?si=jf0GYwAB51hpdubG" title="METAS SMART | O Que É, Exemplos e 03 Dicas BEM Simples" allowfullscreen></iframe>
-                </div>
-            </div>
-
-            <div class="smart-goal-generator card shadow-sm">
-                <div class="card-body">
-                    <h4 class="card-title">✨ Gerador de Metas SMART ✨</h4>
-                    <p class="card-text">Descreva o seu objetivo abaixo e nós ajudamo-lo a transformá-lo numa meta SMART!</p>
-                    <div class="mb-3">
-                        <label for="userGoalInput" class="form-label">O meu objetivo é...</label>
-                        <textarea class="form-control" id="userGoalInput" rows="3" placeholder="Ex: Quero aprender uma nova linguagem de programação este ano."></textarea>
-                    </div>
-                    <button type="button" class="btn btn-primary" id="generateSmartGoalButton" style="background-color: var(--gemini-purple); border-color: var(--gemini-purple);">
-                        Transformar em Meta SMART
-                        <div class="loading-spinner" id="loadingSpinner"></div>
-                    </button>
-                    <div id="smartGoalResult" class="smart-goal-output mt-4" style="display: none;">
-                        <h5>A sua Meta SMART Gerada:</h5>
-                        <p><strong>Específico (S):</strong> <span id="specificGoal"></span></p>
-                        <p><strong>Mensurável (M):</strong> <span id="measurableGoal"></span></p>
-                        <p><strong>Alcançável (A):</strong> <span id="achievableGoal"></span></p>
-                        <p><strong>Relevante (R):</strong> <span id="relevantGoal"></span></p>
-                        <p><strong>Temporal (T):</strong> <span id="timeBoundGoal"></span></p>
-                    </div>
-                     <div id="geminiApiMessage" class="mt-3"></div>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Técnicas de Produtividade: Pomodoro e Revisão de Processos</h2>
-            </div>
-            <p>Para otimizar o foco e a produtividade, as empresas podem adotar técnicas que mantêm a equipe engajada e previnem o esgotamento.</p>
-            <ul>
-                <li>
-                    <strong>Técnica Pomodoro</strong>
-                    <p>Essa técnica propõe blocos de trabalho focados, geralmente de 25 minutos, seguidos por um intervalo curto. Pode ser utilizada para tarefas individuais, como redação de relatórios ou revisão de documentos, aumentando a concentração e reduzindo a fadiga.</p>
-                </li>
-                <li>
-                    <strong>Revisão de Processos</strong>
-                    <p>Além de pausas planejadas, é útil revisar e otimizar os processos de trabalho. Essa prática permite identificar atividades redundantes ou áreas que precisam de melhoria, criando uma estrutura mais eficiente.</p>
-                </li>
-            </ul>
-            <div class="video-container mt-4 mb-4">
-                <h3>TÉCNICA POMODORO (Como Ter Foco e Produtividade Total no Trabalho e Estudos)</h3>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube.com/embed/v1B_m-FPam4?si=JnuSpr-PSv7wDC7O" title="TÉCNICA POMODORO (Como Ter Foco e Produtividade Total no Trabalho e Estudos)" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Evitar Multitarefas e Manter Foco em Projetos-Chave</h2>
-            </div>
-            <p>A multitarefa pode ser prejudicial em atividades que exigem foco e criatividade. No ambiente empresarial, é mais produtivo manter a concentração em um projeto-chave de cada vez, especialmente em atividades estratégicas.</p>
-            <ul>
-                <li>
-                    <strong>Priorização e Foco</strong>
-                    <p>Incentive os colaboradores a trabalhar em uma tarefa por vez, priorizando as atividades mais estratégicas.</p>
-                </li>
-                <li>
-                    <strong>Criação de Ambientes de Trabalho Focado</strong>
-                    <p>Configure espaços silenciosos ou horários específicos para tarefas que exigem alta concentração. Reduzir distrações (como notificações e-mails e chats) durante esses períodos melhora a produtividade.</p>
-                </li>
-            </ul>
-            <div class="video-container mt-4 mb-4">
-                <h3>COMO ORGANIZAR SEU DIA PARA SER MAIS PRODUTIVO (em 10 Dicas Que Pouca Gente Sabe)</h3>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube.com/embed/gs942RA0YZE?si=ZcqB-4otYptkcmiC" title="COMO ORGANIZAR SEU DIA PARA SER MAIS PRODUTIVO (em 10 Dicas Que Pouca Gente Sabe)" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Autoavaliação e Ajuste Contínuo de Metas e Processos</h2>
-            </div>
-            <p>A gestão de tempo nas empresas deve ser adaptável para lidar com mudanças de prioridades e a evolução dos projetos. Implementar uma rotina de avaliação contínua ajuda a ajustar o planejamento conforme necessário.</p>
-            <ul>
-                <li>
-                    <strong>Revisão Semanal e Mensal</strong>
-                    <p>Realize reuniões semanais para avaliar o progresso e discutir os ajustes necessários. Reuniões mensais mais amplas podem abordar metas de longo prazo e a necessidade de realinhamento estratégico.</p>
-                </li>
-                <li>
-                    <strong>Feedback Contínuo</strong>
-                    <p>Incentive os colaboradores a fornecer feedback sobre o planejamento e as práticas de gestão de tempo. Isso pode ajudar a identificar melhorias nos processos e aumentar a motivação da equipe.</p>
-                </li>
-            </ul>
-            <div class="video-container mt-4 mb-4">
-                <h3>FEEDBACK O QUE É (Significado, Tradução e Como Dar Um)</h3>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube.com/embed/QzyyCrFXmbY?si=hXj2_ObKSsqrci-Z" title="FEEDBACK O QUE É (Significado, Tradução e Como Dar Um)" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
-
-        <section class="mb-5">
-            <div class="section-header">
-                <h2>Cuidar do Bem-Estar da Equipe</h2>
-            </div>
-            <p>A gestão de tempo nas empresas deve incluir práticas que promovam o bem-estar dos colaboradores, pois isso impacta diretamente a produtividade.</p>
-            <p><strong>Pausas Planejadas e Horários Flexíveis:</strong> Incentive pausas curtas ao longo do dia e, sempre que possível, ofereça horários flexíveis.</p>
-            <p><strong>Incentivo à Atividade Física e ao Lazer:</strong> O apoio a práticas saudáveis, como pausas para exercício e atividades de lazer, ajuda a reduzir o estresse e a aumentar o foco.</p>
-            <p><strong>Ambiente de Trabalho Saudável:</strong> Promova um ambiente de trabalho colaborativo e positivo, que incentive o equilíbrio entre vida pessoal e profissional.</p>
-            <div class="video-container mt-4 mb-4">
-                <h3>O QUE É SAÚDE MENTAL NO TRABALHO (E NA VIDA PESSOAL) – 10 Dicas Incríveis para Trabalhá-la</h3>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube.com/embed/jGqokU9pmX4?si=5nELsU2H0DDU2jVR" title="O QUE É SAÚDE MENTAL NO TRABALHO (E NA VIDA PESSOAL) – 10 Dicas Incríveis para Trabalhá-la" allowfullscreen></iframe>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <h2>Referências e Conteúdos Extras</h2>
-            <ul class="list-unstyled">
-                <li class="mb-2">
-                    <strong>Cursos</strong>
-                    <ul class="list-unstyled ms-3">
-                        <li><a href="https://www.escolavirtual.gov.br/curso/468" target="_blank" rel="noopener noreferrer">[Escola Virtual GOV - CURSO LIVRE] Gestão do Tempo e Produtividade</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Artigos</strong>
-                    <ul class="list-unstyled ms-3">
-                        <li><a href="https://blog.edenredmobilidade.com.br/gestao-de-despesa/gestao-de-tempo-e-produtividade/#:~:text=A%20gest%C3%A3o%20do%20tempo%20e,per%C3%ADodos%20maiores%20para%20outras%20atividades." target="_blank" rel="noopener noreferrer">[Edenred] Gestão de tempo e produtividade: 10 estratégias para o seu negócio</a></li>
-                        <li><a href="https://www.alura.com.br/artigos/gestao-do-tempo?srsltid=AfmBOoqHSLktIzGdqBPW2CS4yBprmC8FW4bK_Qw04z18DsGFwfzl9dEH" target="_blank" rel="noopener noreferrer">[Alura] Gestão do Tempo e Produtividade: entenda como otimizar a sua rotina</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </section>
-    </main>
-
-    <div class="modal fade" id="geminiApiModal" tabindex="-1" aria-labelledby="geminiApiModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="geminiApiModalLabel">Aviso</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body" id="geminiApiModalBody">
-              ...
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    <footer class="text-center py-4 mt-auto"> <p>Feito com <strong>foco</strong> e <strong>compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-ka6PYS2ZTMj7Do35tWl53KIkazN1l5Hb9Kjk7aaJ5RrbZZgZ9KmbxKt0qKZ1dQF" crossorigin="anonymous"></script>
-
-    <script>
-        // Script para o Gerador de Metas SMART
+                // Adiciona os listeners de mudança depois que a autenticação for resolvida
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const key = checkbox.dataset.key;
+                        localProgress[key] = checkbox.checked;
+                        updateProgressBar();
+                        
+                        if (currentUser) {
+                           debouncedSave();
+                        }
+                    });
+                });
+            });
+        }
+        
+        // --- Gerador de Metas SMART (Gemini API) ---
         const userGoalInput = document.getElementById('userGoalInput');
         const generateButton = document.getElementById('generateSmartGoalButton');
         const smartGoalResultDiv = document.getElementById('smartGoalResult');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const geminiApiMessageDiv = document.getElementById('geminiApiMessage');
 
-        // Elementos para exibir os resultados SMART
         const specificGoalSpan = document.getElementById('specificGoal');
         const measurableGoalSpan = document.getElementById('measurableGoal');
         const achievableGoalSpan = document.getElementById('achievableGoal');
         const relevantGoalSpan = document.getElementById('relevantGoal');
         const timeBoundGoalSpan = document.getElementById('timeBoundGoal');
-        
-        // Modal para erros ou informações
-        let geminiModal = null;
-        document.addEventListener('DOMContentLoaded', function () {
-            if (typeof bootstrap !== 'undefined') {
-                 geminiModal = new bootstrap.Modal(document.getElementById('geminiApiModal'));
-            } else {
-                console.error("Bootstrap Modal não está disponível.");
-            }
-        });
 
+        // Função para simular o Modal/Alert simples com Tailwind/JS
         function showApiMessage(message, isError = false) {
-            if (geminiModal) {
-                document.getElementById('geminiApiModalBody').textContent = message;
-                document.getElementById('geminiApiModalLabel').textContent = isError ? "Erro" : "Informação";
-                geminiModal.show();
-            } else { // Fallback se o modal não estiver inicializado
-                geminiApiMessageDiv.textContent = message;
-                geminiApiMessageDiv.className = `mt-3 alert ${isError ? 'alert-danger' : 'alert-info'}`;
+            geminiApiMessageDiv.textContent = message;
+            geminiApiMessageDiv.className = `mt-3 p-3 rounded-lg text-sm font-medium ${isError ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`;
+            geminiApiMessageDiv.style.display = 'block';
+        }
+        
+        // Exponential Backoff implementation
+        async function fetchWithBackoff(url, options, retries = 5, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status === 429 && i < retries - 1) { // Too Many Requests
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2; // Exponential backoff
+                        continue;
+                    }
+                    if (!response.ok) {
+                         const errorData = await response.json();
+                         throw new Error(`API Error: ${response.statusText}. Details: ${JSON.stringify(errorData.error?.message || errorData)}`);
+                    }
+                    return response;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
             }
         }
-
 
         generateButton.addEventListener('click', async () => {
             const userGoal = userGoalInput.value.trim();
@@ -599,55 +222,51 @@
             loadingSpinner.style.display = 'inline-block';
             generateButton.disabled = true;
             smartGoalResultDiv.style.display = 'none';
-            geminiApiMessageDiv.textContent = ''; // Limpa mensagens anteriores
+            geminiApiMessageDiv.style.display = 'none'; 
 
-            const apiKey = "AIzaSyAnojN8ZpEjiHaUVlZbgdalGVKdJwkIrRI";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
-            // Prompt para a API Gemini
-            const prompt = `Transforme o seguinte objetivo do utilizador numa meta SMART. Detalhe cada componente (Específico, Mensurável, Alcançável, Relevante, Temporal).
-            Objetivo do utilizador: "${userGoal}"
-
-            Responda APENAS com um objeto JSON com as seguintes chaves: "specific", "measurable", "achievable", "relevant", "timeBound".
-            Por exemplo:
-            {
-              "specific": "Definição específica do objetivo...",
-              "measurable": "Como o progresso será medido...",
-              "achievable": "Por que este objetivo é alcançável...",
-              "relevant": "Por que este objetivo é relevante para o utilizador...",
-              "timeBound": "O prazo para alcançar este objetivo..."
-            }`;
+            // System prompt para garantir o formato e persona
+            const systemPrompt = "Você é um consultor de produtividade e gestão de metas. Sua única tarefa é transformar o objetivo fornecido pelo usuário em uma Meta SMART (Específica, Mensurável, Alcançável, Relevante, Temporal). Você deve retornar o resultado estritamente no formato JSON solicitado, sem texto adicional.";
             
-            const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            // Prompt para a API Gemini
+            const userQuery = `Transforme o seguinte objetivo do utilizador numa meta SMART. Detalhe cada componente. Objetivo: "${userGoal}"`;
+
             const payload = {
-                contents: chatHistory,
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
                 generationConfig: {
-                    responseMimeType: "application/json", // Solicita uma resposta JSON
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "specific": { "type": "STRING", "description": "Definição específica e clara do objetivo." },
+                            "measurable": { "type": "STRING", "description": "Como o progresso será medido (indicadores)." },
+                            "achievable": { "type": "STRING", "description": "Justificativa de por que o objetivo é realista e alcançável." },
+                            "relevant": { "type": "STRING", "description": "Por que este objetivo é relevante e se alinha aos objetivos maiores." },
+                            "timeBound": { "type": "STRING", "description": "O prazo ou data de conclusão do objetivo." }
+                        },
+                        "propertyOrdering": ["specific", "measurable", "achievable", "relevant", "timeBound"]
+                    }
                 }
             };
 
             try {
-                const response = await fetch(apiUrl, {
+                const response = await fetchWithBackoff(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error('Erro da API:', errorData);
-                    throw new Error(`Erro ao comunicar com a API: ${response.statusText}. Detalhes: ${JSON.stringify(errorData.error?.message || errorData)}`);
-                }
-
                 const result = await response.json();
 
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    
-                    const jsonText = result.candidates[0].content.parts[0].text;
+                const jsonPart = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonPart) {
                     try {
-                        const smartData = JSON.parse(jsonText);
+                        // A API estruturada deve retornar um JSON válido
+                        const smartData = JSON.parse(jsonPart);
 
                         specificGoalSpan.textContent = smartData.specific || "Não especificado";
                         measurableGoalSpan.textContent = smartData.measurable || "Não especificado";
@@ -656,18 +275,13 @@
                         timeBoundGoalSpan.textContent = smartData.timeBound || "Não especificado";
                         
                         smartGoalResultDiv.style.display = 'block';
+                        showApiMessage("Meta SMART gerada com sucesso!", false);
+                        
                     } catch (e) {
                         console.error("Erro ao analisar JSON da API:", e);
-                        console.error("Resposta recebida (texto):", jsonText);
-                        showApiMessage("A resposta da IA não estava no formato esperado. Tente novamente ou reformule o seu objetivo.", true);
-                        specificGoalSpan.textContent = "Erro ao processar.";
-                        measurableGoalSpan.textContent = "";
-                        achievableGoalSpan.textContent = "";
-                        relevantGoalSpan.textContent = "";
-                        timeBoundGoalSpan.textContent = "";
-                        smartGoalResultDiv.style.display = 'block'; // Mostrar para exibir a mensagem de erro
+                        console.error("Resposta recebida (texto):", jsonPart);
+                        showApiMessage("A resposta da IA não estava no formato JSON esperado. Tente novamente.", true);
                     }
-
                 } else {
                     console.warn('Resposta da API inesperada:', result);
                     showApiMessage("Não foi possível gerar a meta SMART. A resposta da IA estava vazia ou malformada.", true);
@@ -681,7 +295,427 @@
                 generateButton.disabled = false;
             }
         });
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            updateProgressBar();
+        });
     </script>
+
+    <!-- Estilos CSS unificados e responsivos (Tailwind + Custom) -->
+    <style>
+        /* Estilos globais para consistência e estética */
+        body {
+            font-family: "Exo 2", sans-serif; /* Mantendo a fonte original */
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #0284c7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0369a1; }
+        
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        
+        .topic-link {
+            transition: color 0.2s, background-color 0.2s;
+            color: #0c4a6e;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+        .topic-link:hover {
+            color: #075985;
+            text-decoration: underline;
+        }
+        
+        /* Estilos de título customizados */
+        h1, h2, h3, h4 {
+            color: #0C4A6E; /* Cor azul escuro para títulos */
+        }
+
+        /* Estilos do sistema de progresso (Cores Tailwind Sky Blue padrão) */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1; /* sky-700 */
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc; /* sky-300 */
+            border-radius: 9999px;
+            background-color: #f0f9ff; /* sky-50 */
+            transition: background-color 0.2s;
+            user-select: none;
+            flex-shrink: 0;
+            width: fit-content;
+        }
+        .completion-label:hover { background-color: #e0f2fe; } /* sky-100 */
+
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8; /* sky-400 */
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+            flex-shrink: 0;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9; /* sky-500 */
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9; /* sky-500 */
+            background-color: #e0f2fe; /* sky-100 */
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Permite quebrar em telas menores */
+            margin-bottom: 1rem;
+        }
+        .section-header h2 {
+            font-size: 1.875rem; /* text-3xl */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 0; /* Remove margem para alinhamento flex */
+            line-height: 1.2;
+        }
+        
+        /* Estilo para vídeos responsivos */
+        .responsive-embed {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .responsive-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        
+        /* Estilos do Spinner */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #6A1B9A; /* Cor roxa */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Vlibra -->
+    <div vw class="enabled">
+        <div vw-access-button class="active"></div>
+        <div vw-plugin-wrapper>
+            <div class="vw-plugin-top-wrapper"></div>
+        </div>
+    </div>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+
+    <!-- HEADER (Estrutura Tailwind) -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="/EJECT_Trilha_de_Conhecimento/index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botões de Exportar (Mantidos pelo design) -->
+                    <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="file-text" class="h-6 w-6"></i>
+                    </button>
+                    <button id="exportPdfBtn" title="Exportar Conteúdo para PDF" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="download" class="h-6 w-6"></i>
+                    </button>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <input type="hidden" id="trilha-id" value="gestao_de_tempo" />
+
+        <!-- Botão Voltar -->
+        <section class="mb-6">
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar
+            </a>
+        </section>
+
+        <!-- Introdução da Trilha -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h1 class="text-4xl font-bold text-sky-800 mb-4">Trilha de Conhecimento - Gestão de Tempo</h1>
+            <p class="text-lg leading-relaxed text-gray-700">A gestão de tempo nas empresas é uma habilidade estratégica essencial para maximizar a produtividade e garantir a eficiência das equipes. Adotar práticas de gestão de tempo ajuda a alcançar melhores resultados e a desenvolver uma cultura organizacional mais saudável. Vamos explorar conceitos e técnicas aplicáveis no ambiente empresarial, com foco em produtividade, colaboração e alinhamento de prioridades.</p>
+        </section>
+
+        <!-- Barra de Progresso -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium">Carregando...</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
+        </section>
+
+        <!-- Módulo 1: Priorização Estratégica -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="layers" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 1: Priorização Estratégica e Metas</h2>
+            </div>
+
+            <!-- Matriz de Eisenhower -->
+            <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Matriz de Eisenhower (Como Priorizar)
+                    </h3>
+                    <label class="completion-label" for="T1_Eisenhower">
+                        <input type="checkbox" class="topic-checkbox" data-key="T1_Eisenhower" id="T1_Eisenhower">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700 mb-4">A Matriz de Eisenhower ajuda as equipes a identificar as tarefas mais **importantes** e **urgentes**, orientando o uso do tempo para atividades de maior impacto.</p>
+                <div class="responsive-embed">
+                    <iframe src="https://www.youtube.com/embed/pFobgL9dfKY?si=VmKTzDvS3KgpAA4O" title="MATRIZ DE EISENHOWER (Como Priorizar as Tarefas Certas) | Gerenciamento de Tempo" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- Metodologia SMART -->
+            <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-sky-800 flex items-center">
+                        <i data-lucide="check-circle" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Metodologia SMART para Definição de Metas
+                    </h3>
+                    <label class="completion-label" for="T3_SMART">
+                        <input type="checkbox" class="topic-checkbox" data-key="T3_SMART" id="T3_SMART">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700 mb-4">A metodologia SMART (Specific, Measurable, Achievable, Relevant, Time-bound) é usada para criar metas claras e focadas no ambiente corporativo.</p>
+                <div class="responsive-embed">
+                    <iframe src="https://www.youtube.com/embed/-pfobFeLnTA?si=jf0GYwAB51hpdubG" title="METAS SMART | O Que É, Exemplos e 03 Dicas BEM Simples" allowfullscreen></iframe>
+                </div>
+                
+                <!-- Gerador de Metas SMART -->
+                <div class="smart-goal-generator mt-6 p-4 bg-white rounded-xl shadow-md border border-purple-200">
+                    <div class="card-body">
+                        <h4 class="text-xl font-bold text-purple-700 flex items-center mb-3">
+                            <i data-lucide="wand-2" class="h-5 w-5 mr-2"></i>
+                            Gerador de Metas SMART
+                        </h4>
+                        <p class="text-gray-600 mb-3 text-sm">Descreva o seu objetivo e nós o transformamos em uma meta SMART detalhada usando a inteligência artificial.</p>
+                        <div class="mb-4">
+                            <label for="userGoalInput" class="block text-sm font-medium text-gray-700 mb-1">O meu objetivo é...</label>
+                            <textarea class="w-full p-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500" id="userGoalInput" rows="3" placeholder="Ex: Quero aprender uma nova linguagem de programação este ano."></textarea>
+                        </div>
+                        <button type="button" class="flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg text-white transition-colors bg-purple-600 hover:bg-purple-700 disabled:opacity-50" id="generateSmartGoalButton">
+                            Transformar em Meta SMART
+                            <div class="loading-spinner ml-2" id="loadingSpinner"></div>
+                        </button>
+                        
+                        <div id="geminiApiMessage" class="mt-3 hidden"></div>
+
+                        <div id="smartGoalResult" class="smart-goal-output mt-4 p-4 bg-purple-50 border border-purple-300 rounded-lg hidden">
+                            <h5 class="text-lg font-bold text-purple-700 mb-2">A sua Meta SMART Gerada:</h5>
+                            <p class="text-sm text-gray-700 mb-1"><strong>Específico (S):</strong> <span id="specificGoal" class="font-normal text-gray-800"></span></p>
+                            <p class="text-sm text-gray-700 mb-1"><strong>Mensurável (M):</strong> <span id="measurableGoal" class="font-normal text-gray-800"></span></p>
+                            <p class="text-sm text-gray-700 mb-1"><strong>Alcançável (A):</strong> <span id="achievableGoal" class="font-normal text-gray-800"></span></p>
+                            <p class="text-sm text-gray-700 mb-1"><strong>Relevante (R):</strong> <span id="relevantGoal" class="font-normal text-gray-800"></span></p>
+                            <p class="text-sm text-gray-700"><strong>Temporal (T):</strong> <span id="timeBoundGoal" class="font-normal text-gray-800"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo 2: Planejamento e Produtividade -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="calendar" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 2: Planejamento e Foco</h2>
+            </div>
+            
+            <!-- Planejamento Semanal -->
+            <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Planejamento Semanal e Projetos
+                    </h3>
+                    <label class="completion-label" for="T2_Planejamento">
+                        <input type="checkbox" class="topic-checkbox" data-key="T2_Planejamento" id="T2_Planejamento">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700">O planejamento semanal permite coordenar as atividades e integrar as metas de médio e longo prazo para a equipe. Ferramentas de gestão como Asana ou Trello são úteis para essa etapa.</p>
+            </div>
+            
+            <!-- Técnica Pomodoro -->
+            <div class="mb-8 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i data-lucide="clock" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Técnica Pomodoro e Revisão de Processos
+                    </h3>
+                    <label class="completion-label" for="T4_Pomodoro">
+                        <input type="checkbox" class="topic-checkbox" data-key="T4_Pomodoro" id="T4_Pomodoro">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700 mb-4">A Técnica Pomodoro (blocos de trabalho focado de 25 minutos seguidos por pausas curtas) otimiza o foco e previne o esgotamento.</p>
+                <div class="responsive-embed">
+                    <iframe src="https://www.youtube.com/embed/v1B_m-FPam4?si=JnuSpr-PSv7wDC7O" title="TÉCNICA POMODORO (Como Ter Foco e Produtividade Total no Trabalho e Estudos)" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- Evitar Multitarefas -->
+            <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i data-lucide="eye-off" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Evitar Multitarefas e Manter Foco
+                    </h3>
+                    <label class="completion-label" for="T5_Multitarefas">
+                        <input type="checkbox" class="topic-checkbox" data-key="T5_Multitarefas" id="T5_Multitarefas">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700 mb-4">A multitarefa é prejudicial. O foco em um projeto-chave de cada vez, incentivando horários e espaços de trabalho concentrado, é mais produtivo.</p>
+                <div class="responsive-embed">
+                    <iframe src="https://www.youtube.com/embed/gs942RA0YZE?si=ZcqB-4otYptkcmiC" title="COMO ORGANIZAR SEU DIA PARA SER MAIS PRODUTIVO (em 10 Dicas Que Pouca Gente Sabe)" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Módulo 3: Ajuste Contínuo e Bem-Estar -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="heart" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Módulo 3: Autoavaliação e Bem-Estar</h2>
+            </div>
+            
+            <!-- Autoavaliação e Ajuste -->
+            <div class="mb-8 p-4 bg-sky-50 rounded-lg border border-sky-200">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-sky-800 flex items-center">
+                        <i data-lucide="refresh-cw" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Autoavaliação e Feedback Contínuo
+                    </h3>
+                    <label class="completion-label" for="T6_Autoavaliacao">
+                        <input type="checkbox" class="topic-checkbox" data-key="T6_Autoavaliacao" id="T6_Autoavaliacao">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700 mb-4">A gestão de tempo deve ser adaptável. Revise semanalmente o progresso e utilize o **Feedback Contínuo** para realinhar metas e melhorar processos.</p>
+                <div class="responsive-embed">
+                    <iframe src="https://www.youtube.com/embed/QzyyCrFXmbY?si=hXj2_ObKSsqrci-Z" title="FEEDBACK O QUE É (Significado, Tradução e Como Dar Um)" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- Cuidar do Bem-Estar -->
+            <div class="p-4 bg-sky-50 rounded-lg border border-sky-200">
+                <div class="section-header">
+                    <h3 class="text-xl font-bold text-sky-800 flex items-center">
+                        <i data-lucide="zap" class="h-5 w-5 mr-2 text-sky-600"></i>
+                        Cuidar do Bem-Estar da Equipe
+                    </h3>
+                    <label class="completion-label" for="T7_BemEstar">
+                        <input type="checkbox" class="topic-checkbox" data-key="T7_BemEstar" id="T7_BemEstar">
+                        <span>Concluído</span>
+                    </label>
+                </div>
+                <p class="text-gray-700 mb-4">Promover o bem-estar (pausas, horários flexíveis, incentivo à atividade física) impacta diretamente a produtividade e a saúde mental dos colaboradores.</p>
+                <div class="responsive-embed">
+                    <iframe src="https://www.youtube.com/embed/jGqokU9pmX4?si=5nELsU2H0DDU2jVR" title="O QUE É SAÚDE MENTAL NO TRABALHO (E NA VIDA PESSOAL) – 10 Dicas Incríveis para Trabalhá-la" allowfullscreen></iframe>
+                </div>
+            </div>
+        </section>
+
+        <!-- Referências e Conteúdos Extras -->
+        <section class="mb-12 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex items-center mb-6 pb-4 border-b border-gray-200">
+                <i data-lucide="list-checks" class="h-7 w-7 text-sky-600 mr-3"></i>
+                <h2 class="text-2xl font-semibold text-sky-700">Referências e Conteúdos Extras</h2>
+            </div>
+
+            <ul class="space-y-4 text-gray-700">
+                <li class="p-2">
+                    <h4 class="font-bold text-lg mb-1">Cursos</h4>
+                    <a href="https://www.escolavirtual.gov.br/curso/468" target="_blank" rel="noopener noreferrer" class="topic-link text-sm ml-2">
+                        <i data-lucide="bookmark" class="h-4 w-4 mr-1"></i>
+                        [Escola Virtual GOV] Gestão do Tempo e Produtividade (Curso Livre)
+                    </a>
+                </li>
+                
+                <li class="p-2">
+                    <h4 class="font-bold text-lg mb-1">Artigos</h4>
+                    <a href="https://blog.edenredmobilidade.com.br/gestao-de-despesa/gestao-de-tempo-e-produtividade/#:~:text=A%20gest%C3%A3o%20do%20tempo%20e,per%C3%ADodos%20maiores%20para%20outras%20atividades." target="_blank" rel="noopener noreferrer" class="topic-link text-sm ml-2">
+                        <i data-lucide="file-text" class="h-4 w-4 mr-1"></i>
+                        [Edenred] Gestão de tempo e produtividade: 10 estratégias
+                    </a><br>
+                    <a href="https://www.alura.com.br/artigos/gestao-do-tempo?srsltid=AfmBOoqHSLktIzGdqBPW2CS4yBprmC8FW4bK_Qw04z18DsGFwfzl9dEH" target="_blank" rel="noopener noreferrer" class="topic-link text-sm ml-2">
+                        <i data-lucide="file-text" class="h-4 w-4 mr-1"></i>
+                        [Alura] Gestão do Tempo e Produtividade: entenda como otimizar a sua rotina
+                    </a>
+                </li>
+            </ul>
+        </section>
+        
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-8 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
 
 </body>
 </html>

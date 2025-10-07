@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Meu Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-sky-700">
+                        Meu Perfil
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <a href="./dashboard.html" title="Voltar ao Dashboard" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="arrow-left" class="h-6 w-6"></i>
+                    </a>
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold text-sky-800 mb-8 flex items-center">
+            <i data-lucide="user-cog" class="h-8 w-8 mr-3"></i>
+            Editar Perfil
+        </h1>
+
+        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
+            <div class="space-y-4">
+                <div>
+                    <label for="userNameInput" class="block text-sm font-medium text-gray-700">Seu nome</label>
+                    <input 
+                        type="text" 
+                        id="userNameInput" 
+                        placeholder="Digite seu nome ou apelido" 
+                        class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                    >
+                </div>
+                <button 
+                    id="saveNameBtn" 
+                    class="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out"
+                >
+                    <i data-lucide="save" class="h-5 w-5 mr-2"></i>
+                    Salvar Nome
+                </button>
+                <p id="saveNameMessage" class="text-sm text-green-600 text-center pt-2"></p>
+            </div>
+        </section>
+
+        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Alterar E-mail</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="emailInput" class="block text-sm font-medium text-gray-700">Novo e-mail</label>
+                    <input type="email" id="emailInput" placeholder="Digite seu novo e-mail" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <div>
+                    <label for="emailPasswordInput" class="block text-sm font-medium text-gray-700">Sua senha atual</label>
+                    <input type="password" id="emailPasswordInput" placeholder="Digite sua senha para confirmar" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <button id="saveEmailBtn" class="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
+                    <i data-lucide="mail" class="h-5 w-5 mr-2"></i>
+                    Salvar E-mail
+                </button>
+                <p id="saveEmailMessage" class="text-sm text-center pt-2"></p>
+            </div>
+        </section>
+
+        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Alterar Senha</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="currentPasswordInput" class="block text-sm font-medium text-gray-700">Senha atual</label>
+                    <input type="password" id="currentPasswordInput" placeholder="Digite sua senha atual" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <div>
+                    <label for="newPasswordInput" class="block text-sm font-medium text-gray-700">Nova senha</label>
+                    <input type="password" id="newPasswordInput" placeholder="Digite sua nova senha" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+                </div>
+                <button id="savePasswordBtn" class="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
+                    <i data-lucide="key-round" class="h-5 w-5 mr-2"></i>
+                    Salvar Nova Senha
+                </button>
+                <p id="savePasswordMessage" class="text-sm text-center pt-2"></p>
+            </div>
+        </section>
+
+        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Resetar Progresso</h2>
+            <p class="text-sm text-gray-600 mb-4">Esta ação irá apagar todos os seus dados de progresso no sistema, mas sua conta será mantida. Esta ação não pode ser desfeita.</p>
+            <button id="resetProgressBtn" class="w-full flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="rotate-cw" class="h-5 w-5 mr-2"></i>
+                Resetar Meu Progresso
+            </button>
+            <p id="resetProgressMessage" class="text-sm text-center pt-2"></p>
+        </section>
+
+        <section class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg shadow-lg">
+            <h2 class="text-2xl font-bold text-red-800 mb-4">Área de Risco</h2>
+            <p class="text-sm text-red-700 mb-4">A exclusão da sua conta é permanente e removerá todos os seus dados do sistema. Para confirmar, digite sua senha e clique no botão abaixo.</p>
+            <div>
+                <label for="deletePasswordInput" class="block text-sm font-medium text-red-700">Sua senha atual</label>
+                <input type="password" id="deletePasswordInput" placeholder="Digite sua senha para confirmar a exclusão" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+            </div>
+            <button id="deleteAccountBtn" class="mt-4 w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="trash-2" class="h-5 w-5 mr-2"></i>
+                Deletar Minha Conta Permanentemente
+            </button>
+            <p id="deleteAccountMessage" class="text-sm text-center pt-2"></p>
+        </section>
+    </main>
+
+    <script src="./firebase-config.js"></script>
+    <script>
+        // As variáveis 'auth' e 'db' são definidas globalmente em firebase-config.js
+        const DASHBOARD_URL = 'index.html';
+
+        // Função para carregar o nome do usuário
+        function loadUserName(user) {
+            const userId = user.uid;
+            const userNameInput = document.getElementById('userNameInput');
+
+            db.ref(`users/${userId}/name`).once('value').then(snapshot => {
+                const currentName = snapshot.val();
+                if (currentName) {
+                    userNameInput.value = currentName;
+                }
+            });
+        }
+
+        // Função para salvar o nome do usuário
+        function saveUserName() {
+            const user = auth.currentUser;
+            const userNameInput = document.getElementById('userNameInput');
+            const saveNameMessage = document.getElementById('saveNameMessage');
+            const newName = userNameInput.value.trim();
+
+            if (!user) {
+                alert("Sessão expirada. Por favor, faça login novamente.");
+                window.location.href = DASHBOARD_URL;
+                return;
+            }
+
+            if (!newName) {
+                alert("Por favor, digite um nome válido.");
+                return;
+            }
+
+            const userId = user.uid;
+            
+            // Atualiza o nome no Realtime Database
+            const dbUpdate = db.ref(`users/${userId}/name`).set(newName);
+            // Atualiza o nome no perfil do Auth
+            const authUpdate = user.updateProfile({ displayName: newName });
+
+            Promise.all([dbUpdate, authUpdate])
+                .then(() => {
+                    showMessage('saveNameMessage', "Nome salvo com sucesso!");
+                })
+                .catch(error => {
+                    console.error("Erro ao salvar o nome:", error);
+                    showMessage('saveNameMessage', "Ocorreu um erro ao salvar seu nome.", true);
+                });
+        }
+
+        // Função para exibir mensagens
+        function showMessage(elementId, text, isError = false, duration = 3000) {
+            const element = document.getElementById(elementId);
+            element.textContent = text;
+            element.className = `text-sm text-center pt-2 ${isError ? 'text-red-600' : 'text-green-600'}`;
+            if (duration > 0) {
+                setTimeout(() => { element.textContent = ''; }, duration);
+            }
+        }
+
+        // Função para reautenticar o usuário
+        function reauthenticate(password) {
+            const user = auth.currentUser;
+            const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+            return user.reauthenticateWithCredential(credential);
+        }
+
+        // Função para alterar o e-mail
+        function changeEmail() {
+            const newEmail = document.getElementById('emailInput').value.trim();
+            const password = document.getElementById('emailPasswordInput').value;
+            const messageEl = 'saveEmailMessage';
+
+            if (!newEmail || !password) {
+                showMessage(messageEl, "Preencha o novo e-mail e a senha atual.", true);
+                return;
+            }
+
+            reauthenticate(password).then(() => {
+                const user = auth.currentUser;
+                user.updateEmail(newEmail).then(() => {
+                    // Atualiza também o e-mail no Realtime Database
+                    db.ref(`users/${user.uid}/email`).set(newEmail).then(() => {
+                        showMessage(messageEl, "E-mail alterado com sucesso!");
+                        document.getElementById('emailPasswordInput').value = '';
+                        document.getElementById('emailInput').value = '';
+                    });
+                }).catch(error => {
+                    console.error("Erro ao alterar e-mail:", error);
+                    showMessage(messageEl, `Erro ao alterar e-mail: ${error.message}`, true);
+                });
+            }).catch(error => {
+                console.error("Erro de reautenticação:", error);
+                showMessage(messageEl, "Senha incorreta. Verifique e tente novamente.", true);
+            });
+        }
+
+        // Função para alterar a senha
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPasswordInput').value;
+            const newPassword = document.getElementById('newPasswordInput').value;
+            const messageEl = 'savePasswordMessage';
+
+            if (!currentPassword || !newPassword) {
+                showMessage(messageEl, "Preencha a senha atual e a nova senha.", true);
+                return;
+            }
+
+            reauthenticate(currentPassword).then(() => {
+                auth.currentUser.updatePassword(newPassword).then(() => {
+                    showMessage(messageEl, "Senha alterada com sucesso!");
+                    document.getElementById('currentPasswordInput').value = '';
+                    document.getElementById('newPasswordInput').value = '';
+                }).catch(error => {
+                    console.error("Erro ao alterar senha:", error);
+                    showMessage(messageEl, `Erro ao alterar senha: ${error.message}`, true);
+                });
+            }).catch(error => {
+                console.error("Erro de reautenticação:", error);
+                showMessage(messageEl, "Senha atual incorreta.", true);
+            });
+        }
+
+        // Função para resetar o progresso
+        function resetProgress() {
+            if (!confirm("Você tem certeza que deseja resetar seu progresso? Esta ação não pode ser desfeita.")) {
+                return;
+            }
+            const user = auth.currentUser;
+            const messageEl = 'resetProgressMessage';
+            // Correção: remove apenas o nó 'progress' do usuário, preservando nome e e-mail.
+            db.ref(`users/${user.uid}/progress`).remove()
+                .then(() => {
+                    showMessage(messageEl, "Seu progresso foi resetado com sucesso.");
+                })
+                .catch(error => {
+                    console.error("Erro ao resetar progresso:", error);
+                    showMessage(messageEl, "Ocorreu um erro ao resetar seu progresso.", true);
+                });
+        }
+
+        // Função para deletar a conta
+        function deleteAccount() {
+            const password = document.getElementById('deletePasswordInput').value;
+            const messageEl = 'deleteAccountMessage';
+
+            if (!password) {
+                showMessage(messageEl, "Por favor, digite sua senha para confirmar a exclusão.", true);
+                return;
+            }
+
+            if (!confirm("ATENÇÃO: Você tem certeza que deseja excluir sua conta permanentemente? Todos os seus dados serão perdidos.")) {
+                return;
+            }
+
+            reauthenticate(password).then(() => {
+                const user = auth.currentUser;
+                const userId = user.uid;
+                
+                // Deleta dados do database primeiro
+                db.ref(`users/${userId}`).remove().then(() => {
+                    // Depois deleta o usuário
+                    user.delete().then(() => {
+                        alert("Sua conta foi excluída com sucesso.");
+                        window.location.href = DASHBOARD_URL;
+                    }).catch(error => {
+                        console.error("Erro ao deletar conta de autenticação:", error);
+                        showMessage(messageEl, `Erro ao deletar sua conta: ${error.message}`, true);
+                    });
+                }).catch(error => {
+                    console.error("Erro ao deletar dados do usuário:", error);
+                    showMessage(messageEl, `Erro ao deletar seus dados: ${error.message}`, true);
+                });
+
+            }).catch(error => {
+                console.error("Erro de reautenticação:", error);
+                showMessage(messageEl, "Senha incorreta. A conta não foi excluída.", true);
+            });
+        }
+
+        // Função de inicialização da página
+        function initProfilePage() {
+            lucide.createIcons();
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Usuário está logado, carrega o nome
+                    loadUserName(user);
+                    
+                    // Adiciona os listeners para os botões
+                    document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
+                    document.getElementById('saveEmailBtn').addEventListener('click', changeEmail);
+                    document.getElementById('savePasswordBtn').addEventListener('click', changePassword);
+                    document.getElementById('resetProgressBtn').addEventListener('click', resetProgress);
+                    document.getElementById('deleteAccountBtn').addEventListener('click', deleteAccount);
+                } else {
+                    // Usuário não está logado, redireciona para o dashboard/login
+                    console.log('Nenhum usuário logado. Redirecionando...');
+                    window.location.href = DASHBOARD_URL;
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initProfilePage);
+    </script>
+
+</body>
+</html>

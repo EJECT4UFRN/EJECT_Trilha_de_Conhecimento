@@ -5,13 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Git e GitHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/eject_logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <!-- Firebase Config -->
+    <script src="../SIGAV/firebase-config.js"></script>
+
+    <style>
+        /* Estilos do sistema de progresso */
+        .completion-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #0369a1;
+            cursor: pointer;
+            padding: 0.375rem 0.875rem;
+            border: 1px solid #7dd3fc;
+            border-radius: 9999px;
+            background-color: #f0f9ff;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+        .completion-label:hover { background-color: #e0f2fe; }
+        .topic-checkbox {
+            appearance: none;
+            width: 1.15rem;
+            height: 1.15rem;
+            border: 2px solid #38bdf8;
+            border-radius: 0.25rem;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
+        }
+        .topic-checkbox::before {
+            content: "";
+            width: 0.65rem;
+            height: 0.65rem;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em #0ea5e9;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 60%);
+        }
+        .topic-checkbox:checked {
+            border-color: #0ea5e9;
+            background-color: #e0f2fe;
+        }
+        .topic-checkbox:checked::before { transform: scale(1); }
+    </style>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
     <style>
         body {
             font-family: "Exo 2", sans-serif;
@@ -217,6 +275,45 @@
         body.contrast-yb .modal-body pre { background-color: #1a1a1a !important; }
         body.contrast-yb #pageLinkInput { background-color: #111 !important; color: #FFFF00 !important; }
 
+        .completion-label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #374151;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            background-color: #f3f4f6;
+            transition: background-color 0.2s;
+            margin-bottom: 1rem;
+            width: fit-content;
+            margin-left: auto;
+        }
+        .completion-label:hover {
+            background-color: #e5e7eb;
+        }
+        .completion-label input {
+            width: 1.15em;
+            height: 1.15em;
+            border-radius: 0.25rem;
+            border-color: #9ca3af;
+            color: #0d6efd;
+            transition: all 0.2s;
+        }
+        .completion-label input:focus {
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.5);
+            outline: none;
+        }
+        .completion-label input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .completion-label span {
+            user-select: none;
+        }
+
     </style>
 </head>
 <body class="antialiased">
@@ -241,6 +338,9 @@
                     </a>
                 </div>
                 <div class="flex items-center space-x-2 sm:space-x-3">
+                    <a href="../SIGAV/perfil.html" title="Meu Perfil" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
                     <button id="exportTasksPdfBtn" title="Exportar Respostas das Tarefas" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -257,7 +357,7 @@
                         </svg>
                     </button>
                     <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                        <img src="/EJECT_Trilha_de_Conhecimento/img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
                     </a>
                 </div>
             </div>
@@ -265,23 +365,43 @@
     </header>
 
     <main id="content-container" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <input type="hidden" id="trilha-nome" value="Git e GitHub" />
+        
+        <input type="hidden" id="trilha-id" value="git_e_github" />
 
+        <!-- Botão Voltar -->
         <section class="mb-6">
-            <a href="/EJECT_Trilha_de_Conhecimento" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
+            <a href="../index.html" class="inline-flex items-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
                 Voltar
             </a>
         </section>
 
+        <!-- Barra de Progresso -->
+        <section id="progress-section" class="mb-8 p-4 bg-white rounded-xl shadow-lg card-shadow">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-semibold text-sky-700">Seu Progresso na Trilha</h3>
+                <span id="progress-status" class="text-sm font-medium"></span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3.5">
+                <div id="progress-bar" class="h-3.5 rounded-full bg-sky-600 transition-all duration-500 ease-in-out" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm font-medium text-gray-600 mt-2 text-right">Calculando...</p>
+        </section>
+
         <section class="mb-10 p-6 bg-white rounded-xl shadow-lg text-gray-800">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="fundamentos-git">
+                <span>Concluído</span>
+            </label>
             <h1 class="text-4xl font-bold text-sky-800 mb-4">Git e GitHub: Colaboração e Controle de Versão</h1>
             <p class="text-lg leading-relaxed text-gray-700">Git é um poderoso sistema de controle de versão distribuído que permite a desenvolvedores e equipas rastrear e gerenciar alterações em seu código-fonte, documentos e qualquer conjunto de arquivos. O GitHub, por sua vez, é uma plataforma baseada na web que hospeda repositórios Git, fornecendo ferramentas robustas para colaboração, revisão de código e gerenciamento de projetos. Juntos, Git e GitHub são indispensáveis para o desenvolvimento de software moderno, garantindo organização, histórico completo e eficiência na colaboração.</p>
         </section>
 
         <section class="mb-10 p-6 bg-white rounded-xl shadow-lg text-gray-800">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="fundamentos-conceitos">
+                <span>Concluído</span>
+            </label>
             <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200">
                 <h2 class="text-3xl font-semibold text-sky-700 mb-2 sm:mb-0">Fundamentos do Git</h2>
             </div>
@@ -320,6 +440,10 @@
         </section>
 
         <section class="task-section mt-10 mb-10 p-6 bg-sky-50 rounded-xl shadow-lg text-gray-800 border border-sky-200">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="tarefa-iniciando-projeto">
+                <span>Concluído</span>
+            </label>
             <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -338,6 +462,10 @@
         </section>
 
         <section class="mb-10 p-6 bg-white rounded-xl shadow-lg text-gray-800">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="comandos-essenciais">
+                <span>Concluído</span>
+            </label>
             <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200">
                 <h2 class="text-3xl font-semibold text-sky-700 mb-2 sm:mb-0">Comandos Git Essenciais</h2>
             </div>
@@ -409,6 +537,10 @@
         </section>
 
         <section class="mb-10 p-6 bg-white rounded-xl shadow-lg text-gray-800">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="plataforma-github">
+                <span>Concluído</span>
+            </label>
             <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200">
                 <h2 class="text-3xl font-semibold text-sky-700 mb-2 sm:mb-0">GitHub: A Plataforma de Colaboração</h2>
             </div>
@@ -455,6 +587,10 @@
         </section>
 
         <section class="mb-10 p-6 bg-white rounded-xl shadow-lg text-gray-800">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="gitflow">
+                <span>Concluído</span>
+            </label>
             <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 pb-4 border-b border-gray-200">
                 <h2 class="text-3xl font-semibold text-sky-700 mb-2 sm:mb-0">GitFlow e Estratégias de Branching</h2>
             </div>
@@ -485,6 +621,10 @@
         </section>
 
         <section class="task-section mt-10 mb-10 p-6 bg-sky-50 rounded-xl shadow-lg text-gray-800 border border-sky-200">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="tarefa-pull-request">
+                <span>Concluído</span>
+            </label>
             <h3 class="text-2xl font-semibold text-sky-700 mb-3 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -497,6 +637,10 @@
 
 
         <section class="p-6 bg-white rounded-xl shadow-lg text-gray-800">
+            <label class="completion-label">
+                <input type="checkbox" class="topic-checkbox" data-key="referencias">
+                <span>Concluído</span>
+            </label>
             <h2 class="text-3xl font-semibold text-sky-700 mb-6 pb-4 border-b border-gray-200">Referências e Conteúdos Extras</h2>
             <div class="space-y-6">
                 <div>
@@ -620,7 +764,7 @@
                         Pausar
                     </button>
                     <button id="stopTTSBtn" title="Parar Leitura">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 9a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 9a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1h-1z" clip-rule="evenodd" /></svg>
                         Parar
                     </button>
                 </div>
@@ -640,7 +784,10 @@
         </div>
     </div>
 
+    <script src="../SIGAV/salvamento_nuvem.js"></script>
 
+    
+    <script src="../SIGAV/trilha-progress.js"></script>
     <script>
         // Assegurar que o objeto jsPDF está disponível globalmente se usar a versão UMD
         const { jsPDF } = window.jspdf;
@@ -681,7 +828,7 @@
 
                 let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
                 const payload = { contents: chatHistory };
-                const apiKey = "AIzaSyAnojN8ZpEjiHaUVlZbgdalGVKdJwkIrRI"; // API key deve ser vazia para o Canvas
+                const apiKey = ""; // API key deve ser vazia para o Canvas
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`; // Usando gemini-2.5-flash-preview-05-20
 
                 try {
@@ -954,350 +1101,12 @@
             });
         }
 
+        // Inicializa os ícones do Lucide
+        lucide.createIcons();
 
-        // --- Accessibility Features ---
-        const accessibilityBtn = document.getElementById('accessibilityBtn');
-        const accessibilityPanel = document.getElementById('accessibilityPanel');
-        const mainContentContainer = document.getElementById('content-container');
+        </script>
+    
 
-        const increaseFontBtn = document.getElementById('increaseFontBtn');
-        const decreaseFontBtn = document.getElementById('decreaseFontBtn');
-        const resetFontBtn = document.getElementById('resetFontBtn');
-
-        const defaultContrastBtn = document.getElementById('defaultContrastBtn');
-        const bwContrastBtn = document.getElementById('bwContrastBtn');
-        const ybContrastBtn = document.getElementById('ybContrastBtn');
-
-        const playTTSBtn = document.getElementById('playTTSBtn');
-        const pauseTTSBtn = document.getElementById('pauseTTSBtn');
-        const stopTTSBtn = document.getElementById('stopTTSBtn');
-        const ttsVoiceSelect = document.getElementById('ttsVoiceSelect');
-        const ttsRateRange = document.getElementById('ttsRateRange');
-        const ttsRateValue = document.getElementById('ttsRateValue');
-        const ttsPitchRange = document.getElementById('ttsPitchRange');
-        const ttsPitchValue = document.getElementById('ttsPitchValue');
-
-
-        let currentFontSizeMultiplier = 1;
-        const FONT_SIZE_STEP_ACC = 0.1;
-        const MIN_FONT_MULTIPLIER_ACC = 0.7;
-        const MAX_FONT_MULTIPLIER_ACC = 1.8;
-        let originalFontSizesMap = new Map();
-
-        if (accessibilityBtn && accessibilityPanel) {
-            accessibilityBtn.addEventListener('click', () => {
-                accessibilityPanel.classList.toggle('active');
-                accessibilityPanel.classList.toggle('hidden');
-            });
-        }
-
-        function storeOriginalFontSizesAcc() {
-            if (originalFontSizesMap.size === 0 && mainContentContainer) {
-                mainContentContainer.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, a, span:not([class*="icon"])').forEach((el, index) => {
-                    const computedStyle = window.getComputedStyle(el);
-                    const elId = el.dataset.accId || `acc-el-${index}`;
-                    el.dataset.accId = elId;
-                    originalFontSizesMap.set(elId, parseFloat(computedStyle.fontSize));
-                });
-            }
-        }
-
-        function updateFontSizesAcc(multiplier) {
-            if (!mainContentContainer) return;
-            storeOriginalFontSizesAcc();
-
-            currentFontSizeMultiplier = Math.max(MIN_FONT_MULTIPLIER_ACC, Math.min(multiplier, MAX_FONT_MULTIPLIER_ACC));
-
-            mainContentContainer.querySelectorAll('[data-acc-id]').forEach(el => {
-                const originalSize = originalFontSizesMap.get(el.dataset.accId);
-                if (originalSize) {
-                    el.style.fontSize = (originalSize * currentFontSizeMultiplier) + 'px';
-                }
-            });
-
-            mainContentContainer.querySelectorAll('p, li').forEach(el => {
-                const currentElementFontSize = parseFloat(el.style.fontSize || window.getComputedStyle(el).fontSize);
-                let newLineHeight = originalFontSizesMap.get(el.dataset.accId) * 1.7;
-                if (currentFontSizeMultiplier !== 1) {
-                    newLineHeight = (originalFontSizesMap.get(el.dataset.accId) * 1.7 * currentFontSizeMultiplier * 0.9);
-                }
-                el.style.lineHeight = Math.max(originalFontSizesMap.get(el.dataset.accId) * 1.5, newLineHeight) + 'px';
-            });
-        }
-
-
-        if (increaseFontBtn) {
-            increaseFontBtn.addEventListener('click', () => {
-                updateFontSizesAcc(currentFontSizeMultiplier + FONT_SIZE_STEP_ACC);
-            });
-        }
-        if (decreaseFontBtn) {
-            decreaseFontBtn.addEventListener('click', () => {
-                updateFontSizesAcc(currentFontSizeMultiplier - FONT_SIZE_STEP_ACC);
-            });
-        }
-        if (resetFontBtn) {
-            resetFontBtn.addEventListener('click', () => {
-                currentFontSizeMultiplier = 1;
-                mainContentContainer.querySelectorAll('[data-acc-id]').forEach(el => {
-                    const originalSize = originalFontSizesMap.get(el.dataset.accId);
-                    if (originalSize) {
-                        el.style.fontSize = originalSize + 'px';
-                        if (el.tagName === 'P' || el.tagName === 'LI') {
-                           el.style.lineHeight = (originalSize * 1.7) + 'px';
-                        }
-                    } else {
-                           el.style.fontSize = '';
-                           if (el.tagName === 'P' || el.tagName === 'LI') {
-                                el.style.lineHeight = '';
-                           }
-                    }
-                });
-            });
-        }
-
-        function applyContrast(themeClass) {
-            document.body.classList.remove('contrast-default', 'contrast-bw', 'contrast-yb');
-            if (themeClass !== 'contrast-default') {
-                document.body.classList.add(themeClass);
-            }
-        }
-        if (defaultContrastBtn) defaultContrastBtn.addEventListener('click', () => applyContrast('contrast-default'));
-        if (bwContrastBtn) bwContrastBtn.addEventListener('click', () => applyContrast('contrast-bw'));
-        if (ybContrastBtn) ybContrastBtn.addEventListener('click', () => applyContrast('contrast-yb'));
-
-        let speechSynth = window.speechSynthesis;
-        let currentUtterance = null;
-        let elementsToRead = [];
-        let currentElementIndex = 0;
-        let isReadingPaused = false;
-        let availableVoices = [];
-
-        function populateVoiceList() {
-            if(typeof speechSynthesis === 'undefined' || !ttsVoiceSelect) {
-                return;
-            }
-            availableVoices = speechSynth.getVoices();
-            ttsVoiceSelect.innerHTML = '';
-
-            if (availableVoices.length === 0) {
-                   ttsVoiceSelect.innerHTML = '<option value="">Nenhuma voz disponível</option>';
-                   ttsVoiceSelect.disabled = true;
-                   return;
-            }
-
-            let hasPortugueseVoice = false;
-            availableVoices.forEach(voice => {
-                if (voice.lang.startsWith('pt')) {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.setAttribute('data-lang', voice.lang);
-                    option.setAttribute('data-name', voice.name);
-                    ttsVoiceSelect.appendChild(option);
-                    hasPortugueseVoice = true;
-                }
-            });
-
-            if (!hasPortugueseVoice) {
-                   availableVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    option.setAttribute('data-lang', voice.lang);
-                    option.setAttribute('data-name', voice.name);
-                    ttsVoiceSelect.appendChild(option);
-                });
-            }
-            ttsVoiceSelect.disabled = false;
-        }
-
-        populateVoiceList();
-        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-
-
-        function prepareTextToRead() {
-            if (!mainContentContainer) return '';
-            let textSegments = [];
-            mainContentContainer.querySelectorAll('section.mb-10, section.p-6.bg-white').forEach(section => {
-                const titleElement = section.querySelector('h1, h2');
-                if (titleElement && titleElement.textContent.trim().length > 0) {
-                    textSegments.push(titleElement.textContent.trim() + ".");
-                }
-                section.querySelectorAll('p, h3, h4, li').forEach(el => {
-                    if (el.closest('.mt-8.p-6.border.border-violet-300') || el.closest('ul.list-disc')) {
-                        if (el.tagName.toLowerCase() === 'li' && el.closest('ul.list-disc')) {
-                               const link = el.querySelector('a');
-                               if (link && link.textContent.trim().length > 0) {
-                                   textSegments.push(link.textContent.trim() + ", link.");
-                               } else if (el.textContent.trim().length > 0) {
-                                   textSegments.push(el.textContent.trim() + ".");
-                               }
-                        }
-                        return;
-                    }
-                    if (el.textContent.trim().length > 0) {
-                        textSegments.push(el.textContent.trim().replace(/\s+/g, ' ') + ".");
-                    }
-                });
-            });
-            return textSegments.join(' \n ');
-        }
-
-        function speakNextSegment() {
-            if (currentElementIndex >= elementsToRead.length || !speechSynth) {
-                playTTSBtn.disabled = false;
-                pauseTTSBtn.disabled = true;
-                stopTTSBtn.disabled = true;
-                currentElementIndex = 0;
-                currentUtterance = null;
-                elementsToRead = [];
-                return;
-            }
-            if (speechSynth.paused && isReadingPaused) { return; }
-            if (speechSynth.speaking && !isReadingPaused) { return; }
-
-            currentUtterance = new SpeechSynthesisUtterance(elementsToRead[currentElementIndex]);
-            currentUtterance.lang = 'pt-BR';
-            currentUtterance.rate = parseFloat(ttsRateRange.value) || 1;
-            currentUtterance.pitch = parseFloat(ttsPitchRange.value) || 1;
-
-            const selectedVoiceName = ttsVoiceSelect.selectedOptions[0]?.getAttribute('data-name');
-            if (selectedVoiceName) {
-                const voice = availableVoices.find(v => v.name === selectedVoiceName);
-                if (voice) currentUtterance.voice = voice;
-            } else {
-                const portugueseVoice = availableVoices.find(v => v.lang.startsWith('pt-BR') || v.lang.startsWith('pt-PT'));
-                if(portugueseVoice) currentUtterance.voice = portugueseVoice;
-            }
-
-
-            currentUtterance.onend = () => {
-                if (elementsToRead.length === 0) return;
-
-                if (currentElementIndex < elementsToRead.length - 1) {
-                    currentElementIndex++;
-                    speakNextSegment();
-                } else {
-                    playTTSBtn.disabled = false;
-                    pauseTTSBtn.disabled = true;
-                    stopTTSBtn.disabled = true;
-                    currentElementIndex = 0;
-                    currentUtterance = null;
-                    elementsToRead = [];
-                }
-            };
-            currentUtterance.onerror = (event) => {
-                console.error('Erro na síntese de voz:', event.error);
-                isReadingPaused = false;
-                currentElementIndex = 0;
-                elementsToRead = [];
-                currentUtterance = null;
-                if (speechSynth) { speechSynth.cancel(); }
-                playTTSBtn.disabled = false;
-                pauseTTSBtn.disabled = true;
-                stopTTSBtn.disabled = true;
-            };
-            speechSynth.speak(currentUtterance);
-            playTTSBtn.disabled = true;
-            pauseTTSBtn.disabled = false;
-            stopTTSBtn.disabled = false;
-            isReadingPaused = false;
-        }
-
-        if (playTTSBtn) {
-            playTTSBtn.addEventListener('click', () => {
-                if (!speechSynth) {
-                    // Using custom modal instead of alert
-                    showGeminiModal("Erro", "<p>A síntese de voz não é suportada neste navegador.</p>");
-                    return;
-                }
-                if (speechSynth.paused && currentUtterance && isReadingPaused) {
-                    speechSynth.resume();
-                    isReadingPaused = false;
-                    playTTSBtn.disabled = true;
-                    pauseTTSBtn.disabled = false;
-                    stopTTSBtn.disabled = false;
-                } else {
-                    speechSynth.cancel();
-                    currentUtterance = null;
-                    isReadingPaused = false;
-                    elementsToRead = [];
-                    currentElementIndex = 0;
-
-                    const fullText = prepareTextToRead();
-                    elementsToRead = fullText.split('. ')
-                                            .map(s => s.trim())
-                                            .filter(segment => segment.length > 0)
-                                            .map(s => s.endsWith('.') ? s : s + '.');
-
-                    if (elementsToRead.length > 0) {
-                        speakNextSegment();
-                    } else {
-                        showGeminiModal("Informação", "<p>Não há conteúdo textual para ler na página.</p>");
-                        playTTSBtn.disabled = false;
-                        pauseTTSBtn.disabled = true;
-                        stopTTSBtn.disabled = true;
-                    }
-                }
-            });
-        }
-
-        if (pauseTTSBtn) {
-            pauseTTSBtn.addEventListener('click', () => {
-                if (speechSynth && speechSynth.speaking && !speechSynth.paused) {
-                    speechSynth.pause();
-                    isReadingPaused = true;
-                    playTTSBtn.disabled = false;
-                    pauseTTSBtn.disabled = true;
-                }
-            });
-            pauseTTSBtn.disabled = true;
-        }
-
-        if (stopTTSBtn) {
-            stopTTSBtn.addEventListener('click', () => {
-                isReadingPaused = false;
-                currentElementIndex = 0;
-                elementsToRead = [];
-                currentUtterance = null;
-                if (speechSynth) { speechSynth.cancel(); }
-                playTTSBtn.disabled = false;
-                pauseTTSBtn.disabled = true;
-                stopTTSBtn.disabled = true;
-            });
-            stopTTSBtn.disabled = true;
-        }
-
-        if (ttsRateRange && ttsRateValue) {
-            ttsRateRange.addEventListener('input', () => {
-                ttsRateValue.textContent = ttsRateRange.value;
-                if (currentUtterance && speechSynth.speaking && !speechSynth.paused) {
-                    speechSynth.cancel();
-                    currentUtterance.rate = parseFloat(ttsRateRange.value);
-                    speechSynth.speak(currentUtterance);
-                } else if (currentUtterance && speechSynth.paused && isReadingPaused) {
-                    currentUtterance.rate = parseFloat(ttsRateRange.value);
-                }
-            });
-        }
-        if (ttsPitchRange && ttsPitchValue) {
-            ttsPitchRange.addEventListener('input', () => {
-                ttsPitchValue.textContent = ttsPitchRange.value;
-                if (currentUtterance && speechSynth.speaking && !speechSynth.paused) {
-                    speechSynth.cancel();
-                    currentUtterance.pitch = parseFloat(ttsPitchRange.value);
-                    speechSynth.speak(currentUtterance);
-                } else if (currentUtterance && speechSynth.paused && isReadingPaused) {
-                    currentUtterance.pitch = parseFloat(ttsPitchRange.value);
-                }
-            });
-        }
-
-
-        window.addEventListener('load', storeOriginalFontSizesAcc);
-
-    </script>
 
 </body>
 </html>
