@@ -153,16 +153,26 @@ body {
     background-color: rgba(0,0,0,0.6);
 }
 .login-modal-content {
-    margin: 10% auto;
-    padding: 1.25rem;
+    margin: 5vh auto;
+    padding: 1rem;
     border-width: 1px;
-    border-radius: 0.5rem;
-    width: 91.666667%;
+    border-radius: 0.75rem;
+    width: 95%;
     max-width: 28rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     background-color: #fefefe;
     border-color: #888;
     animation: fade-in-down 0.5s;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+@media (min-width: 640px) {
+    .login-modal-content {
+        margin: 10% auto;
+        padding: 1.5rem;
+        width: 90%;
+    }
 }
 .dark .login-modal-content {
     background-color: #333333;
@@ -262,4 +272,60 @@ body {
 .scrollbar-hide {
     -ms-overflow-style: none;  
     scrollbar-width: none;  
+}
+
+/* Melhorias para mobile */
+@media (max-width: 640px) {
+    .ds-btn-primary, .ds-btn-soon, .ds-btn-secondary {
+        min-height: 44px; /* Melhor área de toque no mobile */
+        font-size: 0.875rem;
+    }
+    
+    .input-styled {
+        min-height: 44px; /* Melhor área de toque no mobile */
+        font-size: 16px; /* Evita zoom no iOS */
+    }
+    
+    .nav-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Evita zoom em inputs no iOS */
+    select, input[type="email"], input[type="password"], input[type="text"] {
+        font-size: 16px;
+    }
+}
+
+/* Melhora a área de toque para elementos interativos */
+.touch-target {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Animações suaves para feedback tátil */
+.ds-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.ds-card:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+/* Melhoria de contraste para acessibilidade */
+@media (prefers-contrast: high) {
+    .input-styled {
+        border-width: 2px;
+    }
+    
+    .ds-btn-primary, .ds-btn-secondary {
+        border: 2px solid transparent;
+    }
+}
+
+/* Melhoria para modo escuro no mobile */
+@media (prefers-color-scheme: dark) {
+    .login-modal {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
 }

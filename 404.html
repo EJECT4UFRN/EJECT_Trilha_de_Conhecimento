@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Não Encontrada | Você está perdido no espaço!</title>
+    <title>404 - Perdido no Espaço | EJECT Trilha de Conhecimento</title>
     <!-- Favicon (Mantenha o seu original, se preferir) -->
     <link rel="icon" type="image/x-icon" href="/EJECT_Trilha_de_Conhecimento/img/svgs/logo-eject.svg">
 
@@ -16,7 +16,7 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0d1117; /* Um azul/preto muito escuro para o espaço */
+            background: radial-gradient(ellipse at center, #0f172a 0%, #020617 70%, #000000 100%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,8 +24,9 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
-            overflow: hidden; /* Evita barras de rolagem indesejadas devido a animações */
-            position: relative; /* Necessário para posicionar o campo de estrelas e o conteúdo */
+            overflow: hidden;
+            position: relative;
+            cursor: crosshair;
         }
 
         /* Estilos para o VLibras - Mantendo a posição original, se necessário */
@@ -76,7 +77,7 @@
             100% { opacity: 0.5; }
         }
 
-        /* Fundo de Estrelas */
+        /* Fundo de Estrelas Melhorado */
         #stars, #stars2, #stars3 {
             position: absolute;
             top: 0;
@@ -84,31 +85,35 @@
             width: 100%;
             height: 100%;
             background: transparent;
-            animation: move-twinkle 150s linear infinite; /* Animação das estrelas */
+            animation: move-twinkle 200s linear infinite; /* Movimento mais suave */
             z-index: 1;
         }
 
         #stars {
-            background-image: radial-gradient(2px 2px at 20% 30%, #eee, rgba(0,0,0,0)),
-                              radial-gradient(2px 2px at 40% 70%, #fff, rgba(0,0,0,0)),
-                              radial-gradient(2px 2px at 10% 50%, #ddd, rgba(0,0,0,0));
-            background-size: 300px 300px; /* Densidade das estrelas */
+            background-image: radial-gradient(1.5px 1.5px at 20% 30%, #fff, rgba(255,255,255,0)),
+                              radial-gradient(1.5px 1.5px at 40% 70%, #e0e7ff, rgba(224,231,255,0)),
+                              radial-gradient(1px 1px at 90% 40%, #a3b8ee, rgba(163,184,238,0)),
+                              radial-gradient(1px 1px at 10% 50%, #ddd, rgba(221,221,221,0));
+            background-size: 250px 250px;
+            animation: move-twinkle 200s linear infinite, twinkle-stars 4s ease-in-out infinite;
         }
 
         #stars2 {
-            background-image: radial-gradient(2px 2px at 50% 100%, #fff, rgba(0,0,0,0)),
-                              radial-gradient(2px 2px at 90% 40%, #eee, rgba(0,0,0,0)),
-                              radial-gradient(2px 2px at 110% 80%, #ddd, rgba(0,0,0,0));
-            background-size: 400px 400px;
-            animation-delay: -5s; /* Para um movimento diferente */
+            background-image: radial-gradient(2px 2px at 50% 100%, #6a5acd, rgba(106,90,205,0)),
+                              radial-gradient(1px 1px at 90% 40%, #fff, rgba(255,255,255,0)),
+                              radial-gradient(1.5px 1.5px at 110% 80%, #a3b8ee, rgba(163,184,238,0));
+            background-size: 350px 350px;
+            animation: move-twinkle 180s linear infinite, twinkle-stars 3s ease-in-out infinite;
+            animation-delay: -30s, -1s;
         }
 
         #stars3 {
-            background-image: radial-gradient(2px 2px at 100% 150%, #ddd, rgba(0,0,0,0)),
-                              radial-gradient(2px 2px at 140% 10%, #eee, rgba(0,0,0,0)),
-                              radial-gradient(2px 2px at 160% 120%, #fff, rgba(0,0,0,0));
-            background-size: 500px 500px;
-            animation-delay: -10s; /* Para um movimento diferente */
+            background-image: radial-gradient(1px 1px at 100% 150%, #e0e7ff, rgba(224,231,255,0)),
+                              radial-gradient(2px 2px at 140% 10%, #fff, rgba(255,255,255,0)),
+                              radial-gradient(1px 1px at 160% 120%, #6a5acd, rgba(106,90,205,0));
+            background-size: 450px 450px;
+            animation: move-twinkle 220s linear infinite, twinkle-stars 5s ease-in-out infinite;
+            animation-delay: -60s, -2s;
         }
 
         @keyframes move-twinkle {
@@ -116,106 +121,324 @@
                 background-position: 0 0;
             }
             to {
-                background-position: 100% 100%;
+                background-position: -100% -100%;
             }
         }
 
-        /* Animação para os planetas flutuantes */
+        @keyframes twinkle-stars {
+            0%, 100% {
+                opacity: 0.8;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Animações melhoradas para os planetas flutuantes */
         @keyframes float-fade {
             0% {
                 opacity: 0;
-                transform: translate(0, 0) scale(0.8);
+                transform: translate(0, 0) scale(0.7) rotate(0deg);
             }
-            20% {
-                opacity: 0.7;
-                transform: translate(10px, -10px) scale(1);
+            15% {
+                opacity: 0.8;
+                transform: translate(15px, -8px) scale(1) rotate(10deg);
             }
-            80% {
-                opacity: 0.7;
-                transform: translate(-10px, 10px) scale(1.05);
+            50% {
+                opacity: 0.9;
+                transform: translate(-5px, 15px) scale(1.1) rotate(-5deg);
+            }
+            85% {
+                opacity: 0.8;
+                transform: translate(-15px, 8px) scale(1.05) rotate(15deg);
             }
             100% {
                 opacity: 0;
-                transform: translate(0, 0) scale(0.8);
+                transform: translate(0, 0) scale(0.7) rotate(0deg);
             }
+        }
+
+        @keyframes orbit-slow {
+            0% {
+                transform: rotate(0deg) translateX(50px) rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg) translateX(50px) rotate(-360deg);
+            }
+        }
+
+        /* Meteoros com visual realista e bonito */
+        .meteor {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #fff 0%, #6a5acd 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 2;
+            animation: meteor-fall linear infinite;
+        }
+
+        .meteor::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 80px;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.9) 0%,
+                rgba(106, 90, 205, 0.7) 20%,
+                rgba(106, 90, 205, 0.4) 50%,
+                rgba(106, 90, 205, 0.1) 80%,
+                transparent 100%);
+            transform-origin: top center;
+            border-radius: 2px;
+            filter: blur(1px);
+        }
+
+        .meteor::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -1px;
+            width: 6px;
+            height: 40px;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.6) 0%,
+                rgba(224, 231, 255, 0.4) 30%,
+                rgba(106, 90, 205, 0.2) 60%,
+                transparent 100%);
+            border-radius: 3px;
+            filter: blur(0.5px);
+        }
+
+        @keyframes meteor-fall {
+            0% {
+                top: -10%;
+                left: -5%;
+                opacity: 0;
+                transform: rotate(135deg) scale(0.5);
+            }
+            5% {
+                opacity: 1;
+                transform: rotate(135deg) scale(1);
+            }
+            95% {
+                opacity: 1;
+                transform: rotate(135deg) scale(1);
+            }
+            100% {
+                top: 110%;
+                left: 105%;
+                opacity: 0;
+                transform: rotate(135deg) scale(0.8);
+            }
+        }
+
+        .meteor:nth-child(6) { 
+            animation-duration: 3s; 
+            animation-delay: 0s;
+        }
+        .meteor:nth-child(7) { 
+            animation-duration: 4.5s; 
+            animation-delay: 1.5s;
+        }
+        .meteor:nth-child(8) { 
+            animation-duration: 3.8s; 
+            animation-delay: 3s;
+        }
+        .meteor:nth-child(9) { 
+            animation-duration: 5s; 
+            animation-delay: 4.5s;
+        }
+
+        /* Poeira cósmica */
+        .cosmic-dust {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 85% 75%, rgba(106,90,205,0.2), transparent),
+                radial-gradient(1px 1px at 45% 55%, rgba(224,231,255,0.4), transparent);
+            background-size: 200px 200px, 300px 300px, 150px 150px;
+            z-index: 1;
+            animation: drift-cosmic 120s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes drift-cosmic {
+            0% {
+                background-position: 0 0, 50px 50px, 100px 0;
+            }
+            100% {
+                background-position: 200px 200px, 250px 250px, 300px 150px;
+            }
+        }
+
+        /* Efeitos de hover suaves apenas no botão */
+        .error-container:hover {
+            transform: translateY(-2px);
+            transition: transform 0.3s ease;
         }
 
         /* Estilo para o contêiner principal da página de erro */
         .error-container {
-            background-color: rgba(30, 42, 71, 0.7); /* Azul-escuro semi-transparente para o cartão principal */
-            backdrop-filter: blur(5px); /* Efeito de desfoque de vidro */
-            border: 1px solid rgba(255, 255, 255, 0.2); /* Borda sutil para o efeito de vidro */
-            color: #e0e7ff; /* Cor clara para o texto */
-            border-radius: 1.5rem; /* Cantos arredondados */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15); /* Sombra mais escura */
-            padding: 2.5rem; /* Um pouco mais de padding */
-            max-width: 950px; /* Aumentado para acomodar o visual 404 */
+            background-color: rgba(30, 42, 71, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e0e7ff;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.4), 
+                        0 8px 10px -3px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            max-width: 90vw;
             width: 100%;
+            margin: 1rem;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2.5rem; /* Espaçamento maior entre os elementos */
-            /* Animação do contêiner */
+            gap: 2rem;
             animation: fadeInSlideUp 0.8s ease-out forwards;
-            position: relative; /* Garante que o conteúdo fique acima do fundo animado */
-            z-index: 10; /* Eleva o contêiner acima do fundo */
+            position: relative;
+            z-index: 10;
         }
 
+        /* Melhor responsividade para tablets */
+        @media (min-width: 640px) {
+            .error-container {
+                padding: 2.5rem;
+                max-width: 85vw;
+                gap: 2.5rem;
+            }
+        }
+
+        /* Layout para telas médias e grandes */
         @media (min-width: 768px) {
             .error-container {
-                flex-direction: row; /* Layout lado a lado em telas maiores */
+                flex-direction: row;
                 text-align: left;
-                padding: 3.5rem;
+                padding: 3rem;
+                max-width: 950px;
+                gap: 3rem;
+            }
+        }
+
+        /* Otimizações para telas muito pequenas */
+        @media (max-width: 480px) {
+            .error-container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+                gap: 1.5rem;
             }
         }
 
         .error-visual {
-            position: relative; /* Mantém para posicionar o 404 */
+            position: relative;
             flex-shrink: 0;
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
+        @media (max-width: 480px) {
+            .error-visual {
+                max-width: 280px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .error-visual {
+                max-width: 400px;
+            }
+        }
+
         .error-visual .error-code {
-            font-size: 8rem; /* 404 bem grande */
-            font-weight: 900; /* Extra bold */
-            color: #ffffff; /* Branco puro para o 404 */
-            line-height: 1;
-            margin: 0;
-            /* Animação do 404 */
-            animation: fadeIn 1.2s ease-out forwards;
-            animation-delay: 0.3s;
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            /* Animação do SVG 404 */
+            animation: fadeIn 1.2s ease-out forwards, pulseGlow 3s ease-in-out infinite;
+            animation-delay: 0.3s, 1.5s;
             opacity: 0;
+            filter: drop-shadow(0 0 20px rgba(106, 90, 205, 0.6));
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px rgba(106, 90, 205, 0.6));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(106, 90, 205, 0.9));
+                transform: scale(1.02);
+            }
         }
         
-        /* Nova animação para o astronauta vagante */
+        /* Animação melhorada para o astronauta vagante */
         @keyframes wander-full-screen {
-            0% { top: 10%; left: 10%; }
-            25% { top: 80%; left: 70%; }
-            50% { top: 20%; left: 90%; }
-            75% { top: 90%; left: 30%; }
-            100% { top: 10%; left: 10%; }
+            0% { 
+                top: 15%; 
+                left: 10%; 
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            }
+            20% { 
+                top: 70%; 
+                left: 80%; 
+                transform: translate(-50%, -50%) rotate(15deg) scale(1.1);
+            }
+            40% { 
+                top: 25%; 
+                left: 85%; 
+                transform: translate(-50%, -50%) rotate(-10deg) scale(0.9);
+            }
+            60% { 
+                top: 85%; 
+                left: 25%; 
+                transform: translate(-50%, -50%) rotate(20deg) scale(1.05);
+            }
+            80% { 
+                top: 30%; 
+                left: 15%; 
+                transform: translate(-50%, -50%) rotate(-5deg) scale(0.95);
+            }
+            100% { 
+                top: 15%; 
+                left: 10%; 
+                transform: translate(-50%, -50%) rotate(0deg) scale(1);
+            }
         }
 
         .astronaut-floating {
-            position: fixed; /* Posicionamento fixo para vagar pela tela inteira */
-            width: 150px; /* Tamanho do astronauta */
+            position: fixed;
+            width: 120px; /* Tamanho otimizado */
             height: auto;
-            /* Inicia fora da tela e move para a posição inicial para o fadeIn */
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%); /* Centraliza o elemento */
-            animation: wander-full-screen 40s linear infinite, /* Animação de vagar */
-                       fadeIn 2s ease-out forwards; /* Animação de entrada suave */
-            animation-delay: 0s, 1s; /* Vagar começa imediatamente, fadeIn após 1s */
-            z-index: 5; /* Atrás do contêiner principal, à frente de estrelas/planetas */
-            opacity: 0; /* Começa invisível para o fadeIn */
+            transform: translate(-50%, -50%);
+            animation: wander-full-screen 50s ease-in-out infinite, 
+                       fadeIn 2s ease-out forwards,
+                       float-gentle 6s ease-in-out infinite;
+            animation-delay: 2s, 1s, 3s;
+            z-index: 5;
+            opacity: 0;
+            filter: drop-shadow(0 0 15px rgba(106, 90, 205, 0.3));
+        }
+
+        @keyframes float-gentle {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(106, 90, 205, 0.3));
+            }
+            50% {
+                filter: drop-shadow(0 0 25px rgba(106, 90, 205, 0.6));
+            }
         }
 
         /* Não é necessário media query para o astronauta aqui, pois wander-full-screen usa porcentagens */
@@ -235,45 +458,110 @@
         }
 
         .error-content .main-message {
-            font-size: 2.2rem; /* Tamanho da fonte para o título principal */
-            font-weight: 700; /* Negrito */
-            color: #e0e7ff; /* Cor clara */
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #e0e7ff;
             margin-bottom: 0.8rem;
-            /* Animação do título */
             animation: fadeIn 1s ease-out forwards;
-            animation-delay: 0.8s; /* Aparece depois do 404 */
-            opacity: 0; /* Começa invisível */
+            animation-delay: 0.8s;
+            opacity: 0;
         }
 
         .error-content .sub-message {
-            font-size: 1.125rem; /* Tamanho da fonte para o parágrafo */
-            color: #a3b8ee; /* Cor um pouco mais clara para o parágrafo */
+            font-size: 1rem;
+            color: #a3b8ee;
             line-height: 1.6;
             margin-bottom: 2rem;
-            /* Animação do parágrafo */
             animation: fadeIn 1s ease-out forwards;
-            animation-delay: 1s; /* Aparece depois do título */
-            opacity: 0; /* Começa invisível */
+            animation-delay: 1s;
+            opacity: 0;
+        }
+
+        /* Responsividade para telas pequenas */
+        @media (max-width: 480px) {
+            .error-content .main-message {
+                font-size: 1.5rem;
+                margin-bottom: 0.6rem;
+            }
+            
+            .error-content .sub-message {
+                font-size: 0.9rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* Responsividade para telas médias */
+        @media (min-width: 640px) {
+            .error-content .main-message {
+                font-size: 2rem;
+            }
+            
+            .error-content .sub-message {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Responsividade para telas grandes */
+        @media (min-width: 768px) {
+            .error-content .main-message {
+                font-size: 2.2rem;
+            }
+            
+            .error-content .sub-message {
+                font-size: 1.125rem;
+            }
         }
 
         .btn-primary-custom {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.9rem 2rem; /* Um pouco maior */
-            font-size: 1.1rem; /* Fonte maior */
+            padding: 0.8rem 1.8rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #ffffff;
-            background-color: #6a5acd; /* Um tom de roxo vibrante */
+            background: linear-gradient(135deg, #6a5acd 0%, #5747a8 100%);
             border: none;
             border-radius: 0.75rem;
             text-decoration: none;
-            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-            box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.2), 0 3px 6px -1px rgba(0, 0, 0, 0.1); /* Sombra mais intensa */
-            /* Animação do botão */
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px -2px rgba(106, 90, 205, 0.3), 
+                        0 3px 8px -1px rgba(0, 0, 0, 0.2);
             animation: fadeIn 1s ease-out forwards;
-            animation-delay: 1.2s; /* Aparece depois do parágrafo */
-            opacity: 0; /* Começa invisível */
+            animation-delay: 1.2s;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary-custom:hover::before {
+            left: 100%;
+        }
+
+        /* Responsividade do botão */
+        @media (max-width: 480px) {
+            .btn-primary-custom {
+                padding: 0.7rem 1.5rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .btn-primary-custom {
+                padding: 0.9rem 2rem;
+                font-size: 1.1rem;
+            }
         }
 
         .btn-primary-custom:hover {
@@ -288,16 +576,23 @@
             box-shadow: 0 6px 10px -2px rgba(0, 0, 0, 0.2), 0 3px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* Estilo para os planetas flutuantes */
+        /* Estilo aprimorado para os planetas flutuantes */
         .planet {
             position: absolute;
             border-radius: 50%;
-            filter: blur(1px); /* Desfoque suave para parecer distante, ajustado para menos */
-            z-index: 1; /* Fica atrás do conteúdo principal */
-            opacity: 0; /* Começa invisível */
+            filter: blur(0.5px);
+            z-index: 1;
+            opacity: 0;
             animation: float-fade linear infinite;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), /* Sombra interna para profundidade */
-                        0 0 15px rgba(255,255,255,0.1); /* Brilho sutil */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6),
+                        0 0 25px rgba(106, 90, 205, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .planet:hover {
+            transform: scale(1.1);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.6),
+                        0 0 35px rgba(106, 90, 205, 0.6);
         }
 
         /* Variações de planetas para randomização */
@@ -363,6 +658,15 @@
     <div id="stars2"></div>
     <div id="stars3"></div>
 
+    <!-- Poeira Cósmica -->
+    <div class="cosmic-dust"></div>
+
+    <!-- Meteoros -->
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+    <div class="meteor"></div>
+
     <!-- Planetas Flutuantes -->
     <div class="planet planet-1"></div>
     <div class="planet planet-2"></div>
@@ -383,12 +687,53 @@
     <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
     <script>
         new window.VLibras.Widget('https://vlibras.gov.br/app');
+
+        // Efeitos básicos sem paralaxe
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manter apenas funcionalidades básicas se necessário
+            console.log('Página 404 EJECT carregada');
+        });
     </script>
 
     <div class="error-container">
         <!-- Visual 404 e Conteúdo -->
         <div class="error-visual">
-            <h1 class="error-code">404</h1>
+            <svg class="error-code" viewBox="0 0 1291 551" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g opacity="1" filter="url(#filter0_di)">
+                    <path d="M253.729 23.4L169.729 255.6C168.129 260 168.329 263.6 170.329 266.4C172.329 269.2 175.529 270.6 179.929 270.6H244.129V168.6L265.129 105H362.329V270.6H409.729V341.4L363.529 353.4H362.329V437.4H244.129V353.4H77.9294C66.7294 353.4 56.9294 350.6 48.5294 345C40.5294 339 34.9294 331.2 31.7294 321.6C28.9294 312 29.5294 302 33.5294 291.6L133.729 23.4H253.729Z" fill="url(#paint0_linear)"/>
+                    <path d="M616.837 15C660.837 15 695.837 21.6 721.837 34.8C747.837 47.6 766.437 69.8 777.637 101.4C788.837 132.6 794.437 175.6 794.437 230.4C794.437 285.2 788.837 328.4 777.637 360C766.437 391.2 747.837 413.4 721.837 426.6C695.837 439.4 660.837 445.8 616.837 445.8C573.237 445.8 538.437 439.4 512.437 426.6C486.837 413.4 468.437 391.2 457.237 360C446.037 328.4 440.437 285.2 440.437 230.4C440.437 175.6 446.037 132.6 457.237 101.4C468.437 69.8 486.837 47.6 512.437 34.8C538.437 21.6 573.237 15 616.837 15ZM616.237 111.6C606.637 111.6 598.837 113 592.837 115.8C586.837 118.2 582.037 123.4 578.437 131.4C575.237 139 572.837 150.8 571.237 166.8C570.037 182.4 569.437 203.6 569.437 230.4C569.437 257.2 570.037 278.6 571.237 294.6C572.837 310.2 575.237 322 578.437 330C582.037 337.6 586.837 342.8 592.837 345.6C598.837 348 606.637 349.2 616.237 349.2C626.237 349.2 634.437 348 640.837 345.6C647.237 342.8 652.237 337.6 655.837 330C659.437 322 661.837 310.2 663.037 294.6C664.637 278.6 665.437 257.2 665.437 230.4C665.437 203.6 664.637 182.4 663.037 166.8C661.837 150.8 659.437 139 655.837 131.4C652.237 123.4 647.237 118.2 640.837 115.8C634.437 113 626.237 111.6 616.237 111.6Z" fill="url(#paint1_linear)"/>
+                    <path d="M1044.16 23.4L960.159 255.6C958.559 260 958.759 263.6 960.759 266.4C962.759 269.2 965.959 270.6 970.359 270.6H1034.56V168.6L1055.56 105H1152.76V270.6H1200.16V341.4L1153.96 353.4H1152.76V437.4H1034.56V353.4H868.359C857.159 353.4 847.359 350.6 838.959 345C830.959 339 825.359 331.2 822.159 321.6C819.359 312 819.959 302 823.959 291.6L924.159 23.4H1044.16Z" fill="url(#paint2_linear)"/>
+                </g>
+                <defs>
+                    <filter id="filter0_di" x="0" y="0" width="1290.16" height="550.8" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+                        <feOffset dx="30" dy="45"/>
+                        <feGaussianBlur stdDeviation="30"/>
+                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                        <feOffset dy="4"/>
+                        <feGaussianBlur stdDeviation="2"/>
+                        <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+                        <feColorMatrix type="matrix" values="0 0 0 0 0.0678387 0 0 0 0 0.653382 0 0 0 0 0.946153 0 0 0 0.4 0"/>
+                        <feBlend mode="normal" in2="shape" result="effect2_innerShadow"/>
+                    </filter>
+                    <linearGradient id="paint0_linear" x1="313.5" y1="42.5" x2="1011.5" y2="446" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#e0e7ff"/>
+                        <stop offset="1" stop-color="#a3b8ee"/>
+                    </linearGradient>
+                    <linearGradient id="paint1_linear" x1="313.5" y1="42.5" x2="1011.5" y2="446" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#e0e7ff"/>
+                        <stop offset="1" stop-color="#a3b8ee"/>
+                    </linearGradient>
+                    <linearGradient id="paint2_linear" x1="313.5" y1="42.5" x2="1011.5" y2="446" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#e0e7ff"/>
+                        <stop offset="1" stop-color="#a3b8ee"/>
+                    </linearGradient>
+                </defs>
+            </svg>
         </div>
 
         <!-- Conteúdo de Texto -->

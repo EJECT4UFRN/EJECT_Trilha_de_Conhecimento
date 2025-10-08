@@ -29,71 +29,104 @@
             transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(2, 132, 199, 0.2); /* sky-600 shadow */
         }
+        
+        /* Melhorias específicas para mobile */
+        @media (max-width: 640px) {
+            .dashboard-card:active {
+                transform: translateY(-1px) scale(0.98);
+                transition: transform 0.1s ease-out;
+            }
+            
+            /* Melhora o touch target em dispositivos móveis */
+            .dashboard-card {
+                min-height: 160px;
+            }
+            
+            /* Otimiza o espaçamento vertical para mobile */
+            body {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+        
+                
+        /* Layout sticky footer */
+        .page-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content-wrapper {
+            flex: 1;
+        }
+        
     </style>
 </head>
 <body class="antialiased">
 
     <!-- Dashboard Principal -->
-    <div id="dashboardContent" class="hidden">
-        <header class="bg-white shadow-md sticky top-0 z-50">
-            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <div class="flex items-center">
-                        <span class="text-2xl font-bold text-sky-700">
+    <div id="dashboardContent" class="hidden page-container">
+        <div class="content-wrapper">
+            <header class="bg-white shadow-md sticky top-0 z-50">
+            <nav class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16 sm:h-20">
+                    <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                        <span class="text-lg sm:text-2xl font-bold text-sky-700 truncate">
                             <span id="welcomeMessage">Dashboard</span>
                         </span>
                     </div>
-                    <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
                         <!-- Botão de Gerenciar Admins (só para super admin) -->
-                        <a id="manageAdminsBtn" href="gerenciar-admins.html" title="Gerenciar Admins" class="p-2 rounded-full text-purple-600 bg-purple-100 hover:bg-purple-200 hidden">
-                            <i data-lucide="user-cog" class="h-6 w-6"></i>
+                        <a id="manageAdminsBtn" href="gerenciar-admins.html" title="Gerenciar Admins" class="p-1.5 sm:p-2 rounded-full text-purple-600 bg-purple-100 hover:bg-purple-200 hidden">
+                            <i data-lucide="user-cog" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                         </a>
                         <!-- Botão para Gerenciar Usuários (para todos os admins) -->
-                        <a id="manageUsersBtn" href="gerenciar-usuarios.html" title="Gerenciar Usuários" class="p-2 rounded-full text-cyan-600 bg-cyan-100 hover:bg-cyan-200 hidden">
-                            <i data-lucide="users" class="h-6 w-6"></i>
+                        <a id="manageUsersBtn" href="gerenciar-usuarios.html" title="Gerenciar Usuários" class="p-1.5 sm:p-2 rounded-full text-cyan-600 bg-cyan-100 hover:bg-cyan-200 hidden">
+                            <i data-lucide="users" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                         </a>
                         <!-- Botão de Admin (escondido por padrão) -->
-                        <a id="adminPanelBtn" href="Painel de Administração.html" title="Painel de Administração" class="p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors hidden">
-                            <i data-lucide="shield" class="h-6 w-6"></i>
+                        <a id="adminPanelBtn" href="Painel de Administração.html" title="Painel de Administração" class="p-1.5 sm:p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors hidden">
+                            <i data-lucide="shield" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                         </a>
                         <!-- Botão de Perfil -->
-                        <a href="perfil.html" title="Meu Perfil" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
-                            <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                        <a href="perfil.html" title="Meu Perfil" class="p-1.5 sm:p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                            <i data-lucide="user-circle-2" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                         </a>
                         <!-- Botão de Logout -->
-                         <button id="logoutBtn" title="Sair / Trocar Usuário" class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                            <i data-lucide="log-out" class="h-6 w-6"></i>
+                         <button id="logoutBtn" title="Sair / Trocar Usuário" class="p-1.5 sm:p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
+                            <i data-lucide="log-out" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                         </button>
                         <!-- Logotipo da EJECT -->
-                        <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                            <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                        <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="ml-1 sm:ml-2">
+                            <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-10">
                         </a>
                     </div>
                 </div>
             </nav>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <h1 class="text-4xl font-extrabold text-sky-800 mb-8">Suas Trilhas de Conhecimento</h1>
+        <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-sky-800 mb-6 sm:mb-8 leading-tight">Suas Trilhas de Conhecimento</h1>
 
             <!-- Seção de Trilhas (Cartões) -->
-            <div id="trailsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div id="trailsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 <!-- Cards de trilhas iniciadas serão inseridos aqui dinamicamente -->
             </div>
-            <div id="noTrailsMessage" class="hidden text-center py-12 bg-white rounded-xl shadow-md">
-                <i data-lucide="rocket" class="h-16 w-16 mx-auto text-sky-500"></i>
-                <h2 class="mt-4 text-2xl font-bold text-gray-700">Nenhuma trilha iniciada ainda!</h2>
-                <p class="text-gray-500 mt-2">Parece que sua jornada de conhecimento está prestes a começar.</p>
-                <a href="../index.html" class="mt-6 inline-block bg-sky-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md hover:bg-sky-700 transition-transform transform hover:scale-105">
+            <div id="noTrailsMessage" class="hidden text-center py-8 sm:py-12 bg-white rounded-xl shadow-md mx-2 sm:mx-0">
+                <i data-lucide="rocket" class="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-sky-500"></i>
+                <h2 class="mt-4 text-xl sm:text-2xl font-bold text-gray-700 px-4">Nenhuma trilha iniciada ainda!</h2>
+                <p class="text-gray-500 mt-2 px-4 text-sm sm:text-base">Parece que sua jornada de conhecimento está prestes a começar.</p>
+                <a href="../index.html" class="mt-4 sm:mt-6 inline-block bg-sky-600 text-white font-semibold py-2.5 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md hover:bg-sky-700 transition-transform transform hover:scale-105 text-sm sm:text-base">
                     Ver todas as trilhas
                 </a>
             </div>
         </main>
+        </div>
+        
+        <footer class="bg-sky-900 text-white text-center py-4 sm:py-6 mt-auto">
+            <p class="text-xs sm:text-sm px-4 leading-relaxed">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+        </footer>
     </div>
-
-    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
-        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
-    </footer>
 
 
     <!-- Firebase Config e Lógica de Autenticação -->
@@ -141,19 +174,19 @@
             const icon = isCompleted ? 'check-circle-2' : 'arrow-right';
 
             return `
-                <a href="${trail.link}" class="dashboard-card block bg-white rounded-xl p-6 shadow-lg card-shadow border-t-4 ${borderColor} transition transform duration-300">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-bold ${textColor}">${trail.title}</h2>
-                        <i data-lucide="${icon}" class="h-6 w-6 ${textColor.replace('700', '500')}"></i>
+                <a href="${trail.link}" class="dashboard-card block bg-white rounded-xl p-4 sm:p-6 shadow-lg card-shadow border-t-4 ${borderColor} transition transform duration-300">
+                    <div class="flex items-start justify-between mb-3 sm:mb-4">
+                        <h2 class="text-lg sm:text-xl font-bold ${textColor} leading-tight flex-1 pr-2">${trail.title}</h2>
+                        <i data-lucide="${icon}" class="h-5 w-5 sm:h-6 sm:w-6 ${textColor.replace('700', '500')} flex-shrink-0 mt-0.5"></i>
                     </div>
-                    <p class="text-gray-600 mb-4 text-sm">${trail.description}</p>
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base leading-relaxed">${trail.description}</p>
                     
-                    <div class="mt-4">
-                        <h3 class="text-sm font-semibold ${textColor} mb-1">Seu Progresso:</h3>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
-                            <div class="h-2.5 rounded-full ${bgColor} transition-all duration-500 ease-in-out" style="width: ${percentage}%"></div>
+                    <div class="mt-3 sm:mt-4">
+                        <h3 class="text-xs sm:text-sm font-semibold ${textColor} mb-2">Seu Progresso:</h3>
+                        <div class="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
+                            <div class="h-2 sm:h-2.5 rounded-full ${bgColor} transition-all duration-500 ease-in-out" style="width: ${percentage}%"></div>
                         </div>
-                        <p class="text-xs font-medium mt-1 text-gray-500 text-right">${percentage}%</p>
+                        <p class="text-xs font-medium mt-1.5 text-gray-500 text-right">${percentage}%</p>
                     </div>
                 </a>
             `;
@@ -164,7 +197,7 @@
             const noTrailsMessage = document.getElementById('noTrailsMessage');
             const welcomeMessage = document.getElementById('welcomeMessage');
             
-            container.innerHTML = '<p class="text-gray-500 col-span-full text-center">Carregando seu progresso...</p>';
+            container.innerHTML = '<p class="text-gray-500 col-span-full text-center text-sm sm:text-base py-8">Carregando seu progresso...</p>';
 
             try {
                 const progressRef = db.ref(`users/${userId}/progress`);
@@ -201,7 +234,7 @@
 
             } catch (error) {
                 console.error("Erro ao carregar progresso do Realtime Database:", error);
-                container.innerHTML = '<p class="text-red-500 col-span-full text-center">Não foi possível carregar seu progresso. Tente recarregar a página.</p>';
+                container.innerHTML = '<p class="text-red-500 col-span-full text-center text-sm sm:text-base py-8 px-4">Não foi possível carregar seu progresso. Tente recarregar a página.</p>';
             } finally {
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();

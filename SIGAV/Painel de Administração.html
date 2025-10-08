@@ -21,6 +21,9 @@
             color: #1f2937;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
@@ -29,98 +32,136 @@
             transition: width 0.5s ease;
         }
         .text-green-success { color: #10b981; }
+        
+        /* Melhorias para mobile */
+        @media (max-width: 640px) {
+            .table-mobile-optimize {
+                font-size: 0.75rem;
+            }
+            
+            /* Melhora o scroll horizontal em mobile */
+            .overflow-x-auto::-webkit-scrollbar {
+                height: 4px;
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar-track {
+                background: #f1f5f9;
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar-thumb {
+                background: #94a3b8;
+                border-radius: 2px;
+            }
+            
+            .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+                background: #64748b;
+            }
+        }
+        
+        /* Otimização para telas muito pequenas */
+        @media (max-width: 375px) {
+            .progress-bar-mobile {
+                min-width: 60px;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">
 
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center">
-                    <span class="text-2xl font-bold text-sky-700">
-                        Painel de Administração <span class="text-base font-medium text-gray-500">(Admin Mode)</span>
+        <nav class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <div class="flex items-center min-w-0 flex-1">
+                    <span class="text-lg sm:text-2xl font-bold text-sky-700 truncate">
+                        Painel de Administração <span class="hidden sm:inline text-base font-medium text-gray-500">(Admin Mode)</span>
                     </span>
                 </div>
-                <div class="flex items-center space-x-2 sm:space-x-4">
+                <div class="flex items-center space-x-1 sm:space-x-2 md:space-x-4 ml-2">
                     <!-- Botão para voltar ao Dashboard -->
-                    <a href="./dashboard.html" title="Voltar ao Dashboard" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
-                        <i data-lucide="layout-dashboard" class="h-6 w-6"></i>
+                    <a href="./dashboard.html" title="Voltar ao Dashboard" class="p-1.5 sm:p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="layout-dashboard" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                     </a>
                     <!-- Botão de Sair/Dashboard -->
-                     <button id="logoutBtn" title="Sair / Voltar para Login" class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
-                        <i data-lucide="log-out" class="h-6 w-6"></i>
+                     <button id="logoutBtn" title="Sair / Voltar para Login" class="p-1.5 sm:p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors">
+                        <i data-lucide="log-out" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                     </button>
                     <!-- Logotipo da EJECT -->
-                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="flex-shrink-0">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-10">
                     </a>
                 </div>
             </div>
         </nav>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 class="text-4xl font-extrabold text-sky-800 mb-8 flex items-center">
-            <i data-lucide="shield-check" class="h-8 w-8 mr-3"></i>
-            Gestão de Progresso das Trilhas
+    <main class="flex-1 max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-10">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-sky-800 mb-4 sm:mb-6 lg:mb-8 flex items-center">
+            <i data-lucide="shield-check" class="h-6 w-6 sm:h-7 sm:w-7 lg:h-8 lg:w-8 mr-2 sm:mr-3 flex-shrink-0"></i>
+            <span class="leading-tight">Gestão de Progresso das Trilhas</span>
         </h1>
 
-        <section class="mb-8 p-6 bg-white rounded-xl shadow-lg card-shadow">
-            <h2 class="text-2xl font-semibold text-sky-700 mb-4">Filtros e Pesquisa</h2>
+        <section class="mb-4 sm:mb-6 lg:mb-8 p-4 sm:p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-xl sm:text-2xl font-semibold text-sky-700 mb-3 sm:mb-4">Filtros e Pesquisa</h2>
             <div class="flex flex-col sm:flex-row gap-4">
                 <div class="relative flex-grow">
-                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400"></i>
+                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400"></i>
                     <input 
                         type="text" 
                         id="searchUserInput" 
-                        placeholder="Pesquisar por nome ou e-mail do usuário..." 
-                        class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
+                        placeholder="Pesquisar por nome ou e-mail..." 
+                        class="w-full p-2.5 sm:p-3 pl-9 sm:pl-10 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
                     >
                 </div>
                 <!-- O botão de pesquisa foi removido, a busca agora é em tempo real -->
             </div>
         </section>
 
-        <section class="p-6 bg-white rounded-xl shadow-lg card-shadow overflow-x-auto">
-            <h2 class="text-2xl font-semibold text-sky-700 mb-4">Progresso dos Usuários</h2>
+        <section class="p-4 sm:p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-xl sm:text-2xl font-semibold text-sky-700 mb-3 sm:mb-4">Progresso dos Usuários</h2>
             
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Usuário
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            E-mail
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Trilha
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Progresso
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Conclusão
-                        </th>
-                    </tr>
-                </thead>
-                <tbody id="progressTableBody" class="bg-white divide-y divide-gray-200">
-                    <!-- Linhas de progresso serão inseridas aqui via JavaScript -->
-                    <tr>
-                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            Carregando dados...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-x-auto -mx-4 sm:-mx-6 px-4 sm:px-6">
+                <table class="min-w-full divide-y divide-gray-200 table-auto">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                    <span class="hidden sm:inline">Usuário</span>
+                                    <span class="sm:hidden">User</span>
+                                </th>
+                                <th scope="col" class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell min-w-[180px]">
+                                    E-mail
+                                </th>
+                                <th scope="col" class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[150px]">
+                                    Trilha
+                                </th>
+                                <th scope="col" class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px]">
+                                    Progresso
+                                </th>
+                                <th scope="col" class="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell min-w-[120px]">
+                                    <span class="hidden lg:inline">Conclusão</span>
+                                    <span class="lg:hidden">Status</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="progressTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Linhas de progresso serão inseridas aqui via JavaScript -->
+                            <tr>
+                                <td colspan="5" class="px-4 sm:px-6 py-4 sm:py-5 text-sm text-gray-500 text-center">
+                                    Carregando dados...
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+            </div>
             
             <p id="noResultsMessage" class="hidden mt-4 text-center text-red-500 font-medium">Nenhum resultado encontrado para a pesquisa.</p>
         </section>
 
     </main>
 
-    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
-        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    <footer class="bg-sky-900 text-white text-center py-4 sm:py-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="text-xs sm:text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+        </div>
     </footer>
 
     <script src="./firebase-config.js"></script>
@@ -223,7 +264,7 @@
                 noResultsMessage.classList.remove('hidden');
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td colspan="5" class="px-4 sm:px-6 py-4 sm:py-5 text-sm text-gray-500 text-center">
                             Nenhum progresso encontrado.
                         </td>
                     </tr>
@@ -235,26 +276,40 @@
 
             dataToRender.forEach(item => {
                 const completeText = item.isComplete 
-                    ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-success">Concluído</span>`
-                    : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Em Progresso</span>`;
+                    ? `<span class="px-1.5 sm:px-2 inline-flex text-xs leading-4 sm:leading-5 font-semibold rounded-full bg-green-100 text-green-success">
+                        <span class="hidden sm:inline">Concluído</span>
+                        <span class="sm:hidden">OK</span>
+                       </span>`
+                    : `<span class="px-1.5 sm:px-2 inline-flex text-xs leading-4 sm:leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        <span class="hidden sm:inline">Em Progresso</span>
+                        <span class="sm:hidden">...</span>
+                       </span>`;
                 
                 const progressColor = item.isComplete ? 'bg-green-500' : 'bg-sky-500';
 
                 const row = `
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.userName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.userEmail}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.trailName}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                            <div class="flex items-center">
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="progress-bar-fill h-2 rounded-full ${progressColor}" style="width: ${item.percentage}%"></div>
-                                </div>
-                                <span class="ml-3 text-xs font-semibold">${item.percentage}%</span>
-                            </div>
-                            <span class="text-xs text-gray-500">${item.progress} tópicos</span>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 text-sm font-medium text-gray-900">
+                            <div class="max-w-[140px] sm:max-w-none truncate" title="${item.userName}">${item.userName}</div>
+                            <div class="md:hidden text-xs text-gray-500 mt-1 truncate" title="${item.userEmail}">${item.userEmail}</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 text-sm text-gray-500 hidden md:table-cell">
+                            <div class="max-w-[180px] lg:max-w-none truncate" title="${item.userEmail}">${item.userEmail}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 text-sm text-gray-700">
+                            <div class="max-w-[140px] sm:max-w-[180px] lg:max-w-none truncate" title="${item.trailName}">${item.trailName}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 text-sm text-gray-700">
+                            <div class="flex items-center mb-2">
+                                <div class="w-20 sm:w-32 md:w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="progress-bar-fill h-2.5 rounded-full ${progressColor}" style="width: ${item.percentage}%"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-semibold whitespace-nowrap">${item.percentage}%</span>
+                            </div>
+                            <div class="text-xs text-gray-500">${item.progress}</div>
+                            <div class="sm:hidden mt-2">${completeText}</div>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 hidden sm:table-cell">
                             ${completeText}
                         </td>
                     </tr>
@@ -348,5 +403,4 @@
     </script>
 
 </body>
-</html>
 </html>

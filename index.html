@@ -35,6 +35,14 @@
                         sans: ['"Exo 2"', 'sans-serif'],
                         mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
                     },
+                    screens: {
+                        'xs': '475px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                        '2xl': '1536px',
+                    },
                     colors: {
                         'eject-blue-dark': 'rgb(0, 61, 115)',
                         'eject-blue-light': 'rgb(17, 167, 241)',
@@ -160,21 +168,24 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-    <header class="w-full min-h-[90px] flex items-center px-4 shadow-lg bg-eject-bg-light dark:bg-eject-bg-dark shadow-slate-200/50 dark:shadow-black/30">
-        <nav class="w-full max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center py-2 md:py-0">
-            <a href="index.html" class="no-underline">
-                <h1 class="font-bold text-eject-text-primary-light dark:text-eject-text-primary-dark text-2xl md:text-3xl m-0 mb-2 md:mb-0">Hub de Conhecimentos</h1>
+    <header class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-eject-bg-light dark:bg-eject-bg-dark shadow-slate-200/50 dark:shadow-black/30">
+        <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
+            <a href="index.html" class="no-underline flex-shrink-0">
+                <h1 class="font-bold text-eject-text-primary-light dark:text-eject-text-primary-dark text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">Hub de Conhecimentos</h1>
             </a>
-            <div class="flex items-center space-x-4 sm:space-x-5">
-                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
-                        <!-- Substituído o caminho local por um placeholder para evitar 404 -->
-                        <img src="img/logo.svg" alt="Logotipo da EJECT" class="h-10">
-                    </a>
-                    <a href="SIGAV/login.html" id="loginIconContainer" aria-label="Login" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-colors">
-                        <span id="loginIcon" class="material-symbols-outlined text-3xl md:text-4xl">
+            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="hidden xs:block">
+                    <img src="img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
+                </a>
+                <div class="relative">
+                    <a href="SIGAV/login.html" id="loginIconContainer" aria-label="Login" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <span id="loginIcon" class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">
                             account_circle
                         </span>
                     </a>
+                    <!-- Indicador de status do usuário -->
+                    <div id="userStatusIndicator" class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-gray-400 border-2 border-white dark:border-gray-800 hidden transition-all duration-200"></div>
+                </div>
             </div>
         </nav>
     </header>
@@ -190,10 +201,10 @@
             <section class="mb-8">
                 <h2 class="text-2xl lg:text-3xl mt-6 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Top 10</h2>
                 <div class="carousel-container relative">
-                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-15px] md:left-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-content cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-12px] sm:left-[-15px] md:left-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-20 text-lg sm:text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 touch-manipulation" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">
                         <span class="material-symbols-outlined">arrow_back</span>
                     </button>
-                    <div id="trilhaProjetosCarousel" class="carousel flex overflow-x-auto snap-x snap-mandatory gap-6 py-4 scroll-smooth scrollbar-hide">
+                    <div id="trilhaProjetosCarousel" class="carousel flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 py-4 scroll-smooth scrollbar-hide touch-pan-x">
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
                             <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Scrum">
                                <img src="https://erp-disk.ams3.digitaloceanspaces.com/portadas-tutoriales/small_portada_cm1gdlxji0065017b0k930xiv.webp" alt="Imagem do Scrum" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
@@ -303,31 +314,40 @@
                             </div>
                         </div>
                     </div>
-                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-15px] md:right-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-9 h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-10 text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-12px] sm:right-[-15px] md:right-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-20 text-lg sm:text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 touch-manipulation" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">
                         <span class="material-symbols-outlined">arrow_forward</span>
                     </button>
                 </div>
             </section>
 
             <h2 class="text-2xl lg:text-3xl mt-8 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Todas as Trilhas</h2>
-            <section class="filter-search-controls my-6">
-                <div class="flex flex-col md:flex-row justify-center items-center gap-4 max-w-3xl mx-auto">
-                    <div class="search-container flex-grow w-full md:w-auto min-w-[200px]">
-                        <input type="text" id="searchInput" class="input-styled" placeholder="Pesquise nas trilhas abaixo...">
+            <section class="filter-search-controls my-4 sm:my-6 px-2 sm:px-4">
+                <div class="flex flex-col gap-3 sm:gap-4 max-w-3xl mx-auto">
+                    <div class="search-container w-full">
+                        <div class="relative">
+                            <input type="text" id="searchInput" class="input-styled w-full pl-10 pr-4" placeholder="Pesquise nas trilhas...">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">search</span>
+                            <button id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hidden transition-colors">
+                                <span class="material-symbols-outlined text-lg">close</span>
+                            </button>
+                        </div>
                     </div>
-                    <div class="filter-container flex-grow w-full md:w-auto min-w-[200px]">
-                        <select id="filterSelect" class="input-styled appearance-none bg-white dark:bg-gray-700 bg-no-repeat bg-right pr-8" title="Filter options" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E');">
-                            <option value="all">Todos</option>
-                            <option value="alphabetical">Ordem Alfabética</option>
-                            <option value="available">Disponíveis</option>
-                            <option value="soon">Em Breve</option>
-                        </select>
+                    <div class="filter-container w-full sm:w-auto sm:min-w-[250px]">
+                        <div class="relative">
+                            <select id="filterSelect" class="input-styled w-full appearance-none bg-white dark:bg-gray-700 bg-no-repeat bg-right pr-10 pl-4" title="Filtrar trilhas" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E');">
+                                <option value="all">📚 Todas as Trilhas</option>
+                                <option value="alphabetical">🔤 Ordem Alfabética</option>
+                                <option value="available">✅ Disponíveis</option>
+                                <option value="soon">⏳ Em Breve</option>
+                            </select>
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">filter_list</span>
+                        </div>
                     </div>
                 </div>
             </section>
             <br>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="cardContainer">
+            <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-0" id="cardContainer">
                 <div>
                     <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="EJECT 15 Anos">
                         <img src="https://placehold.co/600x400/8A2BE2/FFFFFF?text=EJECT+15+Anos" alt="Banner comemorativo EJECT 15 Anos" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
@@ -596,12 +616,22 @@
          * Esta função é chamada sempre que o input de pesquisa ou o select de filtro é alterado.
          */
         function applyFiltersAndSearch() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            const searchQuery = searchInput.value.toLowerCase().trim();
             const filterValue = document.getElementById('filterSelect').value;
             const cardContainer = document.getElementById('cardContainer');
             const allCols = Array.from(cardContainer.children);
 
+            // Mostra/esconde botão de limpar pesquisa
+            if (searchQuery.length > 0) {
+                clearSearchBtn.classList.remove('hidden');
+            } else {
+                clearSearchBtn.classList.add('hidden');
+            }
+
             let colsToDisplay = [];
+            let visibleCount = 0;
 
             allCols.forEach(col => {
                 const card = col.querySelector('.ds-card');
@@ -633,6 +663,7 @@
                 if (passesSearch && passesFilter) {
                     col.style.display = '';
                     colsToDisplay.push(col);
+                    visibleCount++;
                 } else {
                     col.style.display = 'none';
                 }
@@ -649,6 +680,35 @@
                     return titleA.localeCompare(titleB);
                 });
                 colsToDisplay.forEach(col => cardContainer.appendChild(col));
+            }
+
+            // Adiciona feedback visual quando nenhuma trilha é encontrada
+            updateNoResultsMessage(visibleCount);
+        }
+
+        /**
+         * Mostra ou esconde mensagem quando não há resultados
+         */
+        function updateNoResultsMessage(visibleCount) {
+            let noResultsMsg = document.getElementById('noResultsMessage');
+            
+            if (visibleCount === 0) {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.id = 'noResultsMessage';
+                    noResultsMsg.className = 'col-span-full text-center py-12 text-gray-500 dark:text-gray-400';
+                    noResultsMsg.innerHTML = `
+                        <div class="max-w-md mx-auto">
+                            <span class="material-symbols-outlined text-6xl mb-4 block opacity-50">search_off</span>
+                            <h3 class="text-lg font-semibold mb-2">Nenhuma trilha encontrada</h3>
+                            <p class="text-sm">Tente ajustar seus filtros ou termos de pesquisa</p>
+                        </div>
+                    `;
+                    document.getElementById('cardContainer').appendChild(noResultsMsg);
+                }
+                noResultsMsg.style.display = 'block';
+            } else if (noResultsMsg) {
+                noResultsMsg.style.display = 'none';
             }
         }
 
@@ -694,19 +754,81 @@
         }
 
         /**
+         * Configura gestos de touch para o carrossel
+         */
+        function setupCarouselTouch() {
+            const carousel = document.getElementById('trilhaProjetosCarousel');
+            if (!carousel) return;
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+            let isScrolling = false;
+            
+            carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                isScrolling = true;
+            }, { passive: true });
+            
+            carousel.addEventListener('touchmove', (e) => {
+                if (!isScrolling) return;
+                touchEndX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            
+            carousel.addEventListener('touchend', () => {
+                if (!isScrolling) return;
+                isScrolling = false;
+                
+                const touchDiff = touchStartX - touchEndX;
+                const minSwipeDistance = 50;
+                
+                // Swipe left (próximo)
+                if (touchDiff > minSwipeDistance) {
+                    scrollCarousel(1, 'trilhaProjetosCarousel');
+                }
+                // Swipe right (anterior)
+                else if (touchDiff < -minSwipeDistance) {
+                    scrollCarousel(-1, 'trilhaProjetosCarousel');
+                }
+            }, { passive: true });
+        }
+
+        /**
          * Lógica de Autenticação e Modal com Firebase
          */
         document.addEventListener('DOMContentLoaded', function() {
             // Setup de Filtros e Pesquisa
             const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearch');
+            
             if (searchInput) {
                 searchInput.addEventListener('input', applyFiltersAndSearch);
+                
+                // Adiciona funcionalidade de busca ao pressionar Enter
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyFiltersAndSearch();
+                    }
+                });
             }
+            
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    applyFiltersAndSearch();
+                });
+            }
+            
             const filterSelect = document.getElementById('filterSelect');
             if (filterSelect) {
                 filterSelect.addEventListener('change', applyFiltersAndSearch);
             }
+            
             applyFiltersAndSearch();
+            
+            // Setup de touch para carrossel
+            setupCarouselTouch();
 
             // Setup de Autenticação
             const loginModal = document.getElementById('loginModal');
@@ -717,12 +839,28 @@
             const loginError = document.getElementById('loginError');
 
             const updateLoginIcon = (user) => {
+                const userStatusIndicator = document.getElementById('userStatusIndicator');
+                
                 if (user) {
                     loginIcon.textContent = 'dashboard'; // Ícone de dashboard
                     loginIconContainer.setAttribute('aria-label', 'Acessar Dashboard');
+                    loginIconContainer.setAttribute('title', 'Acessar Dashboard - ' + (user.email || 'Usuário'));
+                    // Mostra indicador verde para usuário logado
+                    userStatusIndicator.classList.remove('hidden', 'bg-gray-400');
+                    userStatusIndicator.classList.add('bg-green-500');
+                    
+                    // Adiciona animação de pulso para feedback visual
+                    loginIconContainer.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        loginIconContainer.classList.remove('animate-pulse');
+                    }, 1500);
                 } else {
                     loginIcon.textContent = 'account_circle';
-                    loginIconContainer.setAttribute('aria-label', 'Login');
+                    loginIconContainer.setAttribute('aria-label', 'Fazer Login');
+                    loginIconContainer.setAttribute('title', 'Fazer Login');
+                    // Mostra indicador cinza para usuário não logado
+                    userStatusIndicator.classList.remove('hidden', 'bg-green-500');
+                    userStatusIndicator.classList.add('bg-gray-400');
                 }
             };
 
