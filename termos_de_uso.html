@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Termos de Uso</title>
+    <meta name="description" content="Termos de Uso do Hub de Conhecimentos da EJECT - Empresa Júnior de Engenharia de Computação e Telecomunicações">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .terms-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-color) 0px 4px 12px;
+            position: relative;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            background: var(--button-gradient);
+            color: var(--white) !important;
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none !important;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-color) 0px 2px 4px;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-color) 0px 6px 16px;
+            color: var(--white) !important;
+        }
+
+        .back-button i {
+            margin-right: 0.5rem;
+        }
+
+        .terms-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .last-updated {
+            font-size: 0.9rem;
+            color: var(--text-light-grey);
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .terms-intro {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(9, 149, 219, 0.05), rgba(17, 167, 241, 0.05));
+            border-left: 4px solid var(--text-primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--text-primary);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, rgb(9, 149, 219), rgb(17, 167, 241));
+        }
+
+        .subsection-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        .section-content p {
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .section-content ul {
+            list-style: none;
+            margin: 1rem 0 1.5rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .section-content li {
+            position: relative;
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .section-content li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--text-primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .toc {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(9, 149, 219, 0.2);
+        }
+
+        .toc h3 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc-list a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .toc-list a:hover {
+            color: var(--text-primary);
+            text-decoration: underline;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--button-gradient);
+            color: var(--white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: var(--shadow-color) 0px 4px 12px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-color) 0px 8px 20px;
+        }
+
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(9, 149, 219, 0.1);
+            z-index: 1000;
+        }
+
+        .scroll-progress-bar {
+            height: 100%;
+            background: var(--button-gradient);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        /* Animações de entrada */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .terms-container {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .section {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .back-button {
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .terms-container {
+                padding: 1.5rem;
+                margin: 1rem 0;
+            }
+
+            .terms-title {
+                font-size: 2rem;
+                line-height: 1.3;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .subsection-title {
+                font-size: 1.1rem;
+            }
+
+            .section-content p {
+                font-size: 0.95rem;
+            }
+
+            .back-button {
+                margin-bottom: 1rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .toc {
+                padding: 1rem;
+            }
+
+            .back-to-top {
+                width: 45px;
+                height: 45px;
+                bottom: 1.5rem;
+                right: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .terms-container {
+                padding: 1rem;
+                border-radius: 8px;
+            }
+
+            .terms-title {
+                font-size: 1.8rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+
+            .terms-intro {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+
+            .section-content li {
+                padding-left: 1.2rem;
+            }
+
+            .toc-list a {
+                font-size: 0.9rem;
+            }
+
+            .back-to-top {
+                width: 40px;
+                height: 40px;
+                bottom: 1rem;
+                right: 1rem;
+            }
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .terms-container {
+                background: var(--white);
+                box-shadow: var(--shadow-color) 0px 4px 12px;
+            }
+
+            .terms-title {
+                color: var(--text-primary);
+            }
+
+            .last-updated {
+                color: var(--text-light-grey);
+            }
+
+            .terms-intro {
+                background: linear-gradient(135deg, rgba(9, 149, 219, 0.1), rgba(17, 167, 241, 0.1));
+                border-left-color: var(--text-primary);
+                color: var(--text-secondary);
+            }
+
+            .section-title {
+                color: var(--text-primary);
+            }
+
+            .subsection-title {
+                color: var(--text-primary);
+            }
+
+            .section-content p {
+                color: var(--text-secondary);
+            }
+
+            .toc {
+                background: var(--background);
+                border-color: rgba(9, 149, 219, 0.3);
+            }
+
+            .toc h3 {
+                color: var(--text-primary);
+            }
+
+            .toc-list a {
+                color: var(--text-secondary);
+            }
+
+            .toc-list a:hover {
+                color: var(--text-primary);
+            }
+
+            .back-button {
+                background: var(--button-gradient);
+                color: var(--white) !important;
+            }
+
+            .back-to-top {
+                background: var(--button-gradient);
+            }
+
+            .scroll-progress {
+                background: rgba(9, 149, 219, 0.2);
+            }
+        }
+    </style>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+
+            // Scroll progress bar
+            const progressBar = document.querySelector('.scroll-progress-bar');
+            const backToTopBtn = document.querySelector('.back-to-top');
+
+            function updateScrollProgress() {
+                const scrollTop = window.pageYOffset;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+                progressBar.style.width = scrollPercent + '%';
+
+                // Show/hide back to top button
+                if (scrollTop > 300) {
+                    backToTopBtn.classList.add('visible');
+                } else {
+                    backToTopBtn.classList.remove('visible');
+                }
+            }
+
+            window.addEventListener('scroll', updateScrollProgress);
+
+            // Back to top functionality
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress">
+        <div class="scroll-progress-bar"></div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <nav class="container">
+            <h1><a href="index.html">Hub de Conhecimentos</a></h1>
+            <div class="ds-contact-container">
+                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                    <img src="img/logo.svg" alt="Logotipo da EJECT">
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Botão Voltar -->
+            <a href="index.html" class="back-button">
+                <i data-lucide="arrow-left"></i>
+                Voltar ao Hub
+            </a>
+
+            <!-- Conteúdo Principal - Termos de Uso -->
+            <div class="terms-container">
+                <h1 class="terms-title">Termos de Uso do Hub de Conhecimentos EJECT</h1>
+                <p class="last-updated">Última atualização: 08 de Outubro de 2025</p>
+
+                <div class="terms-intro">
+                    <p>Bem-vindo ao Hub de Conhecimentos da EJECT. Ao acessar e utilizar esta plataforma, você concorda em cumprir e estar vinculado aos seguintes termos e condições de uso. Por favor, leia-os atentamente antes de prosseguir.</p>
+                </div>
+
+                <!-- Índice -->
+                <div class="toc">
+                    <h3>📋 Índice de Conteúdo</h3>
+                    <ul class="toc-list">
+                        <li><a href="#aceitacao">1. Aceitação dos Termos</a></li>
+                        <li><a href="#uso-plataforma">2. Uso da Plataforma</a></li>
+                        <li><a href="#propriedade">3. Propriedade Intelectual</a></li>
+                        <li><a href="#limitacao">4. Limitação de Responsabilidade</a></li>
+                        <li><a href="#alteracoes">5. Alterações nos Termos</a></li>
+                        <li><a href="#contato">6. Contato</a></li>
+                    </ul>
+                </div>
+
+                <!-- Seção 1 -->
+                <section class="section" id="aceitacao">
+                    <h2 class="section-title">1. Aceitação dos Termos</h2>
+                    <div class="section-content">
+                        <p>Estes Termos de Uso ("Termos") regem o seu acesso e uso do Hub de Conhecimentos (a "Plataforma"), incluindo qualquer conteúdo, funcionalidade e serviços oferecidos em ou através da Plataforma. Ao acessar ou usar a Plataforma, você concorda em aceitar e cumprir estes Termos.</p>
+                        <p>Se você não concordar com estes termos em sua totalidade, não deve acessar ou usar a Plataforma. O uso continuado da Plataforma constitui sua aceitação destes Termos e de qualquer alteração posterior.</p>
+                    </div>
+                </section>
+
+                <!-- Seção 2 -->
+                <section class="section" id="uso-plataforma">
+                    <h2 class="section-title">2. Uso da Plataforma</h2>
+                    <div class="section-content">
+                        <h3 class="subsection-title">2.1 Acesso e Conta de Usuário</h3>
+                        <p>O acesso a certas áreas da Plataforma pode exigir o registro de uma conta. Você é responsável por manter a confidencialidade de suas informações de login e por todas as atividades que ocorram sob sua conta. Notifique-nos imediatamente sobre qualquer uso não autorizado de sua conta.</p>
+
+                        <h3 class="subsection-title">2.2 Conduta Proibida</h3>
+                        <p>Você concorda em não:</p>
+                        <ul>
+                            <li>Utilizar a Plataforma para fins ilegais ou que violem qualquer lei local, estadual, nacional ou internacional</li>
+                            <li>Tentar obter acesso não autorizado a qualquer parte da Plataforma, a outras contas, sistemas de computadores ou redes conectadas</li>
+                            <li>Interferir ou interromper a segurança ou os serviços da Plataforma, do sistema ou dos recursos da rede</li>
+                            <li>Enviar ou transmitir vírus, malware ou qualquer código de natureza destrutiva</li>
+                            <li>Violar os direitos de propriedade intelectual de terceiros</li>
+                        </ul>
+
+                        <h3 class="subsection-title">2.3 Uso Apropriado do Conteúdo</h3>
+                        <p>O conteúdo disponibilizado na Plataforma destina-se exclusivamente para fins educacionais e de desenvolvimento profissional. É vedada a reprodução, distribuição ou comercialização do conteúdo sem autorização expressa.</p>
+                    </div>
+                </section>
+
+                <!-- Seção 3 -->
+                <section class="section" id="propriedade">
+                    <h2 class="section-title">3. Propriedade Intelectual</h2>
+                    <div class="section-content">
+                        <p>Todo o conteúdo presente na Plataforma, incluindo, mas não se limitando a textos, gráficos, logotipos, imagens, vídeos, trilhas de conhecimento, código-fonte e a estrutura do Hub, é de propriedade da EJECT ou de seus licenciadores e está protegido por leis de direitos autorais e de propriedade intelectual.</p>
+                        <p>Você pode utilizar o conteúdo apenas para seu uso pessoal e não comercial, desde que mantenha intactos todos os avisos de direitos autorais e outras notificações de propriedade. Qualquer uso comercial ou redistribuição requer autorização prévia e expressa.</p>
+                    </div>
+                </section>
+
+                <!-- Seção 4 -->
+                <section class="section" id="limitacao">
+                    <h2 class="section-title">4. Limitação de Responsabilidade</h2>
+                    <div class="section-content">
+                        <p>A EJECT fornece o conteúdo "como está" e "conforme disponível", sem garantias de qualquer tipo, expressas ou implícitas. A EJECT não será responsável por quaisquer danos diretos, indiretos, incidentais, consequenciais ou punitivos resultantes do uso ou da incapacidade de usar a Plataforma.</p>
+                        <p>Não garantimos que a Plataforma será livre de erros, vírus ou outras vulnerabilidades, nem que estará disponível ininterruptamente. O uso da Plataforma é por sua conta e risco.</p>
+                    </div>
+                </section>
+
+                <!-- Seção 5 -->
+                <section class="section" id="alteracoes">
+                    <h2 class="section-title">5. Alterações nos Termos</h2>
+                    <div class="section-content">
+                        <p>A EJECT reserva-se o direito de modificar estes Termos a qualquer momento, a seu exclusivo critério. Quaisquer alterações materiais entrarão em vigor imediatamente após a publicação da versão revisada na Plataforma.</p>
+                        <p>Recomendamos que você revise periodicamente estes Termos. Seu uso continuado da Plataforma após tais alterações constitui sua aceitação dos novos Termos.</p>
+                    </div>
+                </section>
+
+                <!-- Seção 6 -->
+                <section class="section" id="contato">
+                    <h2 class="section-title">6. Contato</h2>
+                    <div class="section-content">
+                        <p>Se você tiver dúvidas, comentários ou preocupações sobre estes Termos de Uso, entre em contato conosco através dos canais oficiais da EJECT:</p>
+                        <ul>
+                            <li><strong>Site oficial:</strong> <a href="https://www.ejectufrn.com.br/" target="_blank">www.ejectufrn.com.br</a></li>
+                            <li><strong>Email:</strong> contato@ejectufrn.com.br</li>
+                            <li><strong>Redes sociais:</strong> @ejectufrn</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" aria-label="Voltar ao topo">
+        <i data-lucide="arrow-up"></i>
+    </button>
+
+    <footer>
+        <p>Feito com <strong>foco</strong> e <strong>compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>
