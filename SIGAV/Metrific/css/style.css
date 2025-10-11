@@ -1,0 +1,73 @@
+/* Estilos Globais e Variáveis de Cor */
+:root {
+    --primary-bg: #f1f5f9;
+    --sidebar-bg: #1e293b;
+    --sidebar-text: #cbd5e1;
+    --sidebar-active-bg: #334155;
+    --sidebar-active-text: #ffffff;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Estilos de Componentes Personalizados */
+
+.btn-primary {
+    background-color: #4f46e5;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #4338ca;
+}
+
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #1f2937;
+    transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #d1d5db;
+}
+
+/* Estilos da Navegação e Sidebar */
+
+.nav-link.nav-active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+}
+
+/* Estilos de Cards e Elementos Específicos */
+
+.okr-card.selected {
+    box-shadow: 0 0 0 2px #4f46e5;
+    border-color: #4f46e5;
+}
+
+.kr-input-group:focus-within {
+    border-color: #4f46e5;
+}
+
+.ph-caret-down.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* Adicionar estilos específicos para o botão de histórico */
+.toggle-history-btn {
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle-history-btn i {
+    transition: transform 0.2s ease;
+}
+
+.toggle-history-btn.active i {
+    transform: rotate(180deg);
+}

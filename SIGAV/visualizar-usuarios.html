@@ -22,7 +22,7 @@
             <div class="flex items-center justify-between h-20">
                 <span class="text-2xl font-bold text-sky-700">Visualizar Usuários</span>
                 <div class="flex items-center space-x-4">
-                    <a href="./dashboard.html" title="Voltar ao Dashboard" class="p-2 rounded-full text-sky-600 hover:bg-sky-100"><i data-lucide="layout-dashboard" class="h-6 w-6"></i></a>
+                    <a href="./sigav_hub.html" title="Voltar ao Hub SIGAV" class="p-2 rounded-full text-sky-600 hover:bg-sky-100"><i data-lucide="home" class="h-6 w-6"></i></a>
                     <a href="https://www.ejectufrn.com.br/" target="_blank"><img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10"></a>
                 </div>
             </div>
@@ -67,7 +67,7 @@
             lucide.createIcons();
             auth.onAuthStateChanged(async user => {
                 if (!user) {
-                    window.location.href = './dashboard.html';
+                    window.location.href = './sigav_hub.html';
                     return;
                 }
 
@@ -85,7 +85,7 @@
                     });
                 } else {
                     alert('Acesso negado. Esta área é restrita para administradores.');
-                    window.location.href = './dashboard.html';
+                    window.location.href = './sigav_hub.html';
                 }
             });
         }

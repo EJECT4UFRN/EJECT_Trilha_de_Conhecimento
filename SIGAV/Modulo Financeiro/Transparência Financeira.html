@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Transparência Financeira</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Adiciona Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .kpi-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(52, 211, 153, 0.2); /* green-400 shadow */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="sigav_hub.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Transparência Financeira</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold text-sky-800 mb-2">Transparência Financeira</h1>
+        <p class="text-xl text-gray-600 mb-6">Visão consolidada e transparente do desempenho financeiro da EJECT. (Dados do último mês).</p>
+        
+        <!-- Botão Voltar -->
+        <a href="sigav_hub.html" class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out mb-6">
+            <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+            Voltar aos Módulos
+        </a>
+
+        <!-- Seção de KPIS Chave -->
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+            
+            <!-- KPI 1: Faturamento Mensal -->
+            <div class="kpi-card bg-white rounded-xl p-6 shadow-lg card-shadow border-t-4 border-green-500">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Faturamento (Mês)</p>
+                    <i data-lucide="trending-up" class="h-6 w-6 text-green-500"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-green-700">R$ 12.500,00</h3>
+                <p class="text-xs text-gray-500 mt-1">Meta mensal: R$ 10.000,00</p>
+            </div>
+
+            <!-- KPI 2: Margem de Lucro -->
+            <div class="kpi-card bg-white rounded-xl p-6 shadow-lg card-shadow border-t-4 border-cyan-500">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Margem Operacional</p>
+                    <i data-lucide="percent" class="h-6 w-6 text-cyan-500"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-cyan-700">35%</h3>
+                <p class="text-xs text-gray-500 mt-1">Acima da meta de 30%</p>
+            </div>
+
+            <!-- KPI 3: Despesas Totais -->
+            <div class="kpi-card bg-white rounded-xl p-6 shadow-lg card-shadow border-t-4 border-red-500">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Despesas (Mês)</p>
+                    <i data-lucide="trending-down" class="h-6 w-6 text-red-500"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-red-700">R$ 8.125,00</h3>
+                <p class="text-xs text-gray-500 mt-1">Redução de 5% em relação ao mês anterior</p>
+            </div>
+
+            <!-- KPI 4: Projetos Ativos -->
+            <div class="kpi-card bg-white rounded-xl p-6 shadow-lg card-shadow border-t-4 border-sky-500">
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Projetos em Andamento</p>
+                    <i data-lucide="briefcase" class="h-6 w-6 text-sky-500"></i>
+                </div>
+                <h3 class="text-3xl font-bold text-sky-700">7</h3>
+                <p class="text-xs text-gray-500 mt-1">Média de 4-8 projetos é saudável</p>
+            </div>
+
+        </section>
+
+        <!-- Seção de Fluxo de Caixa e Distribuição -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- Coluna 1: Fluxo de Caixa (Gráfico de Barras) -->
+            <div class="bg-white rounded-xl p-6 shadow-lg card-shadow lg:col-span-2">
+                <h2 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+                    <i data-lucide="line-chart" class="h-5 w-5 mr-2 text-sky-600"></i>
+                    Fluxo de Caixa (Últimos 6 Meses)
+                </h2>
+                <div class="h-80">
+                    <canvas id="cashFlowChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Coluna 2: Distribuição de Despesas (Gráfico de Pizza) -->
+            <div class="bg-white rounded-xl p-6 shadow-lg card-shadow">
+                <h2 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+                    <i data-lucide="pie-chart" class="h-5 w-5 mr-2 text-sky-600"></i>
+                    Distribuição das Despesas
+                </h2>
+                <div class="h-80 flex items-center justify-center">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+            </div>
+            
+        </section>
+        
+        <!-- Tabela de Impacto Social (Mock) -->
+        <section class="mt-10 bg-white rounded-xl p-6 shadow-lg card-shadow">
+            <h2 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+                <i data-lucide="users" class="h-5 w-5 mr-2 text-sky-600"></i>
+                Impacto Social e Reinvestimento
+            </h2>
+            <p class="text-gray-600 text-sm mb-4">Como a receita gerada é reinvestida na formação e desenvolvimento da equipe.</p>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destino</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Reinvestido (Mês)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentual da Receita</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Treinamentos e Capacitações</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">R$ 1.500,00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">12%</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Eventos MEJ (EREJ, ENEJ, etc.)</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">R$ 2.000,00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">16%</td>
+                        </tr>
+                         <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Infraestrutura e Licenças</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">R$ 500,00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">4%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            initializeCharts();
+        });
+
+        // Mock Data for Charts
+        const cashFlowData = {
+            labels: ['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'],
+            datasets: [
+                {
+                    label: 'Receitas (R$)',
+                    data: [10000, 11500, 9500, 13000, 10500, 12500],
+                    backgroundColor: 'rgba(52, 211, 153, 0.7)', // green-400
+                    borderColor: 'rgba(16, 185, 129, 1)', // green-600
+                    borderWidth: 1,
+                    borderRadius: 5,
+                },
+                {
+                    label: 'Despesas (R$)',
+                    data: [7000, 8500, 7500, 9000, 8000, 8125],
+                    backgroundColor: 'rgba(252, 165, 165, 0.7)', // red-400
+                    borderColor: 'rgba(239, 68, 68, 1)', // red-600
+                    borderWidth: 1,
+                    borderRadius: 5,
+                }
+            ]
+        };
+
+        const expenseData = {
+            labels: ['Custos Fixos', 'Eventos e Viagens', 'Marketing', 'Materiais', 'Outros'],
+            datasets: [{
+                data: [4000, 2000, 1200, 500, 425],
+                backgroundColor: [
+                    '#0ea5e9', // sky-500
+                    '#facc15', // yellow-400
+                    '#34d399', // green-400
+                    '#fb7185', // pink-400
+                    '#a78bfa'  // violet-400
+                ],
+                hoverOffset: 4
+            }]
+        };
+
+        function initializeCharts() {
+            // Configuração do Gráfico de Fluxo de Caixa (Barra)
+            const cashFlowCtx = document.getElementById('cashFlowChart');
+            new Chart(cashFlowCtx, {
+                type: 'bar',
+                data: cashFlowData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: false,
+                        }
+                    }
+                }
+            });
+
+            // Configuração do Gráfico de Despesas (Pizza)
+            const expenseCtx = document.getElementById('expenseChart');
+            new Chart(expenseCtx, {
+                type: 'doughnut',
+                data: expenseData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 20
+                            }
+                        },
+                        title: {
+                            display: false,
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

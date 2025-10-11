@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrific - Sistema de OKR & KPI</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons: Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="/img/Metrific.png">
+</head>
+<body class="antialiased">
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="fixed inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+    </div>
+
+    <!-- Login View -->
+    <div id="login-view" class="min-h-screen flex items-center justify-center p-4 bg-slate-100">
+        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+            <div class="flex flex-col items-center mb-8">
+                <div class="bg-indigo-100 p-3 rounded-full">
+                    <i class="ph-target text-4xl text-indigo-600"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-slate-800 mt-4">Metrific</h1>
+                <p class="text-slate-500">Gestão de OKRs & KPIs</p>
+            </div>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input type="email" id="email" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+                    <input type="password" id="password" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Entrar</button>
+            </form>
+             <div class="mt-6 text-center">
+                <p class="text-sm text-slate-500">Não tem uma conta? <a href="#" id="show-signup" class="font-medium text-indigo-600 hover:underline">Cadastre-se</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Signup View -->
+    <div id="signup-view" class="min-h-screen flex items-center justify-center p-4 bg-slate-100 hidden">
+        <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+            <h1 class="text-2xl font-bold text-slate-800 text-center">Criar Conta</h1>
+            <p class="text-slate-500 text-center mb-6">Crie uma conta para usar o sistema.</p>
+            <form id="signup-form">
+                <div class="mb-4">
+                    <label for="signup-name" class="block text-sm font-medium text-slate-700 mb-1">Nome Completo</label>
+                    <input type="text" id="signup-name" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label for="signup-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input type="email" id="signup-email" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label for="signup-password" class="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-2.5 border border-slate-300 rounded-lg" required>
+                </div>
+                <div class="mb-4">
+                    <label for="signup-invite" class="block text-sm font-medium text-slate-700">Convite</label>
+                    <input id="signup-invite" name="signup-invite" type="text" required class="mt-1 block w-full px-4 py-2 border border-slate-300 rounded-lg" placeholder="Digite o código de convite">
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-3 px-4 rounded-lg transition-transform hover:scale-105">Registar</button>
+            </form>
+            <div class="mt-6 text-center">
+                <p class="text-sm text-slate-500">Já tem uma conta? <a href="#" id="show-login" class="font-medium text-indigo-600 hover:underline">Faça login</a></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main App View -->
+    <div id="app-view" class="hidden">
+        <div class="flex h-screen">
+            <!-- Sidebar -->
+            <aside class="w-64 flex-shrink-0 flex flex-col bg-slate-800 text-slate-300">
+                <div class="flex items-center justify-center p-5 border-b border-slate-700">
+                    <i class="ph-target text-3xl text-indigo-400"></i>
+                    <h1 class="text-xl font-bold ml-2 text-white">Metrific</h1>
+                </div>
+                <nav class="flex-1 px-4 py-4 space-y-2">
+                    <a href="#" data-view="dashboard" class="nav-link flex items-center px-4 py-2 rounded-lg">
+                        <i class="ph-house text-xl"></i><span class="ml-3">Dashboard</span>
+                    </a>
+                    <a href="#" data-view="okrs" class="nav-link flex items-center px-4 py-2 rounded-lg hover:bg-slate-700">
+                        <i class="ph-crosshair text-xl"></i><span class="ml-3">OKRs</span>
+                    </a>
+                    <a href="#" data-view="teams" class="nav-link flex items-center px-4 py-2 rounded-lg hover:bg-slate-700">
+                        <i class="ph-users-three text-xl"></i><span class="ml-3">Equipes</span>
+                    </a>
+                    <a href="#" data-view="users" class="nav-link admin-only flex items-center px-4 py-2 rounded-lg hover:bg-slate-700">
+                        <i class="ph-user-list text-xl"></i><span class="ml-3">Usuários</span>
+                    </a>
+                </nav>
+                <div class="p-4 border-t border-slate-700">
+                     <!-- Botão de download do app -->
+                <a href="https://github.com/Educhior/Metrific-Release-Apk/releases/download/v1.0.4/Metrific_v1.0.4.apk" target="_blank" id="download-app-button"
+                   class="w-full flex items-center justify-center mb-2 px-4 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors text-sm">
+                    <i class="ph-download-simple text-lg mr-2"></i>
+                    Baixar aplicativo
+                </a>
+                <!-- Botão de ajuda -->
+                <a href="https://metrific.featurebase.app/help" target="_blank" id="help-hub-button"
+                   class="w-full flex items-center justify-center mb-3 px-4 py-2 rounded-lg bg-slate-200 text-slate-800 font-semibold hover:bg-slate-300 transition-colors text-sm">
+                    <i class="ph-question text-lg mr-2"></i>
+                    Central de Ajuda
+                </a>
+                <button id="version-button" class="text-xs text-slate-500 hover:text-slate-300 w-full text-center mb-4" title="Ver versão do sistema">
+                    Versão 1.3.1
+                </button>
+                    <div id="user-info" class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-white" id="user-initials"></div>
+                        <div class="ml-3">
+                            <p class="text-sm font-semibold text-white" id="user-name">Usuário</p>
+                            <p class="text-xs text-indigo-300" id="user-team">Área</p>
+                        </div>
+                    </div>
+                    <button id="logout-button" class="w-full mt-4 flex items-center justify-center px-4 py-2 rounded-lg hover:bg-red-800/50 text-red-400 hover:text-red-300 transition-colors" title="Sair do sistema">
+                        <i class="ph-sign-out text-xl"></i><span class="ml-3">Sair</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-6 lg:p-8 overflow-y-auto bg-slate-100">
+                 <!-- All Views are here -->
+                 <div id="main-content">
+                     <div id="dashboard-content" class="view">
+                         <!-- Dashboard content will be rendered here -->
+                     </div>
+                     <div id="okrs-content" class="view hidden">
+                         <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                             <h2 class="text-3xl font-bold text-slate-800">Objetivos (OKRs)</h2>
+                             <div id="okrs-actions" class="flex space-x-2"></div>
+                         </div>
+                         <div id="okrs-list" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+                             <!-- OKRs will be rendered here -->
+                         </div>
+                     </div>
+                     <div id="teams-content" class="view hidden">
+                         <div class="flex flex-col md:flex-row justify-between md:items-center mb-6 gap-4">
+                             <h2 class="text-3xl font-bold text-slate-800">Gerenciamento de Equipes e Setores</h2>
+                             <div id="teams-actions" class="flex space-x-2"></div>
+                         </div>
+                         <div id="teams-list-container" class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                             <!-- Teams will be rendered here -->
+                         </div>
+                     </div>
+                     <div id="users-content" class="view hidden">
+                         <h2 class="text-3xl font-bold text-slate-800 mb-6">Gerenciamento de Usuários</h2>
+                         <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                             <div class="overflow-x-auto">
+                                 <table class="w-full text-sm text-left text-slate-500">
+                                     <thead class="text-xs text-slate-700 uppercase bg-slate-50">
+                                         <tr>
+                                             <th scope="col" class="px-6 py-3">Nome</th>
+                                             <th scope="col" class="px-6 py-3">Equipe</th>
+                                             <th scope="col" class="px-6 py-3">Permissão de Edição</th>
+                                             <th scope="col" class="px-6 py-3 text-right">Ações</th>
+                                         </tr>
+                                     </thead>
+                                     <tbody id="users-table-body">
+                                         <!-- Users will be rendered here -->
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Modals -->
+    <div id="okr-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold text-slate-800"></h3>
+                <button type="button" class="cancel-modal-btn p-2 rounded-full hover:bg-slate-200" title="Fechar"><i class="ph-x text-xl"></i></button>
+            </div>
+            <form id="okr-form" class="flex-1 overflow-y-auto p-6 space-y-4"></form>
+            <div class="p-4 bg-slate-50 border-t flex justify-end space-x-3">
+                 <button type="button" class="cancel-modal-btn btn-secondary font-bold py-2 px-4 rounded-lg">Cancelar</button>
+                 <button type="submit" form="okr-form" class="btn-primary font-bold py-2 px-6 rounded-lg">Salvar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="update-okr-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 id="update-modal-title" class="text-xl font-bold text-slate-800">Atualizar Progresso do OKR</h3>
+                <button type="button" class="cancel-modal-btn p-2 rounded-full hover:bg-slate-200" title="Fechar"><i class="ph-x text-xl"></i></button>
+            </div>
+            <form id="update-okr-form" class="flex-1 overflow-y-auto p-6 space-y-4"></form>
+            <div class="p-4 bg-slate-50 border-t flex justify-end space-x-3">
+                 <button type="button" class="cancel-modal-btn btn-secondary font-bold py-2 px-4 rounded-lg">Cancelar</button>
+                 <button type="submit" form="update-okr-form" class="btn-primary font-bold py-2 px-6 rounded-lg">Salvar Atualização</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="generic-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 id="generic-modal-title" class="text-xl font-bold text-slate-800"></h3>
+                <button type="button" class="cancel-modal-btn p-2 rounded-full hover:bg-slate-200" title="Fechar"><i class="ph-x text-xl"></i></button>
+            </div>
+            <form id="generic-modal-form" class="p-6"><div id="generic-modal-body" class="space-y-4"></div></form>
+            <div class="p-4 bg-slate-50 border-t flex justify-end space-x-3">
+                 <button type="button" class="cancel-modal-btn btn-secondary font-bold py-2 px-4 rounded-lg">Cancelar</button>
+                 <button type="submit" form="generic-modal-form" id="generic-modal-save" class="btn-primary font-bold py-2 px-6 rounded-lg">Salvar</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirmation-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6">
+            <div class="text-center">
+                <i id="confirmation-modal-icon" class="ph-warning-circle text-5xl text-red-500 mx-auto mb-4"></i>
+                <h3 id="confirmation-modal-title" class="text-lg font-bold text-slate-800">Você tem certeza?</h3>
+                <p id="confirmation-modal-message" class="text-sm text-slate-500 mt-2"></p>
+            </div>
+            <div class="mt-6 flex justify-center space-x-3">
+                 <button id="confirmation-modal-cancel" class="btn-secondary font-bold py-2 px-4 rounded-lg w-full">Cancelar</button>
+                 <button id="confirmation-modal-confirm" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 w-full">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="version-modal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm p-6 text-center">
+            <i class="ph-rocket-launch text-5xl text-indigo-500 mx-auto mb-4"></i>
+            <h3 class="text-lg font-bold text-slate-800">Metrific OKR System</h3>
+            <p class="text-sm text-slate-500 mt-2">Versão 1.3.1</p>
+            <p class="text-sm text-slate-500 mt-2">Desenvolvido por Eduardo Belchior</p>
+            <div class="mt-6">
+                <button id="close-version-modal" class="btn-primary font-bold py-2 px-6 rounded-lg w-full">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (compat version for the provided code) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Application Logic -->
+    <script src="js/javascript.js"></script>
+</body>
+</html>

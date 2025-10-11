@@ -1,0 +1,57 @@
+<div id="dashboard-container">
+    
+    <h2 id="dashboard-welcome" class="text-3xl font-bold text-slate-800">
+        Bem-vindo(a)!
+    </h2>
+    <p class="text-slate-500 mt-1 mb-8">Este é o seu resumo de performance.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+            <div class="p-4 rounded-full bg-blue-100">
+                <i class="ph-target text-2xl text-blue-600"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-slate-500 text-sm">Objetivos Ativos</p>
+                <p id="stats-total-okrs" class="text-2xl font-bold text-slate-800">0</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+            <div class="p-4 rounded-full bg-green-100">
+                <i class="ph-check-circle text-2xl text-green-600"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-slate-500 text-sm">Concluídos</p>
+                <p id="stats-achieved-okrs" class="text-2xl font-bold text-slate-800">0</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+            <div class="p-4 rounded-full bg-yellow-100">
+                <i class="ph-chart-pie-slice text-2xl text-yellow-600"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-slate-500 text-sm">Progresso Médio</p>
+                <p id="stats-avg-progress" class="text-2xl font-bold text-slate-800">0%</p>
+            </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-md flex items-center">
+            <div class="p-4 rounded-full bg-indigo-100">
+                <i class="ph-users text-2xl text-indigo-600"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-slate-500 text-sm">Total de Usuários</p>
+                <p id="stats-total-users" class="text-2xl font-bold text-slate-800">0</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-md">
+        <h3 class="text-xl font-bold text-slate-800 mb-4">Progresso Geral dos Objetivos</h3>
+        <div id="dashboard-okr-list" class="space-y-4">
+            <!-- O JS irá preencher aqui -->
+        </div>
+    </div>
+
+</div>

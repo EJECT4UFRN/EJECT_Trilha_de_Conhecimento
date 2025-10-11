@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Ranqueamento de Pontos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK v8 (compatível com os outros arquivos) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // Variáveis globais para Firebase
+        let firebaseAuth, firebaseDB;
+        let currentUser = null;
+        let isFirebaseReady = false;
+        
+        // Inicialização do Firebase
+        try {
+            firebaseAuth = firebase.auth();
+            firebaseDB = firebase.database();
+            isFirebaseReady = true;
+            console.log('✅ Firebase inicializado com sucesso');
+        } catch (e) {
+            console.warn("⚠️ Firebase não inicializado, usando dados mockados. Erro: ", e);
+            isFirebaseReady = false;
+        }
+
+        // --- CONFIGURAÇÃO DO SISTEMA DE PONTUAÇÃO ---
+        const POINTS_CONFIG = {
+            // Pontos por tópico concluído (pode ser ajustado por trilha)
+            POINTS_PER_TOPIC: 10,
+            
+            // Trilhas disponíveis e seus multiplicadores
+            TRACKS: {
+                'html_e_css': { name: 'HTML & CSS', multiplier: 1.0, topics: 15 },
+                'javascript': { name: 'JavaScript', multiplier: 1.2, topics: 20 },
+                'python_basico': { name: 'Python Básico', multiplier: 1.1, topics: 18 },
+                'git_e_github': { name: 'Git & GitHub', multiplier: 1.0, topics: 12 },
+                'vue': { name: 'Vue.js', multiplier: 1.3, topics: 16 },
+                'typescript': { name: 'TypeScript', multiplier: 1.4, topics: 14 },
+                'django': { name: 'Django', multiplier: 1.5, topics: 22 },
+                'ux_ui': { name: 'UX/UI Design', multiplier: 1.1, topics: 16 },
+                'wordpress': { name: 'WordPress', multiplier: 1.0, topics: 12 },
+                'marketing_comercial': { name: 'Marketing Comercial', multiplier: 1.0, topics: 14 },
+                'gestao_de_tempo': { name: 'Gestão de Tempo', multiplier: 0.8, topics: 10 },
+                'desenvolvimento_humano': { name: 'Desenvolvimento Humano', multiplier: 0.8, topics: 12 },
+                'scrum': { name: 'Scrum', multiplier: 1.0, topics: 8 },
+                'metodologia_5s': { name: 'Metodologia 5S', multiplier: 0.8, topics: 6 },
+                'okrs_kpis_e_bpmn': { name: 'OKRs, KPIs e BPMN', multiplier: 1.2, topics: 15 },
+                'financeiro': { name: 'Financeiro', multiplier: 1.0, topics: 10 },
+                'historia_eject': { name: 'História da EJECT', multiplier: 0.5, topics: 5 }
+            }
+        };
+
+        // Cores para os avatares dos usuários
+        const AVATAR_COLORS = [
+            'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-yellow-500', 'bg-lime-500',
+            'bg-green-500', 'bg-emerald-500', 'bg-teal-500', 'bg-cyan-500', 'bg-sky-500',
+            'bg-blue-500', 'bg-indigo-500', 'bg-violet-500', 'bg-purple-500', 'bg-fuchsia-500',
+            'bg-pink-500', 'bg-rose-500', 'bg-slate-500', 'bg-gray-500', 'bg-zinc-500'
+        ];
+
+        // Cache para dados do ranking
+        let rankingCache = null;
+        let lastCacheUpdate = 0;
+        const CACHE_DURATION = 60000; // 1 minuto
+
+
+        // --- FUNÇÕES PARA CÁLCULO DE PONTUAÇÃO ---
+        
+        /**
+         * Calcula a pontuação total de um usuário baseado no seu progresso
+         */
+        function calculateUserScore(userProgress) {
+            let totalScore = 0;
+            
+            if (!userProgress || typeof userProgress !== 'object') {
+                return 0;
+            }
+
+            // Percorre cada trilha do usuário
+            Object.keys(userProgress).forEach(trackId => {
+                const trackProgress = userProgress[trackId];
+                const trackConfig = POINTS_CONFIG.TRACKS[trackId];
+                
+                if (!trackConfig || !trackProgress || typeof trackProgress !== 'object') {
+                    return;
+                }
+
+                // Conta tópicos concluídos nesta trilha
+                let completedTopics = 0;
+                Object.values(trackProgress).forEach(topicCompleted => {
+                    if (topicCompleted === true) {
+                        completedTopics++;
+                    }
+                });
+
+                // Calcula pontos para esta trilha
+                const basePoints = completedTopics * POINTS_CONFIG.POINTS_PER_TOPIC;
+                const trackScore = Math.round(basePoints * trackConfig.multiplier);
+                totalScore += trackScore;
+            });
+
+            return totalScore;
+        }
+
+        /**
+         * Busca todos os usuários e seus progressos do Firebase
+         */
+        async function fetchAllUsersProgress() {
+            if (!isFirebaseReady) {
+                console.warn('Firebase não está disponível, usando dados mockados');
+                return getMockData();
+            }
+
+            try {
+                console.log('🔄 Buscando dados de progresso dos usuários...');
+                
+                // Busca todos os usuários que têm progresso salvo
+                const usersRef = firebaseDB.ref('users');
+                const snapshot = await usersRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    console.log('⚠️ Nenhum dado de usuário encontrado');
+                    return getMockData();
+                }
+
+                const usersData = snapshot.val();
+                const rankingData = [];
+
+                // Processa cada usuário
+                Object.keys(usersData).forEach((uid, index) => {
+                    const userData = usersData[uid];
+                    
+                    // Calcula pontuação baseada no progresso
+                    const score = calculateUserScore(userData.progress);
+                    
+                    // Pega nome do usuário (pode estar em displayName ou email)
+                    let displayName = 'Usuário Anônimo';
+                    if (userData.profile && userData.profile.displayName) {
+                        displayName = userData.profile.displayName;
+                    } else if (userData.email) {
+                        displayName = userData.email.split('@')[0];
+                    } else {
+                        displayName = `Astronauta ${index + 1}`;
+                    }
+
+                    // Verifica se é o usuário atual
+                    const isCurrentUser = currentUser && currentUser.uid === uid;
+                    
+                    // Adiciona ao ranking se tem pontuação > 0
+                    if (score > 0) {
+                        rankingData.push({
+                            id: uid,
+                            name: isCurrentUser ? `${displayName} (Você)` : displayName,
+                            score: score,
+                            isCurrentUser: isCurrentUser,
+                            profileColor: AVATAR_COLORS[index % AVATAR_COLORS.length]
+                        });
+                    }
+                });
+
+                // Ordena por pontuação (maior para menor) e adiciona ranking
+                rankingData.sort((a, b) => b.score - a.score);
+                rankingData.forEach((user, index) => {
+                    user.rank = index + 1;
+                });
+
+                console.log(`✅ Ranking calculado: ${rankingData.length} usuários com pontuação`);
+                return rankingData;
+
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados do Firebase:', error);
+                return getMockData();
+            }
+        }
+
+        /**
+         * Dados mockados como fallback
+         */
+        function getMockData() {
+            const mockUsers = [
+                { id: 'mock1', name: "Astronauta Exemplo", score: 450, rank: 1, isCurrentUser: false, profileColor: 'bg-yellow-500' },
+                { id: 'mock2', name: "Explorador Demo", score: 380, rank: 2, isCurrentUser: false, profileColor: 'bg-sky-500' },
+                { id: 'mock3', name: "Você (Demo)", score: 320, rank: 3, isCurrentUser: true, profileColor: 'bg-green-500' }
+            ];
+            
+            console.log('📝 Usando dados mockados para demonstração');
+            return mockUsers;
+        }
+
+        function createRankItem(user) {
+            const isCurrentUser = user.isCurrentUser;
+            let rankBg, rankIcon, rankText;
+            
+            // Define aparência baseada na posição
+            if (user.rank === 1) {
+                rankBg = 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white font-black';
+                rankIcon = 'crown';
+                rankText = '1º';
+            } else if (user.rank === 2) {
+                rankBg = 'bg-gradient-to-r from-gray-300 to-gray-400 text-white font-black';
+                rankIcon = 'medal';
+                rankText = '2º';
+            } else if (user.rank === 3) {
+                rankBg = 'bg-gradient-to-r from-amber-600 to-amber-700 text-white font-black';
+                rankIcon = 'medal';
+                rankText = '3º';
+            } else if (isCurrentUser) {
+                rankBg = 'bg-gradient-to-r from-sky-500 to-sky-600 text-white font-bold';
+                rankIcon = 'user';
+                rankText = `${user.rank}º`;
+            } else {
+                rankBg = 'bg-gray-100 text-gray-700 font-semibold';
+                rankIcon = 'user';
+                rankText = `${user.rank}º`;
+            }
+
+            const cardBg = isCurrentUser ? 'bg-gradient-to-r from-sky-50 to-blue-50 border-sky-400 border-2 ring-2 ring-sky-200' : 'bg-white border-gray-200 border hover:border-gray-300';
+
+            return `
+                <li class="p-4 rounded-xl shadow-md transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg ${cardBg} flex items-center justify-between space-x-4">
+                    <!-- Rank & Avatar -->
+                    <div class="flex items-center space-x-3 flex-shrink-0">
+                        <div class="w-12 h-12 flex items-center justify-center rounded-full ${rankBg} text-sm font-bold relative">
+                            ${rankText}
+                            ${user.rank <= 3 ? `<i data-lucide="${rankIcon}" class="absolute -top-1 -right-1 h-4 w-4 text-yellow-300"></i>` : ''}
+                        </div>
+                        <div class="w-11 h-11 rounded-full ${user.profileColor} flex items-center justify-center text-white text-lg font-bold border-2 border-white shadow-md">
+                            ${user.name.charAt(0)}
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm sm:text-base font-medium text-gray-800 ${isCurrentUser ? 'font-bold text-sky-800' : ''}">${user.name}</span>
+                            ${isCurrentUser ? '<span class="text-xs text-sky-600 font-medium">Você</span>' : ''}
+                        </div>
+                    </div>
+
+                    <!-- Pontuação -->
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                        <div class="text-right">
+                            <span class="text-lg sm:text-xl font-extrabold ${isCurrentUser ? 'text-sky-700' : 'text-gray-900'} block">
+                                ${user.score}
+                            </span>
+                            <span class="text-xs text-gray-500">pontos</span>
+                        </div>
+                        <i data-lucide="award" class="h-6 w-6 text-yellow-500"></i>
+                    </div>
+                </li>
+            `;
+        }
+
+        async function renderRanking() {
+            const rankingList = document.getElementById('rankingList');
+            const currentUserCard = document.getElementById('currentUserCard');
+            const loadingMessage = document.getElementById('loadingMessage');
+            
+            // Mostra loading
+            loadingMessage.classList.remove('hidden');
+            rankingList.innerHTML = '';
+            currentUserCard.innerHTML = '';
+
+            try {
+                // Verifica cache
+                const now = Date.now();
+                if (rankingCache && (now - lastCacheUpdate) < CACHE_DURATION) {
+                    console.log('📋 Usando dados do cache');
+                    await displayRankingData(rankingCache);
+                    return;
+                }
+
+                // Busca dados reais do Firebase
+                const rankingData = await fetchAllUsersProgress();
+                
+                // Atualiza cache
+                rankingCache = rankingData;
+                lastCacheUpdate = now;
+                
+                // Exibe os dados
+                await displayRankingData(rankingData);
+                
+            } catch (error) {
+                console.error('❌ Erro ao renderizar ranking:', error);
+                
+                // Fallback para dados mockados em caso de erro
+                const fallbackData = getMockData();
+                await displayRankingData(fallbackData);
+                
+                // Mostra mensagem de erro discreta
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'text-center text-yellow-600 text-sm mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200';
+                errorMsg.innerHTML = `
+                    <i data-lucide="alert-triangle" class="h-4 w-4 inline mr-1"></i>
+                    Exibindo dados de demonstração. Problemas de conexão com o servidor.
+                `;
+                rankingList.parentElement.appendChild(errorMsg);
+                
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+        }
+
+        async function displayRankingData(rankingData) {
+            const rankingList = document.getElementById('rankingList');
+            const currentUserCard = document.getElementById('currentUserCard');
+            const loadingMessage = document.getElementById('loadingMessage');
+
+            // Renderiza lista de ranking
+            rankingData.forEach(user => {
+                rankingList.insertAdjacentHTML('beforeend', createRankItem(user));
+            });
+            
+            // Encontra dados do usuário atual ou cria padrão
+            let currentUserData = rankingData.find(u => u.isCurrentUser);
+            
+            if (!currentUserData) {
+                // Se usuário não está no ranking ou não está logado
+                currentUserData = {
+                    name: currentUser ? 'Você' : 'Visitante',
+                    score: 0,
+                    rank: currentUser ? 'Sem pontos' : 'Não logado',
+                    isCurrentUser: !!currentUser,
+                    profileColor: 'bg-gray-500'
+                };
+            }
+
+            // Card de destaque do usuário
+            const cardIcon = !currentUser ? 'user-x' : (currentUserData.score > 0 ? 'trophy' : 'target');
+            const cardColor = !currentUser ? 'from-gray-500 to-gray-400' : (currentUserData.score > 0 ? 'from-sky-600 to-sky-400' : 'from-yellow-500 to-yellow-400');
+            
+            currentUserCard.innerHTML = `
+                <div class="bg-gradient-to-r ${cardColor} text-white rounded-xl p-6 shadow-xl card-shadow text-center">
+                    <i data-lucide="${cardIcon}" class="h-10 w-10 mx-auto mb-2 text-yellow-300"></i>
+                    <h3 class="text-2xl font-bold mb-1 text-white">
+                        ${!currentUser ? 'Faça Login' : 'Sua Posição'}
+                    </h3>
+                    <p class="text-4xl sm:text-5xl font-extrabold mb-3">
+                        ${typeof currentUserData.rank === 'number' ? `#${currentUserData.rank}` : currentUserData.rank}
+                    </p>
+                    <p class="text-lg font-medium">${currentUserData.name}</p>
+                    <p class="text-sm text-sky-100 mt-1">
+                        ${!currentUser ? 'Entre para começar a ganhar pontos' : `${currentUserData.score} pontos acumulados`}
+                    </p>
+                    ${!currentUser ? `
+                        <a href="login.html" class="inline-block mt-3 px-4 py-2 bg-white text-sky-700 rounded-lg font-semibold hover:bg-sky-50 transition-colors">
+                            Fazer Login
+                        </a>
+                    ` : ''}
+                </div>
+            `;
+
+            // Esconde loading
+            loadingMessage.classList.add('hidden');
+            
+            // Reinicializa ícones
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // --- Funções de Atualização e Cache ---
+        
+        /**
+         * Força atualização do ranking (ignora cache)
+         */
+        function refreshRanking() {
+            rankingCache = null;
+            lastCacheUpdate = 0;
+            renderRanking();
+        }
+
+        /**
+         * Adiciona botão de refresh na UI
+         */
+        function addRefreshButton() {
+            const refreshBtn = document.createElement('button');
+            refreshBtn.innerHTML = `<i data-lucide="refresh-cw" class="h-4 w-4 mr-1"></i> Atualizar`;
+            refreshBtn.className = 'ml-auto px-3 py-1 text-sm bg-sky-100 text-sky-700 rounded-md hover:bg-sky-200 transition-colors flex items-center';
+            refreshBtn.onclick = refreshRanking;
+            
+            const header = document.querySelector('#rankingList').closest('.bg-white').querySelector('h2');
+            header.appendChild(refreshBtn);
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Inicializando sistema de ranking...');
+            
+            if (isFirebaseReady) {
+                // Configura observer de autenticação
+                firebaseAuth.onAuthStateChanged((user) => {
+                    currentUser = user;
+                    
+                    if (user) {
+                        console.log(`👤 Usuário logado: ${user.displayName || user.email || user.uid}`);
+                    } else {
+                        console.log('👤 Usuário não logado');
+                    }
+                    
+                    // Atualiza ranking quando status de auth muda
+                    renderRanking();
+                });
+            } else {
+                // Fallback sem Firebase
+                console.log('📝 Executando em modo demonstração (sem Firebase)');
+                renderRanking();
+            }
+            
+            // Adiciona botão de refresh
+            setTimeout(addRefreshButton, 1000);
+            
+            // Auto-refresh a cada 5 minutos
+            setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    console.log('🔄 Auto-refresh do ranking');
+                    refreshRanking();
+                }
+            }, 300000); // 5 minutos
+        });
+        // --- Tratamento Global de Erros ---
+        window.addEventListener('error', (event) => {
+            console.error('❌ Erro global capturado:', event.error);
+            
+            // Se for erro relacionado ao Firebase, mostra dados mockados
+            if (event.error && event.error.message && event.error.message.includes('firebase')) {
+                console.log('🔄 Tentando fallback para dados mockados devido a erro do Firebase');
+                isFirebaseReady = false;
+                renderRanking();
+            }
+        });
+
+        // Monitora visibilidade da página para pausar operações
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                console.log('👁️ Página ficou visível, verificando se precisa atualizar ranking');
+                
+                // Se cache está muito antigo, atualiza
+                const now = Date.now();
+                if (!rankingCache || (now - lastCacheUpdate) > (CACHE_DURATION * 2)) {
+                    refreshRanking();
+                }
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        
+        .rank-item-highlight {
+            background-color: #e0f2fe; /* sky-100 */
+            border-left: 4px solid #0ea5e9; /* sky-500 */
+            font-weight: 700;
+        }
+        .rank-item-highlight:hover {
+             box-shadow: 0 8px 16px rgba(14, 165, 233, 0.2);
+        }
+        
+        /* Animações suaves */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Melhoria para o loading */
+        .loading-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        /* Responsividade para o container principal */
+        @media (min-width: 768px) {
+            #rankingContainer {
+                grid-template-columns: 1fr 2fr;
+                gap: 2rem;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            #rankingContainer {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="../index.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        Hub de Conhecimentos
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Ranqueamento</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Botão para voltar ao Dashboard -->
+                    <a href="sigav_hub.html" title="Voltar ao Hub SIGAV" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold text-sky-800 mb-6">Placar Global de Astronautas 🚀</h1>
+        <p class="text-gray-600 mb-8">Veja sua posição entre os membros da EJECT com base nos **pontos de conhecimento** acumulados (conclusão de tópicos e trilhas).</p>
+
+        <div id="rankingContainer" class="grid gap-6">
+
+            <!-- Coluna de Destaque do Usuário (Mobile: 1ª seção) -->
+            <div id="currentUserCardContainer" class="order-1 md:order-1">
+                 <div id="currentUserCard" class="shadow-lg rounded-xl">
+                    <!-- Card de destaque do usuário será inserido aqui -->
+                 </div>
+            </div>
+            
+            <!-- Coluna da Tabela de Ranking (Mobile: 2ª seção) -->
+            <div class="bg-white rounded-xl p-6 shadow-lg card-shadow order-2 md:order-2">
+                <h2 class="text-2xl font-bold text-sky-700 mb-6 flex items-center">
+                    <i data-lucide="list-ordered" class="h-6 w-6 mr-2"></i>
+                    Top 10 Melhores Scores
+                </h2>
+
+                <div id="loadingMessage" class="text-center text-gray-500 p-8 hidden">
+                    <div class="loading-pulse">
+                        <i data-lucide="loader-2" class="h-8 w-8 mx-auto mb-2 animate-spin text-sky-600"></i>
+                        <p class="text-sm">Carregando o ranking dos astronautas...</p>
+                    </div>
+                </div>
+                
+                <ul id="rankingList" class="space-y-3 fade-in">
+                    <!-- Itens do Ranking serão inseridos aqui -->
+                </ul>
+            </div>
+        </div>
+        
+        <div class="mt-12 space-y-6">
+            <!-- Como Ganhar Pontos -->
+            <div class="text-center p-6 bg-yellow-50 rounded-xl border border-yellow-300">
+                <p class="text-lg font-semibold text-yellow-800 flex items-center justify-center">
+                    <i data-lucide="lightbulb" class="h-6 w-6 mr-2 text-yellow-600"></i>
+                    Como Ganhar Pontos
+                </p>
+                <p class="text-sm text-yellow-700 mt-2">
+                    Os pontos são acumulados automaticamente ao <strong>marcar os tópicos como "Concluído"</strong> em cada trilha de conhecimento. Continue aprendendo para subir no ranking!
+                </p>
+            </div>
+
+            <!-- Sistema de Pontuação -->
+            <div class="bg-white rounded-xl p-6 shadow-lg">
+                <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i data-lucide="calculator" class="h-5 w-5 mr-2 text-sky-600"></i>
+                    Sistema de Pontuação
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-2">📝 Trilhas Básicas (1.0x)</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• HTML & CSS, Git & GitHub</li>
+                            <li>• WordPress, Marketing</li>
+                            <li>• Scrum, Financeiro</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-2">🚀 Trilhas Avançadas (1.2x - 1.5x)</h4>
+                        <ul class="text-gray-600 space-y-1">
+                            <li>• JavaScript (1.2x), Vue.js (1.3x)</li>
+                            <li>• TypeScript (1.4x), Django (1.5x)</li>
+                            <li>• OKRs & KPIs (1.2x)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-sky-50 rounded-lg border border-sky-200">
+                    <p class="text-xs text-sky-700">
+                        <strong>Fórmula:</strong> Pontos = Tópicos Concluídos × 10 × Multiplicador da Trilha
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+</body>
+</html>

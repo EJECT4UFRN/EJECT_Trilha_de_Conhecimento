@@ -76,17 +76,9 @@
                         </span>
                     </div>
                     <div class="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
-                        <!-- Botão de Gerenciar Admins (só para super admin) -->
-                        <a id="manageAdminsBtn" href="gerenciar-admins.html" title="Gerenciar Admins" class="p-1.5 sm:p-2 rounded-full text-purple-600 bg-purple-100 hover:bg-purple-200 hidden">
-                            <i data-lucide="user-cog" class="h-5 w-5 sm:h-6 sm:w-6"></i>
-                        </a>
-                        <!-- Botão para Gerenciar Usuários (para todos os admins) -->
-                        <a id="manageUsersBtn" href="gerenciar-usuarios.html" title="Gerenciar Usuários" class="p-1.5 sm:p-2 rounded-full text-cyan-600 bg-cyan-100 hover:bg-cyan-200 hidden">
-                            <i data-lucide="users" class="h-5 w-5 sm:h-6 sm:w-6"></i>
-                        </a>
-                        <!-- Botão de Admin (escondido por padrão) -->
-                        <a id="adminPanelBtn" href="Painel de Administração.html" title="Painel de Administração" class="p-1.5 sm:p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors hidden">
-                            <i data-lucide="shield" class="h-5 w-5 sm:h-6 sm:w-6"></i>
+                        <!-- Botão de Voltar ao Hub -->
+                        <a href="sigav_hub.html" title="Voltar ao Hub SIGAV" class="p-1.5 sm:p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                            <i data-lucide="home" class="h-5 w-5 sm:h-6 sm:w-6"></i>
                         </a>
                         <!-- Botão de Perfil -->
                         <a href="perfil.html" title="Meu Perfil" class="p-1.5 sm:p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
@@ -255,28 +247,13 @@
             document.getElementById('dashboardContent').classList.remove('hidden');
             
             try {
-                // Busca os dados do usuário e as permissões de admin em paralelo
+                // Busca os dados do usuário
                 const userRef = db.ref(`users/${user.uid}`);
-                const adminRef = db.ref(`admins/${user.uid}`);
-
-                const [userSnapshot, adminSnapshot] = await Promise.all([
-                    userRef.once('value'),
-                    adminRef.once('value')
-                ]);
+                const userSnapshot = await userRef.once('value');
 
                 const userData = userSnapshot.val() || {};
                 const userName = userData.name || user.displayName || user.email.split('@')[0];
                 document.getElementById('welcomeMessage').textContent = `Olá, ${userName}!`;
-
-                // Correção: Verifica permissões de forma mais robusta
-                const isStandardAdmin = adminSnapshot.exists();
-                const isSuperAdmin = user.email === 'educhior@hotmail.com';
-
-                if (isStandardAdmin || isSuperAdmin) {
-                    document.getElementById('manageAdminsBtn')?.classList.remove('hidden');
-                    document.getElementById('adminPanelBtn')?.classList.remove('hidden');
-                    document.getElementById('manageUsersBtn')?.classList.remove('hidden');
-                }
 
             } catch (error) {
                 console.error("Erro ao buscar dados do usuário:", error);

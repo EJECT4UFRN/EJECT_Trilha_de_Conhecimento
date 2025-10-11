@@ -178,7 +178,7 @@
                     <img src="img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
                 </a>
                 <div class="relative">
-                    <a href="SIGAV/login.html" id="loginIconContainer" aria-label="Login" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <a href="SIGAV/sigav_hub.html" id="loginIconContainer" aria-label="SIGAV Hub" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
                         <span id="loginIcon" class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">
                             account_circle
                         </span>
@@ -849,9 +849,9 @@
                 const userStatusIndicator = document.getElementById('userStatusIndicator');
                 
                 if (user) {
-                    loginIcon.textContent = 'dashboard'; // Ícone de dashboard
-                    loginIconContainer.setAttribute('aria-label', 'Acessar Dashboard');
-                    loginIconContainer.setAttribute('title', 'Acessar Dashboard - ' + (user.email || 'Usuário'));
+                    loginIcon.textContent = 'hub'; // Ícone de hub
+                    loginIconContainer.setAttribute('aria-label', 'Acessar Hub SIGAV');
+                    loginIconContainer.setAttribute('title', 'Acessar Hub SIGAV - ' + (user.email || 'Usuário'));
                     // Mostra indicador verde para usuário logado
                     userStatusIndicator.classList.remove('hidden', 'bg-gray-400');
                     userStatusIndicator.classList.add('bg-green-500');
@@ -862,9 +862,9 @@
                         loginIconContainer.classList.remove('animate-pulse');
                     }, 1500);
                 } else {
-                    loginIcon.textContent = 'account_circle';
-                    loginIconContainer.setAttribute('aria-label', 'Fazer Login');
-                    loginIconContainer.setAttribute('title', 'Fazer Login');
+                    loginIcon.textContent = 'hub'; // Ícone de hub mesmo sem login
+                    loginIconContainer.setAttribute('aria-label', 'Acessar Hub SIGAV');
+                    loginIconContainer.setAttribute('title', 'Acessar Hub SIGAV');
                     // Mostra indicador cinza para usuário não logado
                     userStatusIndicator.classList.remove('hidden', 'bg-green-500');
                     userStatusIndicator.classList.add('bg-gray-400');
@@ -878,14 +878,8 @@
 
             loginIconContainer.addEventListener('click', (e) => {
                 e.preventDefault();
-                const user = auth.currentUser;
-                if (user) {
-                    // Se estiver logado, redireciona para o dashboard
-                    window.location.href = 'SIGAV/dashboard.html';
-                } else {
-                    // Se não estiver logado, abre o modal de login
-                    loginModal.style.display = 'block';
-                }
+                // Sempre redireciona para o hub do SIGAV
+                window.location.href = 'SIGAV/sigav_hub.html';
             });
 
             closeModal.addEventListener('click', () => {
