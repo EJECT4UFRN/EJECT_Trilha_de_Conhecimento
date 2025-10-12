@@ -28,7 +28,6 @@
     <script>
         // Tailwind Custom Configuration
         tailwind.config = {
-            darkMode: 'media', // or 'class' if you want to toggle manually
             theme: {
                 extend: {
                     fontFamily: {
@@ -46,28 +45,17 @@
                     colors: {
                         'eject-blue-dark': 'rgb(0, 61, 115)',
                         'eject-blue-light': 'rgb(17, 167, 241)',
-                        'eject-text-primary-light': 'rgb(0, 61, 115)',
-                        'eject-text-primary-dark': '#e0e0e0',
-                        'eject-text-secondary-light': '#4a4a4a',
-                        'eject-text-secondary-dark': '#b0b0b0',
-                        'eject-bg-light': 'rgb(245, 251, 255)',
-                        'eject-bg-dark': '#1e1e1e',
-                        'eject-card-bg-light': '#ffffff',
-                        'eject-card-bg-dark': '#2c2c2c',
-                        'eject-input-bg-light': '#ffffff',
-                        'eject-input-bg-dark': '#3a3a3a',
-                        'eject-input-border-light': '#aaa',
-                        'eject-input-border-dark': '#555',
-                        'eject-input-focus-light': 'rgb(9, 149, 219)',
-                        'eject-input-focus-dark': '#64b5f6',
-                        'eject-placeholder-light': '#aaa',
-                        'eject-placeholder-dark': '#888',
-                        'eject-modal-bg-light': '#fefefe',
-                        'eject-modal-bg-dark': '#333333',
-                        'eject-modal-border-light': '#888',
-                        'eject-modal-border-dark': '#444',
-                        'eject-modal-header-border-light': '#eee',
-                        'eject-modal-header-border-dark': '#4f4f4f',
+                        'eject-text-primary': 'rgb(0, 61, 115)',
+                        'eject-text-secondary': '#4a4a4a',
+                        'eject-bg': 'rgb(245, 251, 255)',
+                        'eject-card-bg': '#ffffff',
+                        'eject-input-bg': '#ffffff',
+                        'eject-input-border': '#aaa',
+                        'eject-input-focus': 'rgb(9, 149, 219)',
+                        'eject-placeholder': '#aaa',
+                        'eject-modal-bg': '#fefefe',
+                        'eject-modal-border': '#888',
+                        'eject-modal-header-border': '#eee',
                         // Cores personalizadas para o banner Prosempre
                         'prosempre-orange': 'rgb(255, 153, 0)',
                         'prosempre-dark-bg': 'rgb(15, 15, 25)', // Um preto azulado muito escuro
@@ -75,12 +63,9 @@
                         'prosempre-light-text': 'rgb(250, 250, 250)', // Texto quase branco
                     },
                     backgroundImage: {
-                        'eject-body-gradient-light': 'linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%)',
-                        'eject-body-gradient-dark': 'linear-gradient(275.04deg, #1a202c 1.05%, #121212 100%)', 
-                        'eject-button-gradient-light': 'linear-gradient(92.07deg, rgb(9, 149, 219) 1.84%, rgb(17, 167, 241) 100%)',
-                        'eject-button-gradient-dark': 'linear-gradient(92.07deg, rgb(12, 120, 180) 1.84%, rgb(20, 140, 210) 100%)',
-                        'eject-gemini-gradient-light': 'linear-gradient(92.07deg, #4A00E0 1.84%, #8E2DE2 100%)',
-                        'eject-gemini-gradient-dark': 'linear-gradient(92.07deg, #580fc0 1.84%, #a04dff 100%)',
+                        'eject-body-gradient': 'linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%)',
+                        'eject-button-gradient': 'linear-gradient(92.07deg, rgb(9, 149, 219) 1.84%, rgb(17, 167, 241) 100%)',
+                        'eject-gemini-gradient': 'linear-gradient(92.07deg, #4A00E0 1.84%, #8E2DE2 100%)',
                         'eject-gift-gradient': 'linear-gradient(45deg, #ffcc00, #ff33cc, #6633ff, #33ccff)',
                         'prosempre-button-gradient': 'linear-gradient(90deg, rgb(255, 153, 0) 0%, rgb(255, 204, 0) 100%)',
                         // Novo gradiente radial para o fundo do banner
@@ -168,23 +153,23 @@
         new window.VLibras.Widget('https://vlibras.gov.br/app');
     </script>
 
-    <header class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-eject-bg-light dark:bg-eject-bg-dark shadow-slate-200/50 dark:shadow-black/30">
+    <header class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-eject-bg shadow-slate-200/50">
         <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
             <a href="index.html" class="no-underline flex-shrink-0">
-                <h1 class="font-bold text-eject-text-primary-light dark:text-eject-text-primary-dark text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">Hub de Conhecimentos</h1>
+                <h1 class="font-bold text-eject-text-primary text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">Hub de Conhecimentos</h1>
             </a>
             <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
                 <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="hidden xs:block">
                     <img src="img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
                 </a>
                 <div class="relative">
-                    <a href="SIGAV/sigav_hub.html" id="loginIconContainer" aria-label="SIGAV Hub" class="text-eject-text-primary-light dark:text-eject-text-primary-dark hover:text-eject-blue-light dark:hover:text-eject-blue-light transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <a href="SIGAV/sigav_hub.html" id="loginIconContainer" aria-label="SIGAV Hub" class="text-eject-text-primary hover:text-eject-blue-light transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
                         <span id="loginIcon" class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">
                             account_circle
                         </span>
                     </a>
                     <!-- Indicador de status do usuário -->
-                    <div id="userStatusIndicator" class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-gray-400 border-2 border-white dark:border-gray-800 hidden transition-all duration-200"></div>
+                    <div id="userStatusIndicator" class="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-gray-400 border-2 border-white hidden transition-all duration-200"></div>
                 </div>
             </div>
         </nav>
@@ -199,18 +184,18 @@
             </section>
             
             <section class="mb-8">
-                <h2 class="text-2xl lg:text-3xl mt-6 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Top 10</h2>
+                <h2 class="text-2xl lg:text-3xl mt-6 mb-4 font-semibold text-eject-text-primary">Top 10</h2>
                 <div class="carousel-container relative">
-                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-12px] sm:left-[-15px] md:left-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-20 text-lg sm:text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 touch-manipulation" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 left-[-12px] sm:left-[-15px] md:left-[-22px] bg-eject-card-bg text-eject-text-primary border border-gray-300 rounded-full w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-20 text-lg sm:text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 active:scale-95 touch-manipulation" onclick="scrollCarousel(-1, 'trilhaProjetosCarousel')" aria-label="Trilha Anterior">
                         <span class="material-symbols-outlined">arrow_back</span>
                     </button>
                     <div id="trilhaProjetosCarousel" class="carousel flex overflow-x-auto snap-x snap-mandatory gap-4 sm:gap-6 py-4 scroll-smooth scrollbar-hide touch-pan-x">
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Scrum">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Scrum">
                                <img src="https://erp-disk.ams3.digitaloceanspaces.com/portadas-tutoriales/small_portada_cm1gdlxji0065017b0k930xiv.webp" alt="Imagem do Scrum" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                <span class="new-badge">NOVA</span>
                                <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                   <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Scrum</h3>
+                                   <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Scrum</h3>
                                    <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                        <a class="ds-btn-primary" href="Trilhas/Scrum.html">ACESSAR</a>
                                    </div>
@@ -219,11 +204,11 @@
                         </div>
 
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia 5S">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia 5S">
                                  <img src="https://isoflex.com.br/wp-content/uploads/2022/12/metodologia-5s.png" alt="Imagem do Metodologia 5S" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <span class="new-badge">NOVA</span>
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Metodologia 5S</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Metodologia 5S</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="Trilhas/Metodologia_5S.html" aria-label="Trilha Método Metodologia 5S">ACESSAR</a>
                                      </div>
@@ -232,11 +217,11 @@
                         </div>
                         
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Método MoSCow">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Método MoSCow">
                                  <img src="https://www.flowup.me/blog/wp-content/uploads/2023/12/FlowUp-imagens-2023-12-13T093821.902.png" alt="Imagem do Método MoSCow" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <span class="new-badge">NOVA</span>
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Método MoSCow</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Método MoSCow</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-soon" href="#" aria-label="Trilha Método MoSCow em breve" aria-disabled="true">EM BREVE</a>
                                      </div>
@@ -245,11 +230,11 @@
                         </div>
 
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="História da EJECT">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="História da EJECT">
                                  <img src="https://placehold.co/600x400/003366/FFFFFF?text=História+da+EJECT" alt="Imagem sobre a História da EJECT" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <span class="new-badge">NOVA</span>
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">História da EJECT</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">História da EJECT</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="Trilhas/historia_eject.html" aria-label="Acessar trilha História da EJECT">ACESSAR</a>
                                      </div>
@@ -257,11 +242,11 @@
                             </div>
                         </div>
                             <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="GIT e Github">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="GIT e Github">
                                  <img src="https://hermes.dio.me/articles/cover/d2489f96-d56f-4b82-bc7f-84fbc9fb1368.jpg" alt="Imagem do GitHub" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <span class="new-badge">NOVA</span>
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">GIT e Github</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">GIT e Github</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="Trilhas/git_e_github.html">ACESSAR</a>
                                      </div>
@@ -269,10 +254,10 @@
                             </div>
                         </div>
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Tempo">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Tempo">
                                  <img src="https://timeular.com/wp-content/uploads/2023/11/Copy-of-Copy-of-Blog-image-7.png" alt="Imagem da trilha de gestão de tempo" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Tempo</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Gestão de Tempo</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/gestao_de_tempo.html">ACESSAR</a>
                                      </div>
@@ -280,10 +265,10 @@
                             </div>
                         </div>
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Pessoas">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Pessoas">
                                  <img src="https://media.licdn.com/dms/image/D4D12AQHkxwPuNCCBLA/article-cover_image-shrink_600_2000/0/1696281571014?e=2147483647&v=beta&t=jx27ZVMQKEi4EroaGoApIr5mcpFvcZPs-DnxmjSOxnY" alt="Imagem da trilha de desenvolvimento humano" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Pessoas</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Gestão de Pessoas</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="Trilhas/desenvolvimento_humano.html">ACESSAR</a>
                                      </div>
@@ -291,10 +276,10 @@
                             </div>
                         </div>
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Marketing Comercial">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Marketing Comercial">
                                  <img src="https://media.licdn.com/dms/image/D5612AQFrB74fzNtosA/article-cover_image-shrink_720_1280/0/1685585245706?e=2147483647&v=beta&t=KSjXVDN59S9EFVnoue5f4C_mn4rgg536TURjE9kq_QI" alt="Imagem da trilha de marketing comercial" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Marketing Comercial</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Marketing Comercial</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="Trilhas/marketing_comercial.html">ACESSAR</a>
                                      </div>
@@ -303,10 +288,10 @@
                         </div>
                         
                         <div class="shrink-0 snap-center w-[calc(100%-2rem)] xs:w-[calc(85%-1.5rem)] sm:w-[calc(50%-0.75rem)] md:w-[calc(33.333%-1rem)] lg:w-[calc(25%-1.125rem)]">
-                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Django & Rest">
+                            <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Django & Rest">
                                  <img src="https://imagedelivery.net/qc7VvyphMGWFiPVvTbB-ww/swapps.com/2016/02/simply-django-announcements.jpg/w=1024,h=576" alt="Imagem do framework Django" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                                  <div class="p-4 flex flex-col items-center text-center flex-grow">
-                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Django & Rest</h3>
+                                     <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Django & Rest</h3>
                                      <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                          <a class="ds-btn-primary" href="Trilhas/django.html">ACESSAR</a>
                                      </div>
@@ -314,27 +299,27 @@
                             </div>
                         </div>
                     </div>
-                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-12px] sm:right-[-15px] md:right-[-22px] bg-eject-card-bg-light dark:bg-eject-card-bg-dark text-eject-text-primary-light dark:text-eject-text-primary-dark border border-gray-300 dark:border-gray-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-20 text-lg sm:text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 active:scale-95 touch-manipulation" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">
+                    <button class="nav-button absolute top-1/2 -translate-y-1/2 right-[-12px] sm:right-[-15px] md:right-[-22px] bg-eject-card-bg text-eject-text-primary border border-gray-300 rounded-full w-8 h-8 sm:w-9 sm:h-9 md:w-11 md:h-11 flex items-center justify-center cursor-pointer shadow-md z-20 text-lg sm:text-xl md:text-2xl transition-all duration-200 hover:bg-gray-100 active:scale-95 touch-manipulation" onclick="scrollCarousel(1, 'trilhaProjetosCarousel')" aria-label="Próxima Trilha">
                         <span class="material-symbols-outlined">arrow_forward</span>
                     </button>
                 </div>
             </section>
 
-            <h2 class="text-2xl lg:text-3xl mt-8 mb-4 font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Todas as Trilhas</h2>
+            <h2 class="text-2xl lg:text-3xl mt-8 mb-4 font-semibold text-eject-text-primary">Todas as Trilhas</h2>
             <section class="filter-search-controls my-4 sm:my-6 px-2 sm:px-4">
                 <div class="flex flex-col gap-3 sm:gap-4 max-w-3xl mx-auto">
                     <div class="search-container w-full">
                         <div class="relative">
                             <input type="text" id="searchInput" class="input-styled w-full pl-10 pr-4" placeholder="Pesquise nas trilhas...">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">search</span>
-                            <button id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hidden transition-colors">
+                            <button id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600  hidden transition-colors">
                                 <span class="material-symbols-outlined text-lg">close</span>
                             </button>
                         </div>
                     </div>
                     <div class="filter-container w-full sm:w-auto sm:min-w-[250px]">
                         <div class="relative">
-                            <select id="filterSelect" class="input-styled w-full appearance-none bg-white dark:bg-gray-700 bg-no-repeat bg-right pr-10 pl-4" title="Filtrar trilhas" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E');">
+                            <select id="filterSelect" class="input-styled w-full appearance-none bg-white bg-no-repeat bg-right pr-10 pl-4" title="Filtrar trilhas" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E');">
                                 <option value="all">📚 Todas as Trilhas</option>
                                 <option value="alphabetical">🔤 Ordem Alfabética</option>
                                 <option value="available">✅ Disponíveis</option>
@@ -349,10 +334,10 @@
 
             <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-0" id="cardContainer">
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="EJECT 15 Anos">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="EJECT 15 Anos">
                         <img src="https://placehold.co/600x400/8A2BE2/FFFFFF?text=EJECT+15+Anos" alt="Banner comemorativo EJECT 15 Anos" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">EJECT 15 Anos</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">EJECT 15 Anos</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="anivessario/presente01/index.html" aria-label="Acessar conteúdo especial EJECT 15 Anos">ACESSAR ESPECIAL 🎁</a>
                             </div>
@@ -360,11 +345,11 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="GIT e Github">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="GIT e Github">
                         <img src="https://hermes.dio.me/articles/cover/d2489f96-d56f-4b82-bc7f-84fbc9fb1368.jpg" alt="Imagem do GitHub" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">GIT e Github</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">GIT e Github</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/git_e_github.html" aria-label="Acessar trilha GIT e Github">ACESSAR</a>
                             </div>
@@ -372,10 +357,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Tempo">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Tempo">
                         <img src="https://timeular.com/wp-content/uploads/2023/11/Copy-of-Copy-of-Blog-image-7.png" alt="Imagem da trilha de gestão de tempo" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Tempo</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Gestão de Tempo</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="/EJECT_Trilha_de_Conhecimento/Trilhas/gestao_de_tempo.html" aria-label="Acessar trilha Gestão de Tempo">ACESSAR</a>
                             </div>
@@ -383,10 +368,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Pessoas">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Gestão de Pessoas">
                         <img src="https://media.licdn.com/dms/image/D4D12AQHkxwPuNCCBLA/article-cover_image-shrink_600_2000/0/1696281571014?e=2147483647&v=beta&t=jx27ZVMQKEi4EroaGoApIr5mcpFvcZPs-DnxmjSOxnY" alt="Imagem da trilha de desenvolvimento humano" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Gestão de Pessoas</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Gestão de Pessoas</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/desenvolvimento_humano.html" aria-label="Acessar trilha Gestão de Pessoas">ACESSAR</a>
                             </div>
@@ -394,11 +379,11 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia 5S">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Metodologia 5S">
                         <img src="https://isoflex.com.br/wp-content/uploads/2022/12/metodologia-5s.png" alt="Imagem do Metodologia 5S" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Metodologia 5S</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Metodologia 5S</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/Metodologia_5S.html" aria-label="Trilha Método Metodologia 5S">ACESSAR</a>
                             </div>
@@ -406,10 +391,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Marketing Comercial">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Marketing Comercial">
                         <img src="https://media.licdn.com/dms/image/D5612AQFrB74fzNtosA/article-cover_image-shrink_720_1280/0/1685585245706?e=2147483647&v=beta&t=KSjXVDN59S9EFVnoue5f4C_mn4rgg536TURjE9kq_QI" alt="Imagem da trilha de marketing comercial" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Marketing Comercial</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Marketing Comercial</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/marketing_comercial.html">ACESSAR</a>
                             </div>
@@ -417,11 +402,11 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Scrum">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Scrum">
                         <img src="https://erp-disk.ams3.digitaloceanspaces.com/portadas-tutoriales/small_portada_cm1gdlxji0065017b0k930xiv.webp" alt="Imagem do Scrum" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Scrum</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Scrum</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/Scrum.html">ACESSAR</a>
                             </div>
@@ -429,10 +414,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Django & Rest">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Django & Rest">
                         <img src="https://imagedelivery.net/qc7VvyphMGWFiPVvTbB-ww/swapps.com/2016/02/simply-django-announcements.jpg/w=1024,h=576" alt="Imagem do framework Django" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Django & Rest</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Django & Rest</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/django.html">ACESSAR</a>
                             </div>
@@ -440,11 +425,11 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Financeiro">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Financeiro">
                         <img src="https://blog.quantosobra.com.br/wp-content/uploads/2023/04/capa-controle-financeiro-quantosobra.png" alt="Imagem do Financeiro" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Financeiro</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Financeiro</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/financeiro.html" aria-label="Acessar trilha Financeiro">ACESSAR</a>
                             </div>
@@ -452,10 +437,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="História da EJECT">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="História da EJECT">
                         <img src="https://placehold.co/600x400/003366/FFFFFF?text=História+da+EJECT" alt="Imagem sobre a História da EJECT" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">História da EJECT</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">História da EJECT</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/historia_eject.html" aria-label="Acessar trilha História da EJECT">ACESSAR</a>
                             </div>
@@ -463,10 +448,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="HTML e CSS">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="HTML e CSS">
                         <img src="https://hotmart.s3.amazonaws.com/product_pictures/d2badee3-49a9-4627-9f7d-a5e51ae35384/sitehtmlcss1024x579.jpg" alt="Imagem do HTML e CSS" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">HTML e CSS</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">HTML e CSS</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/html_e_css.html" aria-label="Acessar trilha HTML e CSS">ACESSAR</a>
                             </div>
@@ -474,10 +459,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Vue.js">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Vue.js">
                         <img src="https://dkrn4sk0rn31v.cloudfront.net/uploads/2020/06/VUE.png" alt="Imagem da linguagem Vue.js" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Vue.js</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Vue.js</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/vue.html" aria-label="Acessar trilha Vue.js">ACESSAR</a>
                             </div>
@@ -485,11 +470,11 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="OKRs, KPIs e BPMN">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="OKRs, KPIs e BPMN">
                         <img src="https://agilealliance.org/wp-content/uploads/2022/10/fury-okrs-agile-blog.png" alt="Imagem sobre OKRs, KPIs e BPMN" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">OKRs, KPIs e BPMN</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">OKRs, KPIs e BPMN</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/okrs_kpis_e_bpmn.html" aria-label="Acessar trilha OKRs, KPIs e BPMN">ACESSAR</a>
                             </div>
@@ -497,11 +482,11 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Wordpress">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Wordpress">
                         <img src="https://cityhost.ua/upload_img/blog5f352fc3b2393_wp.png" alt="Imagem do Wordpress" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <span class="new-badge">NOVA</span>
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Wordpress</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Wordpress</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/wordpress.html" aria-label="Acessar trilha Wordpress">ACESSAR</a>
                             </div>
@@ -509,10 +494,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="JavaScript">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="JavaScript">
                         <img src="https://coodesh.com/blog/wp-content/uploads/2023/03/IDE-para-JavaScript.png" alt="Imagem da linguagem JavaScript" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">JavaScript</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">JavaScript</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/javaScript.html" aria-label="Acessar trilha JavaScript">ACESSAR</a>
                             </div>
@@ -520,10 +505,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="TypeScript">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="TypeScript">
                         <img src="https://static.wixstatic.com/media/c60f10_9605a49c09e948e6bf0195ac2738df23~mv2.png/v1/fit/w_1000,h_1000,al_c,q_80/file.jpg" alt="Imagem do TypeScript" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">TypeScript</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">TypeScript</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/typescript.html" aria-label="Acessar trilha TypeScript">ACESSAR</a>
                             </div>
@@ -531,10 +516,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="UX e UI">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="UX e UI">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLbQDxmV2E6ZfAlhNMrPE1o-sPSIFiAjmngg&s" alt="Imagem de UX e UI" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">UX e UI</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">UX e UI</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-primary" href="Trilhas/ux_ui.html" aria-label="Acessar trilha UX e UI">ACESSAR</a>
                             </div>
@@ -542,10 +527,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Python">
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Python">
                         <img src="https://marquesfernandes.com/wp-content/uploads/2020/08/kwi4bvgzths31.jpg" alt="Imagem da linguagem Python" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Python</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Python</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-soon" href="#" aria-label="Trilha Python em breve" aria-disabled="true">EM BREVE</a>
                             </div>
@@ -553,10 +538,10 @@
                     </div>
                 </div>
                 <div>
-                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg-light dark:bg-eject-card-bg-dark rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Looker Studio"> 
+                    <div class="ds-card flex flex-col h-full w-full bg-eject-card-bg rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out hover:-translate-y-1 relative" data-track-title="Looker Studio"> 
                         <img src="https://media.licdn.com/dms/image/v2/D4D12AQHkS1tCc6LlVA/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1722457848250?e=2147483647&v=beta&t=HlZ9mAxtlTnVhblfCroCs1RQ1Y-Gb6ggVUxbUv_zKew" alt="Imagem do Looker Studio" class="w-full h-[180px] object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Not+Found';">
                         <div class="p-4 flex flex-col items-center text-center flex-grow">
-                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary-light dark:text-eject-text-primary-dark">Looker Studio</h3>
+                            <h3 class="text-lg font-semibold mb-3 text-eject-text-primary">Looker Studio</h3>
                             <div class="mt-auto pt-2.5 w-full flex flex-col gap-2.5">
                                 <a class="ds-btn-soon" href="#" aria-label="Trilha Looker Studio em breve" aria-disabled="true">EM BREVE</a>
                             </div>
@@ -572,15 +557,15 @@
         <div class="login-modal-content">
             <div class="login-modal-header">
                 <span class="close-button" id="closeModal">&times;</span>
-                <h2 class="text-2xl font-semibold text-eject-text-primary-light dark:text-eject-text-primary-dark">Login</h2>
+                <h2 class="text-2xl font-semibold text-eject-text-primary">Login</h2>
             </div>
             <form id="loginForm" class="space-y-4 mt-4">
                 <div>
-                    <label for="email" class="block mb-1 font-medium text-eject-text-secondary-light dark:text-eject-text-secondary-dark">Email</label>
+                    <label for="email" class="block mb-1 font-medium text-eject-text-secondary">Email</label>
                     <input type="email" id="email" class="input-styled" placeholder="seuemail@exemplo.com" required>
                 </div>
                 <div>
-                    <label for="password" class="block mb-1 font-medium text-eject-text-secondary-light dark:text-eject-text-secondary-dark">Senha</label>
+                    <label for="password" class="block mb-1 font-medium text-eject-text-secondary">Senha</label>
                     <input type="password" id="password" class="input-styled" placeholder="Sua senha" required>
                 </div>
                 <p id="loginError" class="text-red-500 text-sm hidden">Email ou senha inválidos.</p>
@@ -596,10 +581,10 @@
     </div>
 
 
-    <footer class="w-full bg-slate-800 dark:bg-gray-900 py-6 px-4 mt-auto">
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
         <div class="max-w-6xl mx-auto text-center">
-            <p class="text-sm text-gray-300 dark:text-gray-400 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos reservados.</p>
-            <p class="text-xs text-gray-400 dark:text-gray-500">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos reservados.</p>
+            <p class="text-xs text-gray-400">
                 <a href="termos_de_uso.html" class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
                     Termos de Uso
                 </a>
@@ -703,7 +688,7 @@
                 if (!noResultsMsg) {
                     noResultsMsg = document.createElement('div');
                     noResultsMsg.id = 'noResultsMessage';
-                    noResultsMsg.className = 'col-span-full text-center py-12 text-gray-500 dark:text-gray-400';
+                    noResultsMsg.className = 'col-span-full text-center py-12 text-gray-500';
                     noResultsMsg.innerHTML = `
                         <div class="max-w-md mx-auto">
                             <span class="material-symbols-outlined text-6xl mb-4 block opacity-50">search_off</span>
