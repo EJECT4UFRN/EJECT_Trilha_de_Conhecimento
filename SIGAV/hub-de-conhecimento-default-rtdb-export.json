@@ -1,0 +1,264 @@
+{
+  "admins": {
+    "bdXwNJWB8yS02g5Y3YzN8MmJXjX2": true,
+    "i2sbVCbIeAWZU3T2Nq4Vk5FGf1R2": true,
+    "uN4H69sYWrXXvH4HgkDmiqG65cD2": true
+  },
+  "backups": {
+    "usuarios_1760312718957": {
+      "createdBy": "educhior@hotmail.com",
+      "data": {
+        "0F3D1neKjWUeb48bfKfdNZZ8FwF2": {
+          "name": "EDU TESTE",
+          "progress": {
+            "git_e_github": {
+              "fundamentos-git": true
+            }
+          }
+        },
+        "NsSjJeCykddRabIKJJQzGrEHeXc2": {
+          "progress": {
+            "ux_ui": {
+              "introducao-ux-ui": true
+            }
+          }
+        },
+        "bdXwNJWB8yS02g5Y3YzN8MmJXjX2": {
+          "name": "Ana Beatriz"
+        },
+        "d4hupxGszhbm1KClCS7EvIt3BIG2": {
+          "email": "educhior@hotmail.com",
+          "name": "Eduardo Belchior",
+          "progress": {
+            "gestao_de_tempo": {
+              "T1_Eisenhower": true,
+              "T2_Planejamento": true,
+              "T3_SMART": true,
+              "T4_Pomodoro": true,
+              "T5_Multitarefas": true,
+              "T6_Autoavaliacao": true,
+              "T7_BemEstar": true
+            },
+            "git_e_github": {
+              "comandos-essenciais": true,
+              "fundamentos-conceitos": true,
+              "fundamentos-git": true,
+              "gitflow": true,
+              "plataforma-github": true,
+              "referencias": true,
+              "tarefa-iniciando-projeto": true,
+              "tarefa-pull-request": true
+            }
+          }
+        },
+        "gVWvgwtlZTeSqeDeVQ5hDJEmvR62": {
+          "progress": {
+            "django": {
+              "M1_ChecklistDeploy": true,
+              "M1_PrimeiroApp": true,
+              "M1_Top10Admin": true
+            }
+          }
+        },
+        "i2sbVCbIeAWZU3T2Nq4Vk5FGf1R2": {
+          "name": "Filipe",
+          "progress": {
+            "django": {
+              "M1_PrimeiroApp": false
+            }
+          }
+        }
+      },
+      "timestamp": "2025-10-12T23:45:18.957Z"
+    }
+  },
+  "gamification": {
+    "activities": {
+      "-ObTOE39hgnbv6V9LbSd": {
+        "activity": "teste 1",
+        "color": "green",
+        "evidence": "",
+        "pointsIndividual": 10,
+        "pointsTeam": 10,
+        "registeredBy": "d4hupxGszhbm1KClCS7EvIt3BIG2",
+        "status": "pending",
+        "team": "Teste 1",
+        "teamId": "-ObTN5a95OaeOceelX5w",
+        "timestamp": 1760372781631,
+        "type": "zap",
+        "updatedAt": 1760391480859,
+        "updatedBy": "d4hupxGszhbm1KClCS7EvIt3BIG2",
+        "user": "Eduardo Belchior",
+        "userId": "d4hupxGszhbm1KClCS7EvIt3BIG2"
+      },
+      "-ObU_yNmoqK-5RUKoAsj": {
+        "description": "",
+        "id": "-ObU_yNmoqK-5RUKoAsj",
+        "pointsIndividual": 10,
+        "pointsTeam": 15,
+        "teamId": "-ObTN88oyzRQMyaq9L3i",
+        "timestamp": 1760392898823,
+        "type": "task",
+        "userId": "ekYmJ8KJ03bmSoT96Uri38OFaIe2"
+      }
+    },
+    "teams": {
+      "-ObTN5a95OaeOceelX5w": {
+        "createdAt": 1760372484796,
+        "createdBy": "d4hupxGszhbm1KClCS7EvIt3BIG2",
+        "id": "-ObTN5a95OaeOceelX5w",
+        "name": "Teste 1",
+        "score": 10
+      },
+      "-ObTN88oyzRQMyaq9L3i": {
+        "createdAt": 1760372495274,
+        "createdBy": "d4hupxGszhbm1KClCS7EvIt3BIG2",
+        "id": "-ObTN88oyzRQMyaq9L3i",
+        "name": "Teste 2"
+      }
+    }
+  },
+  "profiles": {
+    "d4hupxGszhbm1KClCS7EvIt3BIG2": {
+      "email": "educhior@hotmail.com",
+      "gamification": {
+        "score": 10
+      },
+      "lastSync": 1760371768102,
+      "name": "Eduardo Belchior"
+    },
+    "ekYmJ8KJ03bmSoT96Uri38OFaIe2": {
+      "email": "eduardobelchior@ejectufrn.com.br",
+      "gamification": {
+        "lastActivity": {
+          "pointsIndividual": 10,
+          "pointsTeam": 15,
+          "timestamp": 1760392898823,
+          "type": "task"
+        },
+        "lastUpdated": 1760392862624,
+        "score": 10,
+        "teamId": "-ObTN88oyzRQMyaq9L3i",
+        "updatedBy": "d4hupxGszhbm1KClCS7EvIt3BIG2"
+      },
+      "lastSync": 1760371767340,
+      "name": "EDU TESTE"
+    }
+  },
+  "public": {
+    "ranking": {
+      "Gb4MRlJmm7Un3IB3w5xoVSP8NI63": {
+        "lastUpdate": 1760392184887,
+        "name": "danielrannyeri",
+        "score": 30
+      },
+      "KJWyqNSUV2PYhe6WMBmu3TGeeKH2": {
+        "lastUpdate": 1760392184887,
+        "name": "jacoryan",
+        "score": 14
+      },
+      "NsSjJeCykddRabIKJJQzGrEHeXc2": {
+        "lastUpdate": 1760392184887,
+        "name": "antoniohigino",
+        "score": 11
+      },
+      "gVWvgwtlZTeSqeDeVQ5hDJEmvR62": {
+        "lastUpdate": 1760392184887,
+        "name": "fabriciojacome",
+        "score": 45
+      }
+    },
+    "stats": {
+      "lastUpdate": 1760392185087,
+      "totalUsers": 4,
+      "updatedBy": "d4hupxGszhbm1KClCS7EvIt3BIG2"
+    }
+  },
+  "users": {
+    "Gb4MRlJmm7Un3IB3w5xoVSP8NI63": {
+      "email": "danielrannyeri@ejectufrn.com.br",
+      "name": "danielrannyeri",
+      "progress": {
+        "html_e_css": {
+          "M1_forms_tables": true,
+          "M1_pos_lists": true,
+          "M1_webpage": true
+        }
+      }
+    },
+    "KJWyqNSUV2PYhe6WMBmu3TGeeKH2": {
+      "email": "jacoryan@ejectufrn.com.br",
+      "name": "jacoryan",
+      "progress": {
+        "typescript": {
+          "ts_vantagens_video": true
+        }
+      }
+    },
+    "NsSjJeCykddRabIKJJQzGrEHeXc2": {
+      "createdAt": 1760312719356,
+      "email": "antoniohigino@ejectufrn.com.br",
+      "lastLogin": 1760312719357,
+      "name": "antoniohigino",
+      "progress": {
+        "ux_ui": {
+          "introducao-ux-ui": true
+        }
+      },
+      "uid": "NsSjJeCykddRabIKJJQzGrEHeXc2"
+    },
+    "bdXwNJWB8yS02g5Y3YzN8MmJXjX2": {
+      "createdAt": 1760312719554,
+      "email": "anacabral@ejectufrn.com.br",
+      "lastLogin": 1760312719554,
+      "name": "Ana Beatriz",
+      "uid": "bdXwNJWB8yS02g5Y3YzN8MmJXjX2"
+    },
+    "d4hupxGszhbm1KClCS7EvIt3BIG2": {
+      "createdAt": 1760312719757,
+      "email": "educhior@hotmail.com",
+      "gamification": {
+        "lastUpdated": 1760372513532,
+        "score": 0,
+        "teamId": "-ObTN5a95OaeOceelX5w",
+        "updatedBy": "d4hupxGszhbm1KClCS7EvIt3BIG2"
+      },
+      "lastLogin": 1760312719757,
+      "name": "Eduardo Belchior",
+      "uid": "d4hupxGszhbm1KClCS7EvIt3BIG2"
+    },
+    "ekYmJ8KJ03bmSoT96Uri38OFaIe2": {
+      "createdAt": 1760369963638,
+      "email": "eduardobelchior@ejectufrn.com.br",
+      "lastLogin": 1760369963638,
+      "name": "EDU TESTE",
+      "uid": "ekYmJ8KJ03bmSoT96Uri38OFaIe2"
+    },
+    "gVWvgwtlZTeSqeDeVQ5hDJEmvR62": {
+      "createdAt": 1760312719962,
+      "email": "fabriciojacome@ejectufrn.com.br",
+      "lastLogin": 1760312719963,
+      "name": "fabriciojacome",
+      "progress": {
+        "django": {
+          "M1_ChecklistDeploy": true,
+          "M1_PrimeiroApp": true,
+          "M1_Top10Admin": true
+        }
+      },
+      "uid": "gVWvgwtlZTeSqeDeVQ5hDJEmvR62"
+    },
+    "i2sbVCbIeAWZU3T2Nq4Vk5FGf1R2": {
+      "createdAt": 1760312720169,
+      "email": "hipolitofilipe@ejectufrn.com.br",
+      "lastLogin": 1760312720169,
+      "name": "Filipe",
+      "progress": {
+        "django": {
+          "M1_PrimeiroApp": false
+        }
+      },
+      "uid": "i2sbVCbIeAWZU3T2Nq4Vk5FGf1R2"
+    }
+  }
+}

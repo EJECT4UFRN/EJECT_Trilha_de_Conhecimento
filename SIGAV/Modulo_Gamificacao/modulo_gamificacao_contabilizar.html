@@ -107,11 +107,25 @@
   </footer>
 
   <script>
-    // Globals
-    let db, auth;
-    let users = {};
-    let teams = {};
-    let isFirebaseReady = false;
+  // Globals
+  let db, auth;
+  let users = {};
+  let teams = {};
+  let isFirebaseReady = false;
+  let isAdminUser = false; // permissões do usuário atual
+
+  // Helper: resolveTeamKey (retorna chave em teams a partir de id ou nome)
+  function resolveTeamKey(teamIdOrName) {
+    if (!teamIdOrName) return null;
+    if (teams[teamIdOrName]) return teamIdOrName;
+    for (const k of Object.keys(teams)) {
+      const t = teams[k];
+      if (!t) continue;
+      if (t.id && t.id === teamIdOrName) return k;
+      if (t.name && t.name === teamIdOrName) return k;
+    }
+    return null;
+  }
 
     function initFirebase() {
       try {
@@ -227,7 +241,10 @@
         });
 
         arr.forEach(({ uid, profile }) => {
-          users[uid] = { id: uid, name: profile.name || (profile.displayName || uid), teamId: (profile.gamification && profile.gamification.teamId) || null, score: (profile.gamification && profile.gamification.score) || 0 };
+          // normalizar teamId para chave conhecida, se possível
+          const rawTeam = profile.gamification && profile.gamification.teamId ? profile.gamification.teamId : null;
+          const normalized = resolveTeamKey(rawTeam) || rawTeam || null;
+          users[uid] = { id: uid, name: profile.name || (profile.displayName || uid), teamId: normalized, score: (profile.gamification && profile.gamification.score) || 0 };
           const opt = document.createElement('option');
           opt.value = uid;
           opt.textContent = users[uid].name || uid; // mostrar somente o nome para melhor UX
@@ -353,22 +370,68 @@
 
       if (!isFirebaseReady) return;
 
-      // Esperar autenticação e verificar se é admin para liberar uso
+      // Esperar autenticação e configurar a página de acordo com permissões (admin ou usuário comum)
       auth.onAuthStateChanged(async (user) => {
         if (!user) {
           redirectToLogin();
           return;
         }
-        const allowed = await checkAdminAccess();
-        if (!allowed) {
-          showNotification('Acesso negado: você precisa ser administrador', 'error');
-          setTimeout(() => window.location.href = 'modulo_gamificacao_times.html', 1200);
-          return;
-        }
-        // se tudo ok, carregar usuários e teams
-        populateUsersAndTeams();
 
-        // load recent activities local cache
+        // verificar se é admin
+        const allowed = await checkAdminAccess();
+        isAdminUser = !!allowed;
+
+        if (isAdminUser) {
+          // admin: comportamento original
+          populateUsersAndTeams();
+        } else {
+          // usuário comum: permitir uso restrito — apenas registrar atividades para si mesmo
+          try {
+            // carregar teams (para eventualmente mostrar o time do usuário)
+            await db.ref('gamification/teams').once('value').then(snapshot => {
+              const data = snapshot.val() || {};
+              teams = {};
+              Object.entries(data).forEach(([teamId, team]) => {
+                teams[teamId] = Object.assign({ id: teamId }, team);
+              });
+            });
+
+            // buscar profile do usuário para nome e team
+            const profileSnap = await db.ref(`profiles/${user.uid}`).once('value');
+            const profile = profileSnap.val() || {};
+
+            // preencher userSelect apenas com o próprio usuário e desabilitar seleção
+            const userSelect = document.getElementById('userSelect');
+            userSelect.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = user.uid;
+            opt.textContent = profile.name || profile.displayName || (user.email ? user.email.split('@')[0] : user.uid);
+            userSelect.appendChild(opt);
+            userSelect.value = user.uid;
+            userSelect.disabled = true;
+
+            // preencher teamSelect com todas as equipes, mas pré-selecionar o time do perfil e desabilitar alteração
+            const teamSelect = document.getElementById('teamSelect');
+            teamSelect.innerHTML = '<option value="">-- Sem equipe --</option>';
+            Object.values(teams).forEach(t => {
+              const o = document.createElement('option'); o.value = t.id; o.textContent = t.name || t.id; teamSelect.appendChild(o);
+            });
+            const userTeamIdRaw = profile.gamification?.teamId || null;
+            const userTeamId = resolveTeamKey(userTeamIdRaw) || userTeamIdRaw || null;
+            if (userTeamId) teamSelect.value = userTeamId;
+            teamSelect.disabled = true;
+
+          } catch (err) {
+            console.error('Erro ao configurar página para usuário comum:', err);
+            showNotification('Erro ao carregar seus dados: ' + (err.message || err), 'error');
+            // fallback: permitir que usuário veja form, mas sem seleção preenchida
+            populateUsersAndTeams();
+            document.getElementById('userSelect').disabled = true;
+            document.getElementById('teamSelect').disabled = true;
+          }
+        }
+
+        // load recent activities local cache (both para admin e usuário comum)
         db.ref('gamification/activities').limitToLast(10).once('value').then(snapshot => {
           const data = snapshot.val() || {};
           Object.values(data).sort((a,b) => (b.timestamp||0)-(a.timestamp||0)).forEach(act => addRecent(act));

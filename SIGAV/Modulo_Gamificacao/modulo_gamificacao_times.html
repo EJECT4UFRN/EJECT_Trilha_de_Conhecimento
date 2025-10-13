@@ -226,6 +226,23 @@
         let activitiesData = {};
         let isFirebaseReady = false;
 
+        // --- Helpers globais ---
+        // Resolve uma chave válida em teamsData a partir de um valor que pode
+        // ser a chave, o campo `id` interno ou o `name` da equipe.
+        function resolveTeamKey(teamId) {
+            if (!teamId) return null;
+            // Se já for chave existente
+            if (teamsData[teamId]) return teamId;
+            // Tenta casar com fields internos (id ou name)
+            for (const k of Object.keys(teamsData)) {
+                const t = teamsData[k];
+                if (!t) continue;
+                if (t.id && t.id === teamId) return k;
+                if (t.name && t.name === teamId) return k;
+            }
+            return null;
+        }
+
         // --- Inicialização Firebase ---
         function initializeFirebase() {
             try {
@@ -233,16 +250,28 @@
                     isFirebaseReady = true;
                     console.log('✅ Firebase inicializado para gamificação');
                     
-                    // Listener de autenticação
+                    // Listener de autenticação (não bloqueia visualização pública)
+                    // Carregar dados públicos imediatamente para permitir acesso ao ranking sem login
+                    loadGamificationData();
+
                     auth.onAuthStateChanged(async (user) => {
-                        if (user) {
-                            currentUser = user;
-                            // Sincronizar perfil público primeiro
-                            await syncUserProfile(user);
-                            loadGamificationData();
+                        try {
+                            if (user) {
+                                currentUser = user;
+                                // Sincronizar perfil público quando houver usuário logado
+                                await syncUserProfile(user);
+                            } else {
+                                // Usuário anônimo — não redirecionar, apenas garantir que currentUser esteja nulo
+                                currentUser = null;
+                            }
+
+                            // Atualizar botões de admin/contabilizar (função trata user=null)
                             await checkAndShowAdminButtons(user);
-                        } else {
-                            window.location.href = '../login.html';
+                            // Re-render highlights caso o usuário tenha mudado
+                            renderIndividualRanking();
+                            renderTeamRanking();
+                        } catch (err) {
+                            console.error('Erro no listener de autenticação:', err);
                         }
                     });
                 } else {
@@ -475,20 +504,7 @@
             const tbody = document.getElementById('teamRankingBody');
             if (!tbody) return;
 
-            // Função auxiliar: resolve a chave do time em teamsData a partir de um teamId
-            function resolveTeamKey(teamId) {
-                if (!teamId) return null;
-                // Caso já seja a chave
-                if (teamsData[teamId]) return teamId;
-                // Tentar achar por campo id ou por nome
-                for (const k of Object.keys(teamsData)) {
-                    const t = teamsData[k];
-                    if (!t) continue;
-                    if (t.id && t.id === teamId) return k;
-                    if (t.name && t.name === teamId) return k;
-                }
-                return null;
-            }
+            // Nota: usamos resolveTeamKey global definido no topo do script
 
             // Calcular pontuação das equipes baseada nos dados disponíveis
             const teamScores = {};
@@ -586,7 +602,8 @@
             tbody.innerHTML = sortedMembers.map((member, index) => {
                 const rank = index + 1;
                 const isCurrentUser = currentUser && member.id === currentUser.uid;
-                const teamName = member.teamId && teamsData[member.teamId] ? teamsData[member.teamId].name : 'Sem equipe';
+                const teamKeyForMember = resolveTeamKey(member.teamId);
+                const teamName = teamKeyForMember && teamsData[teamKeyForMember] ? teamsData[teamKeyForMember].name : 'Sem equipe';
                 
                 let rankClass = '';
                 if (rank === 1) rankClass = 'font-bold text-yellow-600';
@@ -698,9 +715,10 @@
                 
                 if (rankEl) rankEl.textContent = `#${userRank}`;
                 if (infoEl) {
-                    const teamName = userMember.teamId && teamsData[userMember.teamId] 
-                        ? teamsData[userMember.teamId].name 
-                        : 'Sem equipe';
+            const userTeamKey = resolveTeamKey(userMember.teamId);
+            const teamName = userTeamKey && teamsData[userTeamKey]
+                ? teamsData[userTeamKey].name
+                : 'Sem equipe';
                     infoEl.textContent = `${userMember.name} (${teamName})`;
                 }
                 if (pointsEl) pointsEl.textContent = (userMember.score || 0).toLocaleString();

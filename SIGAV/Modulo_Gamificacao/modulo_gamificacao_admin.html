@@ -291,6 +291,21 @@
     // profilesData will hold synchronized profile info which may contain authoritative gamification scores
     let profilesData = {};
 
+    // --- Helper: resolveTeamKey ---
+    // Recebe um valor que pode ser a chave do time, o campo `id` internamente ou o `name`.
+    // Retorna a chave (key) correspondente em teamsData ou null se não encontrado.
+    function resolveTeamKey(teamIdOrName) {
+        if (!teamIdOrName) return null;
+        if (teamsData[teamIdOrName]) return teamIdOrName; // já é chave
+        for (const k of Object.keys(teamsData)) {
+            const t = teamsData[k];
+            if (!t) continue;
+            if (t.id && t.id === teamIdOrName) return k;
+            if (t.name && t.name === teamIdOrName) return k;
+        }
+        return null;
+    }
+
         // --- Controle de Acesso Administrativo ---
         async function checkAdminAccess() {
             console.log('🔍 Verificando acesso admin...');
@@ -462,10 +477,11 @@
 
             if (confirm(`Tem certeza que deseja EXCLUIR a equipe "${team.name}"? Esta ação é irreversível e removerá todos os dados de pontuação históricos da equipe.`)) {
                 try {
-                    // Remover membros da equipe
+                    // Remover membros da equipe (atualizar em profiles, caminho canônico de gamification)
                     const membersInTeam = Object.values(membersData).filter(m => m.teamId === teamId);
                     for (const member of membersInTeam) {
-                        await db.ref(`users/${member.id}/gamification/teamId`).remove();
+                        // Garantir que removemos pelo campo correto
+                        await db.ref(`profiles/${member.id}/gamification/teamId`).remove();
                     }
                     
                     // Excluir a equipe
@@ -602,23 +618,30 @@
                     await newTeamScoreRef.set(newScore + totalTeamPoints);
                 }
                 // Atualizar dados de gamificação
+                // Garantir que gravamos a chave correta do time (normalizar caso um nome tenha sido passado)
+                let teamKeyToSave = null;
+                if (newTeamId) {
+                    teamKeyToSave = resolveTeamKey(newTeamId) || newTeamId;
+                }
+
                 const gamificationData = {
-                    teamId: newTeamId,
+                    teamId: teamKeyToSave,
                     lastUpdated: Date.now(),
                     updatedBy: currentUser.uid
                 };
-                if (newTeamId) {
-                    // Alocar à nova equipe
-                    await userRef.child('gamification').update(gamificationData);
-                    console.log('✅ Usuário alocado à equipe:', newTeamId);
+
+                if (teamKeyToSave) {
+                    // Alocar à nova equipe usando profiles como caminho canônico
+                    await db.ref(`profiles/${memberId}/gamification`).update(gamificationData);
+                    console.log('✅ Usuário alocado à equipe (profiles):', teamKeyToSave);
                 } else {
                     // Remover da equipe atual
-                    await userRef.child('gamification/teamId').remove();
-                    await userRef.child('gamification').update({
+                    await db.ref(`profiles/${memberId}/gamification/teamId`).remove();
+                    await db.ref(`profiles/${memberId}/gamification`).update({
                         lastUpdated: Date.now(),
                         updatedBy: currentUser.uid
                     });
-                    console.log('✅ Usuário removido da equipe');
+                    console.log('✅ Usuário removido da equipe (profiles)');
                 }
                 const teamName = newTeamId ? teamsData[newTeamId]?.name : 'nenhuma equipe';
                 const action = newTeamId ? `alocado à equipe "${teamName}"` : 'removido da equipe atual';
@@ -673,9 +696,9 @@
                     await oldTeamScoreRef.set(Math.max(0, oldScore - totalTeamPoints));
                 }
 
-                // Remover teamId do usuário
-                await db.ref(`users/${memberId}/gamification/teamId`).remove();
-                await db.ref(`users/${memberId}/gamification`).update({ lastUpdated: Date.now(), updatedBy: currentUser.uid });
+                // Remover teamId do usuário (usar profiles como caminho canônico para gamification)
+                await db.ref(`profiles/${memberId}/gamification/teamId`).remove();
+                await db.ref(`profiles/${memberId}/gamification`).update({ lastUpdated: Date.now(), updatedBy: currentUser.uid });
 
                 showNotification(`${member.name || member.displayName} removido(a) da equipe com sucesso.`, 'success');
 
@@ -958,12 +981,16 @@
                         const teamFromUsers = user.gamification?.teamId || null;
                         const teamFromProfiles = profileGamification.teamId || null;
 
+                        // Normalizar teamId (preferir chave se possível)
+                        const candidateTeam = teamFromUsers || teamFromProfiles || null;
+                        const normalizedTeamKey = resolveTeamKey(candidateTeam) || candidateTeam || null;
+
                         membersData[userId] = {
                             id: userId,
                             name: user.name || user.displayName || user.email?.split('@')[0] || 'Usuário',
                             displayName: user.displayName || user.name || user.email?.split('@')[0] || 'Usuário',
-                            // prefer teamId from users, then profiles
-                            teamId: teamFromUsers || teamFromProfiles || null,
+                            // teamId sempre será a chave quando possível
+                            teamId: normalizedTeamKey,
                             // prefer authoritative score from profiles, fallback to users node
                             score: scoreFromProfiles || scoreFromUsers || 0,
                             email: user.email
