@@ -284,10 +284,12 @@
 
     <script>
         // --- Variáveis Globais ---
-        let currentUser = null;
-        let isUserAdmin = false;
-        let teamsData = {};
-        let membersData = {};
+    let currentUser = null;
+    let isUserAdmin = false;
+    let teamsData = {};
+    let membersData = {};
+    // profilesData will hold synchronized profile info which may contain authoritative gamification scores
+    let profilesData = {};
 
         // --- Controle de Acesso Administrativo ---
         async function checkAdminAccess() {
@@ -949,12 +951,21 @@
                 Object.keys(users).forEach(userId => {
                     const user = users[userId];
                     if (user && user.email) { // Só incluir usuários com email válido
+                        // Prefer scores stored under `profiles/{uid}/gamification/score` when available
+                        const profileGamification = profilesData[userId]?.gamification || {};
+                        const scoreFromProfiles = parseInt(profileGamification.score) || 0;
+                        const scoreFromUsers = parseInt(user.gamification?.score) || 0;
+                        const teamFromUsers = user.gamification?.teamId || null;
+                        const teamFromProfiles = profileGamification.teamId || null;
+
                         membersData[userId] = {
                             id: userId,
                             name: user.name || user.displayName || user.email?.split('@')[0] || 'Usuário',
                             displayName: user.displayName || user.name || user.email?.split('@')[0] || 'Usuário',
-                            teamId: user.gamification?.teamId || null,
-                            score: user.gamification?.score || 0,
+                            // prefer teamId from users, then profiles
+                            teamId: teamFromUsers || teamFromProfiles || null,
+                            // prefer authoritative score from profiles, fallback to users node
+                            score: scoreFromProfiles || scoreFromUsers || 0,
                             email: user.email
                         };
                     }
@@ -986,6 +997,31 @@
                 });
                 renderMembersTable();
                 renderTeamList(); // Atualizar contagem de membros nas equipes
+            });
+
+            // Carregar profiles para obter pontuações/metadata canônica quando disponível
+            db.ref('profiles').on('value', (snapshot) => {
+                console.log('📂 Profiles carregados (para pontuações)');
+                profilesData = snapshot.val() || {};
+
+                // Atualizar membersData scores/teamId se já tivermos usuários carregados
+                if (Object.keys(membersData).length > 0) {
+                    Object.keys(membersData).forEach(uid => {
+                        const profile = profilesData[uid] || {};
+                        const profGam = profile.gamification || {};
+                        const scoreFromProfiles = parseInt(profGam.score) || 0;
+                        const teamFromProfiles = profGam.teamId || null;
+
+                        // If profiles has a non-zero score, prefer it
+                        if (scoreFromProfiles > 0) membersData[uid].score = scoreFromProfiles;
+                        // If user doesn't have a team in membersData, try to read from profiles
+                        if (!membersData[uid].teamId && teamFromProfiles) membersData[uid].teamId = teamFromProfiles;
+                    });
+                    renderMembersTable();
+                    renderTeamList();
+                }
+            }, (error) => {
+                console.error('❌ Erro ao carregar profiles:', error);
             });
         }
 
