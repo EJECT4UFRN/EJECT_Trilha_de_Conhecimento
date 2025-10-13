@@ -1,6 +1,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyAO1pwMojeJNeTk-UsTeKgoSkX4nvD_S00",
   authDomain: "hub-de-conhecimento.firebaseapp.com",
+  databaseURL: "https://hub-de-conhecimento-default-rtdb.firebaseio.com/", // URL do Realtime Database
   projectId: "hub-de-conhecimento",
   storageBucket: "hub-de-conhecimento.firebasestorage.app",
   messagingSenderId: "321994679921",

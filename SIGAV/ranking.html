@@ -20,6 +20,7 @@
         let firebaseAuth, firebaseDB;
         let currentUser = null;
         let isFirebaseReady = false;
+        let isCurrentUserAdmin = false;
         
         // Inicialização do Firebase
         try {
@@ -72,8 +73,226 @@
         let lastCacheUpdate = 0;
         const CACHE_DURATION = 60000; // 1 minuto
 
+        /**
+         * Função utilitária para atualizar ranking público (pode ser chamada de outros arquivos)
+         * Esta função deve ser chamada sempre que um usuário atualiza seu progresso
+         */
+        async function updatePublicRanking(userId, userData) {
+            if (!isFirebaseReady) return;
+            
+            try {
+                const score = calculateUserScore(userData.progress);
+                
+                // Se usuário tem pontuação, adiciona/atualiza no ranking público
+                if (score > 0) {
+                    let displayName = 'Usuário Anônimo';
+                    if (userData.profile && userData.profile.displayName) {
+                        displayName = userData.profile.displayName;
+                    } else if (userData.name) {
+                        displayName = userData.name;
+                    } else if (userData.email) {
+                        displayName = userData.email.split('@')[0];
+                    }
+                    
+                    const publicUserData = {
+                        name: displayName,
+                        score: score,
+                        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                    };
+                    
+                    await firebaseDB.ref(`public/ranking/${userId}`).set(publicUserData);
+                    console.log(`✅ Ranking público atualizado para usuário ${userId}`);
+                } else {
+                    // Se usuário não tem pontuação, remove do ranking público
+                    await firebaseDB.ref(`public/ranking/${userId}`).remove();
+                    console.log(`🗑️ Usuário ${userId} removido do ranking público (sem pontos)`);
+                }
+                
+                // Invalida cache
+                rankingCache = null;
+                lastCacheUpdate = 0;
+                
+            } catch (error) {
+                console.warn('⚠️ Erro ao atualizar ranking público:', error);
+            }
+        }
+
+        /**
+         * Inicializa ranking público com dados existentes (apenas para admins)
+         */
+        async function initializePublicRanking() {
+            if (!isCurrentUserAdmin || !isFirebaseReady) {
+                console.log('⚠️ Apenas admins podem inicializar o ranking público');
+                return false;
+            }
+            
+            try {
+                console.log('🚀 Inicializando ranking público...');
+                
+                // Busca todos os dados de usuários
+                const usersRef = firebaseDB.ref('users');
+                const snapshot = await usersRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    console.log('⚠️ Nenhum dado de usuário para popular ranking');
+                    return false;
+                }
+                
+                const usersData = snapshot.val();
+                const publicRankingData = {};
+                let processedUsers = 0;
+                
+                // Processa cada usuário
+                for (const uid of Object.keys(usersData)) {
+                    const userData = usersData[uid];
+                    const score = calculateUserScore(userData.progress);
+                    
+                    if (score > 0) {
+                        let displayName = 'Usuário Anônimo';
+                        if (userData.profile && userData.profile.displayName) {
+                            displayName = userData.profile.displayName;
+                        } else if (userData.name) {
+                            displayName = userData.name;
+                        } else if (userData.email) {
+                            displayName = userData.email.split('@')[0];
+                        }
+                        
+                        publicRankingData[uid] = {
+                            name: displayName,
+                            score: score,
+                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                        };
+                        processedUsers++;
+                    }
+                }
+                
+                // Salva dados públicos
+                if (processedUsers > 0) {
+                    await firebaseDB.ref('public/ranking').set(publicRankingData);
+                    
+                    // Atualiza estatísticas
+                    await firebaseDB.ref('public/stats').set({
+                        totalUsers: processedUsers,
+                        lastUpdate: firebase.database.ServerValue.TIMESTAMP,
+                        updatedBy: currentUser.uid
+                    });
+                    
+                    console.log(`✅ Ranking público inicializado com ${processedUsers} usuários`);
+                    
+                    // Invalida cache e recarrega
+                    rankingCache = null;
+                    lastCacheUpdate = 0;
+                    
+                    return true;
+                } else {
+                    console.log('⚠️ Nenhum usuário com pontuação para inicializar ranking');
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro ao inicializar ranking público:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Constrói ranking público automaticamente a partir dos dados dos usuários
+         */
+        async function buildPublicRankingFromUsers() {
+            if (!isFirebaseReady) return false;
+            
+            try {
+                console.log('🏗️ Construindo ranking público automaticamente...');
+                
+                // Busca todos os dados de usuários (só funciona se usuário tem permissão)
+                let usersData = {};
+                
+                // Tenta buscar dados completos (se é admin) ou dados individuais
+                if (isCurrentUserAdmin) {
+                    const usersRef = firebaseDB.ref('users');
+                    const snapshot = await usersRef.once('value');
+                    if (snapshot.exists()) {
+                        usersData = snapshot.val();
+                    }
+                } else if (currentUser) {
+                    // Se usuário comum, adiciona apenas seus próprios dados
+                    const userRef = firebaseDB.ref(`users/${currentUser.uid}`);
+                    const snapshot = await userRef.once('value');
+                    if (snapshot.exists()) {
+                        usersData[currentUser.uid] = snapshot.val();
+                    }
+                }
+                
+                const publicRankingData = {};
+                let processedUsers = 0;
+                
+                // Processa cada usuário
+                for (const uid of Object.keys(usersData)) {
+                    const userData = usersData[uid];
+                    const score = calculateUserScore(userData.progress);
+                    
+                    if (score > 0) {
+                        let displayName = 'Usuário Anônimo';
+                        if (userData.profile && userData.profile.displayName) {
+                            displayName = userData.profile.displayName;
+                        } else if (userData.name) {
+                            displayName = userData.name;
+                        } else if (userData.email) {
+                            displayName = userData.email.split('@')[0];
+                        }
+                        
+                        publicRankingData[uid] = {
+                            name: displayName,
+                            score: score,
+                            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                        };
+                        processedUsers++;
+                    }
+                }
+                
+                // Salva dados públicos se há dados para salvar
+                if (processedUsers > 0) {
+                    await firebaseDB.ref('public/ranking').update(publicRankingData);
+                    
+                    // Atualiza estatísticas
+                    await firebaseDB.ref('public/stats').set({
+                        totalUsers: processedUsers,
+                        lastUpdate: firebase.database.ServerValue.TIMESTAMP,
+                        autoCreated: true
+                    });
+                    
+                    console.log(`✅ Ranking público criado automaticamente com ${processedUsers} usuários`);
+                    return true;
+                }
+                
+                console.log('ℹ️ Nenhum usuário com pontuação para criar ranking');
+                return false;
+                
+            } catch (error) {
+                console.warn('⚠️ Erro ao construir ranking público automaticamente:', error);
+                return false;
+            }
+        }
+
+        // Torna funções disponíveis globalmente para outros arquivos
+        window.updatePublicRanking = updatePublicRanking;
+        window.initializePublicRanking = initializePublicRanking;
+        window.buildPublicRankingFromUsers = buildPublicRankingFromUsers;
+
 
         // --- FUNÇÕES PARA CÁLCULO DE PONTUAÇÃO ---
+        // --- CORREÇÃO: Sistema adaptado às regras de permissão do Firebase
+        // - Administradores: Veem ranking completo acessando /users diretamente
+        // - Usuários comuns: Tentam acessar /public/ranking primeiro, depois seus próprios dados
+        // - Visitantes: Veem dados demo como exemplo
+        // 
+        // SUGESTÃO: Adicionar às regras do Firebase para ranking público completo:
+        // "public": {
+        //   "ranking": {
+        //     ".read": true,
+        //     ".write": "$uid === auth.uid"  // Usuários só podem atualizar seus próprios dados
+        //   }
+        // }
         
         /**
          * Calcula a pontuação total de um usuário baseado no seu progresso
@@ -112,87 +331,247 @@
         }
 
         /**
-         * Busca todos os usuários e seus progressos do Firebase
+         * Verifica se o usuário atual é admin
+         */
+        async function checkIfUserIsAdmin() {
+            if (!currentUser || !isFirebaseReady) return false;
+            
+            try {
+                // Verifica se é super admin por email
+                if (currentUser.email === 'educhior@hotmail.com') {
+                    return true;
+                }
+                
+                // Verifica se está na lista de admins
+                const adminRef = firebaseDB.ref(`admins/${currentUser.uid}`);
+                const snapshot = await adminRef.once('value');
+                return snapshot.exists();
+            } catch (error) {
+                console.warn('Erro ao verificar status de admin:', error);
+                return false;
+            }
+        }
+
+        /**
+         * Busca dados do ranking público, criando automaticamente se necessário
          */
         async function fetchAllUsersProgress() {
             if (!isFirebaseReady) {
-                console.warn('Firebase não está disponível, usando dados mockados');
-                return getMockData();
+                console.warn('Firebase não está disponível');
+                if (!currentUser) {
+                    console.log('Usuário não logado, mostrando dados de demonstração');
+                    return getMockData();
+                }
+                console.log('Usuário logado mas Firebase indisponível, retornando ranking vazio');
+                return [];
             }
 
             try {
                 console.log('🔄 Buscando dados de progresso dos usuários...');
                 
-                // Busca todos os usuários que têm progresso salvo
-                const usersRef = firebaseDB.ref('users');
-                const snapshot = await usersRef.once('value');
+                // Primeiro, verifica se o usuário é admin
+                isCurrentUserAdmin = await checkIfUserIsAdmin();
                 
-                if (!snapshot.exists()) {
-                    console.log('⚠️ Nenhum dado de usuário encontrado');
-                    return getMockData();
+                let rankingData = [];
+                
+                // Todos os usuários tentam buscar ranking público primeiro
+                console.log('🌐 Buscando ranking público para todos os usuários');
+                rankingData = await fetchPublicRanking();
+                
+                // Se ranking público não existe, cria automaticamente
+                if (rankingData.length === 0) {
+                    console.log('� Ranking público indisponível - admin buscando dados completos');
+                    const created = await buildPublicRankingFromUsers();
+                    
+                    if (created) {
+                        // Tenta buscar novamente após criação
+                        rankingData = await fetchPublicRanking();
+                    }
+                }
+                
+                // Se ainda não tem dados e há usuário logado, mostra dados pessoais
+                if (rankingData.length === 0 && currentUser) {
+                    console.log('📊 Buscando dados pessoais do usuário');
+                    rankingData = await fetchCurrentUserData();
                 }
 
-                const usersData = snapshot.val();
-                const rankingData = [];
+                console.log(`✅ Ranking carregado: ${rankingData.length} usuários`);
+                return rankingData;
 
-                // Processa cada usuário
-                Object.keys(usersData).forEach((uid, index) => {
-                    const userData = usersData[uid];
-                    
-                    // Calcula pontuação baseada no progresso
-                    const score = calculateUserScore(userData.progress);
-                    
-                    // Pega nome do usuário (pode estar em displayName ou email)
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados do Firebase:', error);
+                
+                if (currentUser) {
+                    console.log('Erro no Firebase com usuário logado, tentando dados próprios');
+                    try {
+                        return await fetchCurrentUserData();
+                    } catch (fallbackError) {
+                        console.error('Erro no fallback:', fallbackError);
+                        return [];
+                    }
+                }
+                
+                console.log('Erro no Firebase sem usuário logado, mostrando dados demo');
+                return getMockData();
+            }
+        }
+
+        /**
+         * Busca ranking completo (apenas para admins)
+         */
+        async function fetchFullRankingAsAdmin() {
+            const usersRef = firebaseDB.ref('users');
+            const snapshot = await usersRef.once('value');
+            
+            if (!snapshot.exists()) {
+                console.log('⚠️ Nenhum dado de usuário encontrado no Firebase');
+                return [];
+            }
+
+            const usersData = snapshot.val();
+            const rankingData = [];
+
+            Object.keys(usersData).forEach((uid, index) => {
+                const userData = usersData[uid];
+                const score = calculateUserScore(userData.progress);
+                
+                if (score > 0) {
                     let displayName = 'Usuário Anônimo';
                     if (userData.profile && userData.profile.displayName) {
                         displayName = userData.profile.displayName;
+                    } else if (userData.name) {
+                        displayName = userData.name;
                     } else if (userData.email) {
                         displayName = userData.email.split('@')[0];
                     } else {
                         displayName = `Astronauta ${index + 1}`;
                     }
 
-                    // Verifica se é o usuário atual
-                    const isCurrentUser = currentUser && currentUser.uid === uid;
+                    rankingData.push({
+                        id: uid,
+                        name: currentUser && currentUser.uid === uid ? `${displayName} (Você)` : displayName,
+                        score: score,
+                        isCurrentUser: currentUser && currentUser.uid === uid,
+                        profileColor: AVATAR_COLORS[index % AVATAR_COLORS.length]
+                    });
+                }
+            });
+
+            // Ordena e adiciona ranking
+            rankingData.sort((a, b) => b.score - a.score);
+            rankingData.forEach((user, index) => {
+                user.rank = index + 1;
+            });
+
+            return rankingData;
+        }
+
+        /**
+         * Busca ranking da estrutura pública do Firebase
+         */
+        async function fetchPublicRanking() {
+            try {
+                console.log('🌐 Tentando acessar ranking público...');
+                const publicRankingRef = firebaseDB.ref('public/ranking');
+                const snapshot = await publicRankingRef.once('value');
+                
+                if (snapshot.exists()) {
+                    const publicData = snapshot.val();
+                    const rankingArray = [];
                     
-                    // Adiciona ao ranking se tem pontuação > 0
-                    if (score > 0) {
-                        rankingData.push({
-                            id: uid,
-                            name: isCurrentUser ? `${displayName} (Você)` : displayName,
-                            score: score,
-                            isCurrentUser: isCurrentUser,
-                            profileColor: AVATAR_COLORS[index % AVATAR_COLORS.length]
-                        });
-                    }
-                });
-
-                // Ordena por pontuação (maior para menor) e adiciona ranking
-                rankingData.sort((a, b) => b.score - a.score);
-                rankingData.forEach((user, index) => {
-                    user.rank = index + 1;
-                });
-
-                console.log(`✅ Ranking calculado: ${rankingData.length} usuários com pontuação`);
-                return rankingData;
-
+                    // Converte dados do Firebase em array
+                    Object.keys(publicData).forEach((uid, index) => {
+                        const data = publicData[uid];
+                        if (data && data.score > 0) {
+                            rankingArray.push({
+                                id: uid,
+                                name: currentUser && currentUser.uid === uid ? `${data.name} (Você)` : data.name,
+                                score: data.score,
+                                isCurrentUser: currentUser && currentUser.uid === uid,
+                                profileColor: AVATAR_COLORS[index % AVATAR_COLORS.length],
+                                lastUpdate: data.lastUpdate
+                            });
+                        }
+                    });
+                    
+                    // Ordena por pontuação e adiciona ranking
+                    rankingArray.sort((a, b) => b.score - a.score);
+                    rankingArray.forEach((user, index) => {
+                        user.rank = index + 1;
+                    });
+                    
+                    console.log(`✅ Ranking público carregado: ${rankingArray.length} usuários`);
+                    return rankingArray;
+                }
+                
+                console.log('📭 Ranking público ainda não foi criado');
+                return [];
             } catch (error) {
-                console.error('❌ Erro ao buscar dados do Firebase:', error);
-                return getMockData();
+                console.warn('⚠️ Erro ao buscar ranking público:', error);
+                return [];
             }
         }
 
         /**
-         * Dados mockados como fallback
+         * Busca apenas dados do usuário atual
+         */
+        async function fetchCurrentUserData() {
+            if (!currentUser) return [];
+            
+            try {
+                const userRef = firebaseDB.ref(`users/${currentUser.uid}`);
+                const snapshot = await userRef.once('value');
+                
+                if (!snapshot.exists()) {
+                    console.log('⚠️ Dados do usuário atual não encontrados');
+                    return [];
+                }
+                
+                const userData = snapshot.val();
+                const score = calculateUserScore(userData.progress);
+                
+                if (score === 0) {
+                    console.log('⚠️ Usuário atual sem pontuação');
+                    return [];
+                }
+                
+                let displayName = 'Você';
+                if (userData.profile && userData.profile.displayName) {
+                    displayName = userData.profile.displayName;
+                } else if (userData.name) {
+                    displayName = userData.name;
+                } else if (currentUser.displayName) {
+                    displayName = currentUser.displayName;
+                } else if (currentUser.email) {
+                    displayName = currentUser.email.split('@')[0];
+                }
+                
+                return [{
+                    id: currentUser.uid,
+                    name: `${displayName} (Você)`,
+                    score: score,
+                    isCurrentUser: true,
+                    profileColor: 'bg-sky-500',
+                    rank: '?'  // Não sabemos a posição real sem outros dados
+                }];
+                
+            } catch (error) {
+                console.error('❌ Erro ao buscar dados do usuário atual:', error);
+                return [];
+            }
+        }
+
+        /**
+         * Dados mockados como fallback (apenas para usuários não logados)
          */
         function getMockData() {
             const mockUsers = [
                 { id: 'mock1', name: "Astronauta Exemplo", score: 450, rank: 1, isCurrentUser: false, profileColor: 'bg-yellow-500' },
                 { id: 'mock2', name: "Explorador Demo", score: 380, rank: 2, isCurrentUser: false, profileColor: 'bg-sky-500' },
-                { id: 'mock3', name: "Você (Demo)", score: 320, rank: 3, isCurrentUser: true, profileColor: 'bg-green-500' }
+                { id: 'mock3', name: "Visitante (Demo)", score: 320, rank: 3, isCurrentUser: false, profileColor: 'bg-green-500' }
             ];
             
-            console.log('📝 Usando dados mockados para demonstração');
+            console.log('📝 Usando dados mockados apenas para visitantes não logados');
             return mockUsers;
         }
 
@@ -288,18 +667,35 @@
             } catch (error) {
                 console.error('❌ Erro ao renderizar ranking:', error);
                 
-                // Fallback para dados mockados em caso de erro
-                const fallbackData = getMockData();
-                await displayRankingData(fallbackData);
-                
-                // Mostra mensagem de erro discreta
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'text-center text-yellow-600 text-sm mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200';
-                errorMsg.innerHTML = `
-                    <i data-lucide="alert-triangle" class="h-4 w-4 inline mr-1"></i>
-                    Exibindo dados de demonstração. Problemas de conexão com o servidor.
-                `;
-                rankingList.parentElement.appendChild(errorMsg);
+                // Fallback diferenciado baseado no status de autenticação
+                if (currentUser) {
+                    // Usuário logado: mostra erro e ranking vazio
+                    console.log('Erro com usuário logado, mostrando ranking vazio');
+                    await displayRankingData([]);
+                    
+                    // Mostra mensagem de erro para usuários logados
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'text-center text-red-600 text-sm mt-4 p-3 bg-red-50 rounded-lg border border-red-200';
+                    errorMsg.innerHTML = `
+                        <i data-lucide="alert-triangle" class="h-4 w-4 inline mr-1"></i>
+                        Erro ao carregar dados do ranking. Tente atualizar a página.
+                    `;
+                    rankingList.parentElement.appendChild(errorMsg);
+                } else {
+                    // Visitante não logado: pode mostrar dados demo
+                    console.log('Erro com visitante não logado, mostrando dados demo');
+                    const fallbackData = getMockData();
+                    await displayRankingData(fallbackData);
+                    
+                    // Mostra mensagem informativa para visitantes
+                    const infoMsg = document.createElement('div');
+                    infoMsg.className = 'text-center text-blue-600 text-sm mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200';
+                    infoMsg.innerHTML = `
+                        <i data-lucide="info" class="h-4 w-4 inline mr-1"></i>
+                        Dados de demonstração. Faça login para ver o ranking real.
+                    `;
+                    rankingList.parentElement.appendChild(infoMsg);
+                }
                 
                 if (typeof lucide !== 'undefined') {
                     lucide.createIcons();
@@ -312,10 +708,55 @@
             const currentUserCard = document.getElementById('currentUserCard');
             const loadingMessage = document.getElementById('loadingMessage');
 
-            // Renderiza lista de ranking
-            rankingData.forEach(user => {
-                rankingList.insertAdjacentHTML('beforeend', createRankItem(user));
-            });
+            // Limpa conteúdo anterior
+            rankingList.innerHTML = '';
+
+            // Se não há dados e há usuário logado, mostra mensagem específica
+            if (rankingData.length === 0 && currentUser) {
+                const noDataMsg = document.createElement('div');
+                noDataMsg.className = 'text-center text-gray-500 p-8';
+                
+                if (isCurrentUserAdmin) {
+                    noDataMsg.innerHTML = `
+                        <i data-lucide="database" class="h-12 w-12 mx-auto mb-3 text-gray-400"></i>
+                        <p class="text-lg font-medium mb-2">Aguardando criação do ranking</p>
+                        <p class="text-sm">O ranking será criado automaticamente assim que os dados forem processados.</p>
+                    `;
+                } else {
+                    noDataMsg.innerHTML = `
+                        <i data-lucide="users" class="h-12 w-12 mx-auto mb-3 text-gray-400"></i>
+                        <p class="text-lg font-medium mb-2">Ranking sendo preparado</p>
+                        <p class="text-sm">Complete algumas trilhas e o ranking será criado automaticamente!</p>
+                    `;
+                }
+                
+                rankingList.appendChild(noDataMsg);
+                
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            } else if (rankingData.length > 0) {
+                // Adiciona indicador do tipo de ranking
+                if (currentUser && !isCurrentUserAdmin && rankingData.length === 1 && rankingData[0].isCurrentUser) {
+                    // Usuário vendo apenas seus próprios dados
+                    const infoMsg = document.createElement('div');
+                    infoMsg.className = 'text-center text-blue-600 text-sm mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200';
+                    infoMsg.innerHTML = `
+                        <i data-lucide="info" class="h-4 w-4 inline mr-1"></i>
+                        Mostrando apenas seus dados pessoais. O ranking completo está disponível para administradores.
+                    `;
+                    rankingList.appendChild(infoMsg);
+                }
+                
+                // Renderiza lista de ranking
+                rankingData.forEach(user => {
+                    rankingList.insertAdjacentHTML('beforeend', createRankItem(user));
+                });
+                
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
             
             // Encontra dados do usuário atual ou cria padrão
             let currentUserData = rankingData.find(u => u.isCurrentUser);
@@ -356,12 +797,92 @@
                 </div>
             `;
 
+            // Atualiza cabeçalho baseado no contexto
+            updatePageHeader(rankingData.length, isCurrentUserAdmin);
+            
             // Esconde loading
             loadingMessage.classList.add('hidden');
             
             // Reinicializa ícones
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
+            }
+        }
+
+        /**
+         * Atualiza o cabeçalho da página baseado no contexto do usuário
+         */
+        function updatePageHeader(dataCount, isAdmin) {
+            const pageHeader = document.getElementById('pageHeader');
+            if (!pageHeader) return;
+            
+            let headerContent = '';
+            
+            if (!currentUser) {
+                // Visitante não logado
+                headerContent = `
+                    <h1 class="text-4xl font-extrabold text-sky-800 mb-6">Placar Global de Astronautas 🚀</h1>
+                    <p class="text-gray-600 mb-6">
+                        Veja exemplos de pontuação dos membros da EJECT. 
+                        <a href="login.html" class="text-sky-600 hover:text-sky-800 font-semibold underline">Faça login</a> 
+                        para participar do ranking real!
+                    </p>
+                `;
+            } else if (dataCount === 0) {
+                // Sem dados
+                if (isAdmin) {
+                    headerContent = `
+                        <h1 class="text-4xl font-extrabold text-sky-800 mb-6">
+                            Placar Global de Astronautas 🚀 
+                            <span class="text-lg text-yellow-600 font-normal">👑 Admin</span>
+                        </h1>
+                        <p class="text-gray-600 mb-6">
+                            O ranking público será criado automaticamente assim que houver dados de usuários para processar.
+                        </p>
+                    `;
+                } else {
+                    headerContent = `
+                        <h1 class="text-4xl font-extrabold text-sky-800 mb-6">Placar Global de Astronautas 🚀</h1>
+                        <p class="text-gray-600 mb-6">
+                            O ranking público será criado automaticamente conforme os usuários completam trilhas. 
+                            Seja um dos primeiros a aparecer no placar!
+                        </p>
+                    `;
+                }
+            } else if (dataCount === 1 && currentUser && rankingData.find(u => u.isCurrentUser)) {
+                // Usuário vendo apenas seus próprios dados
+                headerContent = `
+                    <h1 class="text-4xl font-extrabold text-sky-800 mb-6">Seu Progresso de Astronauta 🚀</h1>
+                    <p class="text-gray-600 mb-6">
+                        Veja sua pontuação pessoal baseada nos pontos de conhecimento acumulados. 
+                        Seus dados serão adicionados automaticamente ao ranking público!
+                    </p>
+                `;
+            } else {
+                // Ranking público com dados
+                const adminBadge = isAdmin ? '<span class="text-lg text-yellow-600 font-normal">👑 Admin</span>' : '';
+                headerContent = `
+                    <h1 class="text-4xl font-extrabold text-sky-800 mb-6">
+                        Placar Global de Astronautas 🚀 ${adminBadge}
+                    </h1>
+                    <p class="text-gray-600 mb-6">
+                        🌐 <strong>Ranking Público:</strong> ${dataCount} membros da EJECT baseado nos pontos de conhecimento acumulados. 
+                        Complete mais trilhas para subir no ranking!
+                    </p>
+                `;
+            }
+            
+            pageHeader.innerHTML = headerContent;
+            
+            // Mostra/esconde informações sobre acesso ao ranking
+            const rankingAccessInfo = document.getElementById('rankingAccessInfo');
+            if (rankingAccessInfo) {
+                // Mostra info apenas se usuário comum tem poucos dados ou se é primeira vez
+                if (currentUser && !isCurrentUserAdmin && dataCount <= 1) {
+                    rankingAccessInfo.style.display = 'block';
+                } else {
+                    rankingAccessInfo.style.display = 'none';
+                }
             }
         }
 
@@ -377,16 +898,66 @@
         }
 
         /**
-         * Adiciona botão de refresh na UI
+         * Adiciona botões de controle na UI
          */
-        function addRefreshButton() {
+        function addControlButtons() {
+            const header = document.querySelector('#rankingList').closest('.bg-white').querySelector('h2');
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'ml-auto flex space-x-2';
+            
+            // Botão de refresh (para todos)
             const refreshBtn = document.createElement('button');
             refreshBtn.innerHTML = `<i data-lucide="refresh-cw" class="h-4 w-4 mr-1"></i> Atualizar`;
-            refreshBtn.className = 'ml-auto px-3 py-1 text-sm bg-sky-100 text-sky-700 rounded-md hover:bg-sky-200 transition-colors flex items-center';
+            refreshBtn.className = 'px-3 py-1 text-sm bg-sky-100 text-sky-700 rounded-md hover:bg-sky-200 transition-colors flex items-center';
             refreshBtn.onclick = refreshRanking;
+            buttonContainer.appendChild(refreshBtn);
             
-            const header = document.querySelector('#rankingList').closest('.bg-white').querySelector('h2');
-            header.appendChild(refreshBtn);
+            // Botão de sincronização manual (apenas para admins)
+            if (isCurrentUserAdmin) {
+                const syncBtn = document.createElement('button');
+                syncBtn.innerHTML = `<i data-lucide="refresh-ccw" class="h-4 w-4 mr-1"></i> Sincronizar`;
+                syncBtn.className = 'px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors flex items-center';
+                syncBtn.title = 'Força sincronização completa do ranking público';
+                syncBtn.onclick = async () => {
+                    syncBtn.disabled = true;
+                    syncBtn.innerHTML = `<i data-lucide="loader-2" class="h-4 w-4 mr-1 animate-spin"></i> Sincronizando...`;
+                    
+                    const success = await initializePublicRanking();
+                    
+                    if (success) {
+                        syncBtn.innerHTML = `<i data-lucide="check" class="h-4 w-4 mr-1"></i> Sincronizado!`;
+                        syncBtn.className = 'px-3 py-1 text-sm bg-green-200 text-green-800 rounded-md flex items-center';
+                        
+                        // Recarrega ranking após sincronização
+                        setTimeout(() => {
+                            refreshRanking();
+                        }, 1000);
+                        
+                        // Volta ao estado normal após 3 segundos
+                        setTimeout(() => {
+                            syncBtn.innerHTML = `<i data-lucide="refresh-ccw" class="h-4 w-4 mr-1"></i> Sincronizar`;
+                            syncBtn.className = 'px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors flex items-center';
+                            syncBtn.disabled = false;
+                        }, 3000);
+                    } else {
+                        syncBtn.innerHTML = `<i data-lucide="x" class="h-4 w-4 mr-1"></i> Erro`;
+                        syncBtn.className = 'px-3 py-1 text-sm bg-red-100 text-red-700 rounded-md flex items-center';
+                        
+                        setTimeout(() => {
+                            syncBtn.innerHTML = `<i data-lucide="refresh-ccw" class="h-4 w-4 mr-1"></i> Sincronizar`;
+                            syncBtn.className = 'px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors flex items-center';
+                            syncBtn.disabled = false;
+                        }, 3000);
+                    }
+                    
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                };
+                buttonContainer.appendChild(syncBtn);
+            }
+            
+            header.appendChild(buttonContainer);
             
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
@@ -417,8 +988,8 @@
                 renderRanking();
             }
             
-            // Adiciona botão de refresh
-            setTimeout(addRefreshButton, 1000);
+            // Adiciona botões de controle
+            setTimeout(addControlButtons, 1000);
             
             // Auto-refresh a cada 5 minutos
             setInterval(() => {
@@ -432,9 +1003,9 @@
         window.addEventListener('error', (event) => {
             console.error('❌ Erro global capturado:', event.error);
             
-            // Se for erro relacionado ao Firebase, mostra dados mockados
+            // Se for erro relacionado ao Firebase, marca como indisponível e re-renderiza
             if (event.error && event.error.message && event.error.message.includes('firebase')) {
-                console.log('🔄 Tentando fallback para dados mockados devido a erro do Firebase');
+                console.log('🔄 Firebase com problemas, re-renderizando ranking');
                 isFirebaseReady = false;
                 renderRanking();
             }
@@ -540,8 +1111,10 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 class="text-4xl font-extrabold text-sky-800 mb-6">Placar Global de Astronautas 🚀</h1>
-        <p class="text-gray-600 mb-8">Veja sua posição entre os membros da EJECT com base nos **pontos de conhecimento** acumulados (conclusão de tópicos e trilhas).</p>
+        <div id="pageHeader">
+            <h1 class="text-4xl font-extrabold text-sky-800 mb-6">Placar Global de Astronautas 🚀</h1>
+            <p class="text-gray-600 mb-8">Veja sua posição entre os membros da EJECT com base nos **pontos de conhecimento** acumulados (conclusão de tópicos e trilhas).</p>
+        </div>
 
         <div id="rankingContainer" class="grid gap-6">
 
@@ -581,6 +1154,17 @@
                 </p>
                 <p class="text-sm text-yellow-700 mt-2">
                     Os pontos são acumulados automaticamente ao <strong>marcar os tópicos como "Concluído"</strong> em cada trilha de conhecimento. Continue aprendendo para subir no ranking!
+                </p>
+            </div>
+
+            <!-- Informações sobre Acesso ao Ranking (para casos especiais) -->
+            <div id="rankingAccessInfo" class="text-center p-6 bg-blue-50 rounded-xl border border-blue-300" style="display: none;">
+                <p class="text-lg font-semibold text-blue-800 flex items-center justify-center">
+                    <i data-lucide="info" class="h-6 w-6 mr-2 text-blue-600"></i>
+                    Sobre seu Acesso
+                </p>
+                <p class="text-sm text-blue-700 mt-2">
+                    O ranking público está sendo construído gradualmente. Seus dados já estão salvos e aparecerão automaticamente quando o ranking for atualizado. Continue completando trilhas!
                 </p>
             </div>
 

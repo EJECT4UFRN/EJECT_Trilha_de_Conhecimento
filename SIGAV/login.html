@@ -114,7 +114,7 @@
         // --- Funções de Autenticação ---
 
         function handleLogin() {
-            const email = emailInput.value;
+            const email = emailInput.value.trim();
             const password = passwordInput.value;
             loginError.textContent = ''; // Limpa erros
 
@@ -123,21 +123,46 @@
                 return;
             }
 
+            // Desabilita o botão durante o processo
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Entrando...';
+
             auth.signInWithEmailAndPassword(email, password)
                 .then((userCredential) => {
-                    // Login bem-sucedido, redireciona para o SIGAV Hub
-                    window.location.href = 'sigav_hub.html';
+                    // Login bem-sucedido, atualiza último login
+                    const user = userCredential.user;
+                    db.ref('users/' + user.uid + '/lastLogin').set(firebase.database.ServerValue.TIMESTAMP)
+                        .then(() => {
+                            console.log('Login registrado com sucesso!');
+                            window.location.href = 'sigav_hub.html';
+                        })
+                        .catch((error) => {
+                            console.warn('Erro ao registrar último login:', error);
+                            // Mesmo com erro no registro do login, redireciona
+                            window.location.href = 'sigav_hub.html';
+                        });
                 })
                 .catch((error) => {
+                    // Reabilita o botão em caso de erro
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Entrar';
+                    
                     // Trata erros de login
                     console.error("Erro de login:", error);
                     switch (error.code) {
                         case 'auth/user-not-found':
                         case 'auth/wrong-password':
+                        case 'auth/invalid-credential':
                             loginError.textContent = 'E-mail ou senha inválidos.';
                             break;
                         case 'auth/invalid-email':
                             loginError.textContent = 'Formato de e-mail inválido.';
+                            break;
+                        case 'auth/too-many-requests':
+                            loginError.textContent = 'Muitas tentativas. Tente novamente mais tarde.';
+                            break;
+                        case 'auth/network-request-failed':
+                            loginError.textContent = 'Erro de conexão. Verifique sua internet.';
                             break;
                         default:
                             loginError.textContent = 'Ocorreu um erro ao tentar fazer login.';
@@ -147,12 +172,17 @@
 
         function handleRegister() {
             const name = nameInput.value.trim();
-            const email = emailInput.value;
+            const email = emailInput.value.trim();
             const password = passwordInput.value;
             loginError.textContent = ''; // Limpa erros
 
+            // Validações de entrada
             if (!name || !email || !password) {
                 loginError.textContent = 'Por favor, preencha nome, e-mail e senha.';
+                return;
+            }
+            if (name.length < 2) {
+                loginError.textContent = 'O nome deve ter pelo menos 2 caracteres.';
                 return;
             }
             if (password.length < 6) {
@@ -160,20 +190,35 @@
                 return;
             }
 
+            // Desabilita o botão durante o processo
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Registrando...';
+
             auth.createUserWithEmailAndPassword(email, password)
                 .then((userCredential) => {
                     // Registro bem-sucedido, cria o perfil no banco de dados
                     const user = userCredential.user;
-                    const db = firebase.database();
-                    db.ref('users/' + user.uid).set({
-                        email: user.email,
-                        name: name // Usa o nome completo fornecido
-                    }).then(() => {
-                        alert('Registro realizado com sucesso! Você será redirecionado.');
-                        window.location.href = 'sigav_hub.html';
-                    });
+                    const userProfile = {
+                        name: name,
+                        email: email,
+                        uid: user.uid,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        lastLogin: firebase.database.ServerValue.TIMESTAMP
+                    };
+
+                    // Salva os dados do usuário no Realtime Database
+                    return db.ref('users/' + user.uid).set(userProfile);
+                })
+                .then(() => {
+                    console.log('Usuário registrado e dados salvos no banco com sucesso!');
+                    alert('Registro realizado com sucesso! Você será redirecionado.');
+                    window.location.href = 'sigav_hub.html';
                 })
                 .catch((error) => {
+                    // Reabilita o botão em caso de erro
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Confirmar Registro';
+                    
                     // Trata erros de registro
                     console.error("Erro de registro:", error);
                     switch (error.code) {
@@ -186,8 +231,11 @@
                         case 'auth/weak-password':
                             loginError.textContent = 'A senha é muito fraca.';
                             break;
+                        case 'auth/network-request-failed':
+                            loginError.textContent = 'Erro de conexão. Verifique sua internet.';
+                            break;
                         default:
-                            loginError.textContent = 'Ocorreu um erro ao tentar se registrar.';
+                            loginError.textContent = 'Ocorreu um erro ao tentar se registrar. Tente novamente.';
                     }
                 });
         }
@@ -195,6 +243,12 @@
         function toggleRegisterMode(enable) {
             isRegisterMode = enable;
             loginError.textContent = '';
+            
+            // Reabilita o botão e limpa os campos
+            loginBtn.disabled = false;
+            nameInput.value = '';
+            emailInput.value = '';
+            passwordInput.value = '';
 
             if (enable) {
                 // Entra no modo de registro
@@ -202,12 +256,14 @@
                 registerBtn.classList.add('hidden');
                 backToLogin.classList.remove('hidden');
                 loginBtn.textContent = 'Confirmar Registro';
+                nameInput.focus(); // Foca no campo nome
             } else {
                 // Volta para o modo de login
                 nameInput.classList.add('hidden');
                 registerBtn.classList.remove('hidden');
                 backToLogin.classList.add('hidden');
                 loginBtn.textContent = 'Entrar';
+                emailInput.focus(); // Foca no campo email
             }
         }
 
