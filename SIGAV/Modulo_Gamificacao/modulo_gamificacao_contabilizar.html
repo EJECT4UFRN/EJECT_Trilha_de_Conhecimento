@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EJECT | Contabilizar Tarefas - Gamificação</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Firebase v8 SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="../firebase-config.js"></script>
+
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+      color: #1f2937;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main { flex: 1; }
+    .card-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.06); }
+    .game-color { color: #f59e0b; }
+    .game-bg { background-color: #fef3c7; }
+    .input-styled { width: 100%; padding: 0.5rem 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; outline: none; transition: box-shadow 0.15s ease; }
+    .input-styled:focus { box-shadow: 0 0 0 2px #f59e0b; }
+    .team-badge { padding: 0.125rem 0.5rem; font-size: 0.75rem; font-weight: 600; border-radius: 9999px; }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center">
+          <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">SIGAV</a>
+          <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Contabilizar Pontuação</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer"><img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10"></a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto flex-1 p-6">
+    <section class="bg-white p-6 rounded-xl shadow mb-6">
+      <h2 class="text-xl font-bold mb-4">Registrar atividade</h2>
+      <form id="recordForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Usuário (UID)</label>
+          <select id="userSelect" class="input-styled mt-1" required aria-required="true"></select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Tipo de atividade</label>
+          <select id="typeSelect" class="input-styled mt-1">
+            <option value="task">Tarefa</option>
+            <option value="challenge">Desafio</option>
+            <option value="bonus">Bônus</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Pontos Individuais</label>
+          <input id="pointsIndividualInput" type="number" min="0" class="input-styled mt-1" placeholder="Ex: 100 (individual)" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Pontos para a Equipe</label>
+          <input id="pointsTeamInput" type="number" min="0" class="input-styled mt-1" placeholder="Ex: 50 (time)" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Equipe (opcional)</label>
+          <select id="teamSelect" class="input-styled mt-1" required aria-required="true">
+            <option value="">-- Selecionar equipe --</option>
+          </select>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700">Descrição</label>
+          <textarea id="descInput" rows="3" class="input-styled mt-1" placeholder="Detalhes da atividade"></textarea>
+        </div>
+
+        <div class="md:col-span-2 flex items-center space-x-3">
+          <button id="submitBtn" class="bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow">Contabilizar</button>
+          <button id="clearBtn" type="button" class="bg-gray-200 text-gray-700 px-4 py-2 rounded">Limpar</button>
+          <div id="status" class="text-sm text-gray-600"></div>
+        </div>
+      </form>
+    </section>
+
+    <section class="bg-white p-6 rounded-xl shadow">
+      <h2 class="text-xl font-bold mb-4">Últimas atividades (local)</h2>
+      <div id="recentList" class="space-y-2 text-sm text-gray-700"></div>
+    </section>
+  </main>
+
+  <footer class="bg-sky-900 text-white text-center py-6 mt-8">
+    <p class="text-sm">EJECT ©</p>
+  </footer>
+
+  <script>
+    // Globals
+    let db, auth;
+    let users = {};
+    let teams = {};
+    let isFirebaseReady = false;
+
+    function initFirebase() {
+      try {
+        if (!window.firebase || !firebase.database) throw new Error('SDK Firebase ausente');
+        db = firebase.database();
+        auth = firebase.auth();
+        isFirebaseReady = true;
+      } catch (e) {
+        console.error('Firebase não inicializado', e);
+        isFirebaseReady = false;
+        showStatus('Firebase não disponível. Verifique `firebase-config.js`.', true);
+      }
+    }
+
+    // --- Sistema de Notificações (simples) ---
+    function showNotification(message, type = 'success') {
+      // Reaproveitar showStatus para mensagens rápidas
+      showStatus(message, type === 'error');
+      // Além disso, toast visual (pequeno)
+      const existing = document.querySelector('.notification-toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.className = 'notification-toast fixed top-24 right-6 z-50 px-4 py-3 rounded-lg shadow-lg';
+      toast.style.background = type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#2563eb';
+      toast.style.color = 'white';
+      toast.innerText = message;
+      document.body.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3000);
+    }
+
+    function redirectToLogin() {
+      showNotification('Você precisa entrar para usar esta página', 'error');
+      setTimeout(() => window.location.href = '../login.html', 1500);
+    }
+
+    async function checkAdminAccess() {
+      if (!auth || !auth.currentUser) return false;
+      const user = auth.currentUser;
+      if (user.email === 'educhior@hotmail.com') return true;
+      try {
+        const snap = await db.ref(`admins/${user.uid}`).once('value');
+        if (snap.exists()) return true;
+        const userSnap = await db.ref(`users/${user.uid}`).once('value');
+        const u = userSnap.val();
+        if (u && u.isAdmin) return true;
+      } catch (err) {
+        console.warn('Erro checando admin:', err);
+      }
+      return false;
+    }
+
+    function showAccessDenied() {
+      document.body.innerHTML = `
+        <div class="min-h-screen flex items-center justify-center bg-gray-50">
+          <div class="max-w-md mx-auto text-center">
+            <div class="mb-4">
+              <i data-lucide="shield-x" class="h-16 w-16 text-red-500 mx-auto mb-4"></i>
+              <h1 class="text-2xl font-bold text-gray-900 mb-2">Acesso Negado</h1>
+              <p class="text-gray-600 mb-6">Você não tem permissões administrativas para acessar esta página.</p>
+              <div class="space-y-3">
+                <a href="../sigav_hub.html" class="block w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">Voltar ao Hub</a>
+                <a href="modulo_gamificacao_times.html" class="block w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Ver Ranking</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+    }
+
+    function showStatus(msg, isError) {
+      const s = document.getElementById('status');
+      s.textContent = msg;
+      s.className = isError ? 'text-sm text-red-600' : 'text-sm text-green-600';
+      if (isError) console.warn(msg);
+      setTimeout(() => { if (s) s.textContent = ''; }, 5000);
+    }
+
+    // Form helpers
+    function setSubmitting(isSubmitting) {
+      const submitBtn = document.getElementById('submitBtn');
+      const spinner = document.getElementById('submitSpinner');
+      submitBtn.disabled = isSubmitting;
+      if (isSubmitting) {
+        submitBtn.classList.add('opacity-70');
+        if (spinner) spinner.classList.remove('hidden');
+      } else {
+        submitBtn.classList.remove('opacity-70');
+        if (spinner) spinner.classList.add('hidden');
+      }
+    }
+
+    // Carregar usuários e equipes
+    function populateUsersAndTeams() {
+      const userSelect = document.getElementById('userSelect');
+      const teamSelect = document.getElementById('teamSelect');
+
+      userSelect.innerHTML = '<option value="">-- Selecionar usuário --</option>';
+      teamSelect.innerHTML = '<option value="">-- Sem equipe --</option>';
+
+      if (!isFirebaseReady) return;
+
+      // Carregar profiles públicos
+      db.ref('profiles').once('value').then(snapshot => {
+        const data = snapshot.val() || {};
+        users = {};
+        // transformar em array ordenada por nome para melhor UX
+        const arr = Object.entries(data).map(([uid, profile]) => ({ uid, profile }));
+        arr.sort((a,b) => {
+          const na = (a.profile.name || a.profile.displayName || a.uid).toLowerCase();
+          const nb = (b.profile.name || b.profile.displayName || b.uid).toLowerCase();
+          return na.localeCompare(nb);
+        });
+
+        arr.forEach(({ uid, profile }) => {
+          users[uid] = { id: uid, name: profile.name || (profile.displayName || uid), teamId: (profile.gamification && profile.gamification.teamId) || null, score: (profile.gamification && profile.gamification.score) || 0 };
+          const opt = document.createElement('option');
+          opt.value = uid;
+          opt.textContent = users[uid].name || uid; // mostrar somente o nome para melhor UX
+          userSelect.appendChild(opt);
+        });
+      }).catch(err => {
+        console.error('Erro ao buscar profiles', err);
+        showStatus('Erro ao carregar usuários: ' + err.message, true);
+      });
+
+      // Carregar teams
+      db.ref('gamification/teams').once('value').then(snapshot => {
+        const data = snapshot.val() || {};
+        teams = {};
+        Object.entries(data).forEach(([teamId, team]) => {
+          teams[teamId] = Object.assign({ id: teamId }, team);
+          const opt = document.createElement('option');
+          opt.value = teamId;
+          opt.textContent = team.name || teamId;
+          teamSelect.appendChild(opt);
+        });
+      }).catch(err => {
+        console.error('Erro ao buscar teams', err);
+      });
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const diff = Date.now() - ts;
+      const sec = Math.floor(diff / 1000);
+      if (sec < 60) return 'Agora';
+      const min = Math.floor(sec / 60);
+      if (min < 60) return `${min}m atrás`;
+      const hrs = Math.floor(min / 60);
+      if (hrs < 24) return `${hrs}h atrás`;
+      const days = Math.floor(hrs / 24);
+      return `${days}d atrás`;
+    }
+
+    // Função principal: gravar atividade e atualizar scores
+    async function recordActivity(e) {
+      e.preventDefault();
+      if (!isFirebaseReady) { showStatus('Firebase não inicializado.', true); return; }
+
+      const uid = document.getElementById('userSelect').value;
+  const type = document.getElementById('typeSelect').value;
+  const pointsIndividual = Number(document.getElementById('pointsIndividualInput').value) || 0;
+  const pointsTeam = Number(document.getElementById('pointsTeamInput').value) || 0;
+  const teamId = document.getElementById('teamSelect').value || null;
+      const desc = (document.getElementById('descInput').value || '').trim();
+
+  if (!uid) { showStatus('Selecione um usuário.', true); return; }
+  if (!teamId) { showStatus('Selecione uma equipe.', true); return; }
+  if ((pointsIndividual <= 0) && (pointsTeam <= 0)) { showStatus('Informe pelo menos um valor de pontos (>0) — individual ou equipe.', true); return; }
+
+      setSubmitting(true);
+
+      try {
+        const newActRef = db.ref('gamification/activities').push();
+  const activityId = newActRef.key;
+  const timestamp = Date.now();
+  const activity = { id: activityId, userId: uid, type, pointsIndividual: pointsIndividual || 0, pointsTeam: pointsTeam || 0, teamId: teamId || null, description: desc, timestamp };
+
+        // 1) gravar atividade
+        await newActRef.set(activity);
+
+        // 2) atualizar profile público score (somar pontos individuais) e último registro
+        if (pointsIndividual && pointsIndividual > 0) {
+          const profileScoreRef = db.ref(`profiles/${uid}/gamification/score`);
+          await profileScoreRef.transaction(current => { return (current || 0) + pointsIndividual; });
+        }
+        // também atualizar último registro resumido
+        db.ref(`profiles/${uid}/gamification/lastActivity`).set({ pointsIndividual: pointsIndividual || 0, pointsTeam: pointsTeam || 0, type, timestamp });
+
+        // 3) atualizar teams score quando houver teamId e pontos para equipe
+        if (teamId && pointsTeam && pointsTeam > 0) {
+          const teamScoreRef = db.ref(`gamification/teams/${teamId}/score`);
+          await teamScoreRef.transaction(current => { return (current || 0) + pointsTeam; });
+        }
+
+        showStatus('Atividade contabilizada com sucesso.');
+  addRecent(activity);
+        document.getElementById('recordForm').reset();
+      } catch (err) {
+        console.error('Erro ao registrar atividade', err);
+        showStatus('Erro: ' + (err.message || err), true);
+      } finally {
+        setSubmitting(false);
+      }
+    }
+
+    function addRecent(activity) {
+      const recent = document.getElementById('recentList');
+      const el = document.createElement('div');
+  const uname = users[activity.userId] ? users[activity.userId].name : activity.userId;
+  const pInd = activity.pointsIndividual || 0;
+  const pTeam = activity.pointsTeam || 0;
+  const teamBadge = activity.teamId ? `<div class="text-xs text-gray-500">Equipe: ${teams[activity.teamId]?.name || activity.teamId}</div>` : '';
+  el.innerHTML = `<div class="p-3 border rounded shadow-sm flex justify-between items-start"><div><strong>${uname}</strong> <div class="text-gray-500">+${pInd} pts (individual) ${pTeam? ' • +' + pTeam + ' pts (equipe)':''}</div>${teamBadge}<div class="text-xs text-gray-600 mt-1">${activity.description || ''}</div></div><div class="text-xs text-gray-400 ml-4">${timeAgo(activity.timestamp)}</div></div>`;
+      recent.prepend(el);
+      // limit
+      while (recent.children.length > 10) recent.removeChild(recent.lastChild);
+    }
+
+    // Listeners
+    window.addEventListener('DOMContentLoaded', () => {
+      initFirebase();
+
+      if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+      }
+
+      // criar spinner no botão (injetado aqui para manter HTML simples)
+      const submitBtn = document.getElementById('submitBtn');
+      const svg = document.createElement('span');
+      svg.id = 'submitSpinner';
+      svg.className = 'inline-block ml-2 align-middle hidden';
+      svg.innerHTML = '<svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>';
+      submitBtn.appendChild(svg);
+
+      document.getElementById('recordForm').addEventListener('submit', recordActivity);
+      document.getElementById('clearBtn').addEventListener('click', () => document.getElementById('recordForm').reset());
+
+      if (!isFirebaseReady) return;
+
+      // Esperar autenticação e verificar se é admin para liberar uso
+      auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          redirectToLogin();
+          return;
+        }
+        const allowed = await checkAdminAccess();
+        if (!allowed) {
+          showNotification('Acesso negado: você precisa ser administrador', 'error');
+          setTimeout(() => window.location.href = 'modulo_gamificacao_times.html', 1200);
+          return;
+        }
+        // se tudo ok, carregar usuários e teams
+        populateUsersAndTeams();
+
+        // load recent activities local cache
+        db.ref('gamification/activities').limitToLast(10).once('value').then(snapshot => {
+          const data = snapshot.val() || {};
+          Object.values(data).sort((a,b) => (b.timestamp||0)-(a.timestamp||0)).forEach(act => addRecent(act));
+        }).catch(err => { console.warn('Não foi possível carregar atividades recentes:', err); });
+      });
+    });
+  </script>
+</body>
+</html>

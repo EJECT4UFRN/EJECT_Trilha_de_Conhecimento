@@ -195,25 +195,31 @@
             loginBtn.textContent = 'Registrando...';
 
             auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Registro bem-sucedido, cria o perfil no banco de dados
-                    const user = userCredential.user;
-                    const userProfile = {
-                        name: name,
-                        email: email,
-                        uid: user.uid,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP,
-                        lastLogin: firebase.database.ServerValue.TIMESTAMP
-                    };
+                    .then((userCredential) => {
+                        // Registro bem-sucedido
+                        const user = userCredential.user;
 
-                    // Salva os dados do usuário no Realtime Database
-                    return db.ref('users/' + user.uid).set(userProfile);
-                })
-                .then(() => {
-                    console.log('Usuário registrado e dados salvos no banco com sucesso!');
-                    alert('Registro realizado com sucesso! Você será redirecionado.');
-                    window.location.href = 'sigav_hub.html';
-                })
+                        // 1) Atualiza displayName no perfil de autenticação (Auth)
+                        // 2) Depois salva o perfil no Realtime Database
+                        return user.updateProfile({ displayName: name })
+                            .then(() => {
+                                const userProfile = {
+                                    name: name,
+                                    email: email,
+                                    uid: user.uid,
+                                    createdAt: firebase.database.ServerValue.TIMESTAMP,
+                                    lastLogin: firebase.database.ServerValue.TIMESTAMP
+                                };
+
+                                // Salva os dados do usuário no Realtime Database
+                                return db.ref('users/' + user.uid).set(userProfile);
+                            });
+                    })
+                    .then(() => {
+                        console.log('Usuário registrado e dados salvos no banco com sucesso!');
+                        alert('Registro realizado com sucesso! Você será redirecionado.');
+                        window.location.href = 'sigav_hub.html';
+                    })
                 .catch((error) => {
                     // Reabilita o botão em caso de erro
                     loginBtn.disabled = false;
@@ -310,8 +316,13 @@
         auth.onAuthStateChanged(user => {
             const loginForm = document.querySelector('.modal-content');
             if (user) {
-                // Se o usuário já está logado, redireciona para o SIGAV Hub
-                window.location.href = './sigav_hub.html';
+                // Se o usuário está logado: só redireciona automaticamente quando
+                // não estivermos no fluxo de registro. Durante o registro o usuário
+                // é automaticamente autenticado pelo Firebase — mas queremos
+                // esperar salvar displayName e gravar no DB antes do redirect.
+                if (!isRegisterMode) {
+                    window.location.href = './sigav_hub.html';
+                }
             } else {
                 // Se não há usuário, mostra o formulário de login
                 if(loginForm) loginForm.classList.remove('hidden');

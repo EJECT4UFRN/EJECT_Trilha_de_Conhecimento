@@ -1,0 +1,56 @@
+{
+  "rules": {
+    "users": {
+      ".read": "root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'",
+      "$uid": {
+        ".read": "$uid === auth.uid || root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'",
+        ".write": "$uid === auth.uid",
+        "name": { ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'" },
+        "email": { ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'" },
+        "progress": { ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'" }
+      }
+    },
+    "profiles": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'",
+      "$uid": {
+        ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'",
+        "gamification": {
+          ".write": "$uid === auth.uid || root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'"
+        }
+      }
+    },
+    "admins": {
+      ".read": "root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'",
+      ".write": "root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'"
+    },
+    "public": {
+      ".read": true,
+      ".write": "auth != null",
+      "ranking": {
+        ".read": true,
+        ".write": "auth != null"
+      }
+    },
+    "gamification": {
+      ".read": true,
+      ".write": "root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'",
+      "teams": {
+        ".read": true,
+        ".write": "root.child('admins').child(auth.uid).exists() || auth.token.email === 'educhior@hotmail.com'"
+      },
+      "activities": {
+        ".read": "auth != null",
+        ".write": "auth != null",
+        "$activityId": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        }
+      }
+    },
+    "backups": {
+      ".read": "auth.token.email === 'educhior@hotmail.com'",
+      ".write": "auth.token.email === 'educhior@hotmail.com'"
+    }
+  }
+}

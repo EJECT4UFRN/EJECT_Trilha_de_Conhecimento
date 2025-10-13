@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Admin Gamificação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../firebase-config.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        /* Cor de destaque da Gamificação - Amarelo/Âmbar */
+        .game-color {
+            color: #f59e0b; /* amber-500 */
+        }
+        .game-bg {
+            background-color: #fef3c7; /* amber-100 */
+        }
+        /* Estilo para input/select */
+        .input-styled {
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            outline: none;
+            transition: box-shadow 0.15s ease;
+        }
+        .input-styled:focus {
+            box-shadow: 0 0 0 2px #f59e0b;
+        }
+        .team-badge {
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+        .team-dragoes { 
+            background-color: #fef2f2; 
+            color: #991b1b; 
+        }
+        .team-esquadrao { 
+            background-color: #eff6ff; 
+            color: #1e40af; 
+        }
+        .team-guardioes { 
+            background-color: #f0fdf4; 
+            color: #166534; 
+        }
+        .team-inovadores { 
+            background-color: #faf5ff; 
+            color: #7c2d12; 
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Admin Gamificação</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold game-color mb-2">Administração da Gamificação</h1>
+        <p class="text-xl text-gray-600 mb-6">Gerencie equipes e aloque membros para o Placar de Astronautas.</p>
+        
+        <!-- Botão Voltar -->
+        <div class="flex justify-between items-center mb-8">
+            <a href="../sigav_hub.html" class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar ao Hub
+            </a>
+            <div class="flex space-x-3">
+                <a href="modulo_gamificacao_atividades_admin.html" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i data-lucide="list-checks" class="h-5 w-5 mr-1"></i> Gerenciar Atividades
+                </a>
+                <a href="modulo_gamificacao_times.html" class="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i data-lucide="trophy" class="h-5 w-5 mr-1"></i> Ver Ranking
+                </a>
+            </div>
+        </div>
+
+        <!-- Seção de Gerenciamento de Equipes -->
+        <section class="mb-10 p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-4 flex items-center">
+                <i data-lucide="group" class="h-6 w-6 mr-3 text-yellow-500"></i>
+                1. Gerenciamento de Equipes
+            </h2>
+
+            <div id="teamListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <!-- Cards de Equipe mockados (Simulação de dados existentes) -->
+                <div data-team-id="dragoes" class="team-card p-4 border border-red-300 bg-red-50 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-red-800">Dragões de Código</span>
+                        <div class="flex space-x-2">
+                             <button onclick="editTeam('dragoes')" title="Editar" class="text-red-600 hover:text-red-800"><i data-lucide="pencil" class="h-4 w-4"></i></button>
+                             <button onclick="deleteTeam('dragoes')" title="Excluir" class="text-red-600 hover:text-red-800"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-red-500 mt-1" data-member-count="2">Membros: 2</p>
+                </div>
+                <div data-team-id="esquadrao" class="team-card p-4 border border-blue-300 bg-blue-50 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-blue-800">Esquadrão Beta</span>
+                         <div class="flex space-x-2">
+                             <button onclick="editTeam('esquadrao')" title="Editar" class="text-blue-600 hover:text-blue-800"><i data-lucide="pencil" class="h-4 w-4"></i></button>
+                             <button onclick="deleteTeam('esquadrao')" title="Excluir" class="text-blue-600 hover:text-blue-800"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-blue-500 mt-1" data-member-count="1">Membros: 1</p>
+                </div>
+                 <div data-team-id="guardioes" class="team-card p-4 border border-green-300 bg-green-50 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-green-800">Guardiões do Bug</span>
+                         <div class="flex space-x-2">
+                             <button onclick="editTeam('guardioes')" title="Editar" class="text-green-600 hover:text-green-800"><i data-lucide="pencil" class="h-4 w-4"></i></button>
+                             <button onclick="deleteTeam('guardioes')" title="Excluir" class="text-green-600 hover:text-green-800"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                        </div>
+                    </div>
+                    <p class="text-xs text-green-500 mt-1" data-member-count="1">Membros: 1</p>
+                </div>
+                <div class="flex items-center justify-center p-4 rounded-lg border-2 border-yellow-500 border-dashed hover:bg-yellow-50 transition-colors cursor-pointer" onclick="openTeamModal()">
+                    <i data-lucide="plus-circle" class="h-5 w-5 mr-2 text-yellow-600"></i>
+                    <span class="font-semibold text-yellow-600">Nova Equipe</span>
+                </div>
+            </div>
+
+             <div class="text-sm p-3 game-bg rounded-lg">
+                <p class="font-semibold text-gray-700">Dica: </p>
+                <p class="text-xs text-gray-600">Para excluir uma equipe, primeiro remova todos os membros dela na seção abaixo.</p>
+            </div>
+        </section>
+
+
+        <!-- Seção de Alocação de Membros -->
+        <section class="p-6 bg-white rounded-xl shadow-lg card-shadow">
+            <h2 class="text-2xl font-bold text-sky-800 mb-4 flex items-center">
+                <i data-lucide="users" class="h-6 w-6 mr-3 text-sky-500"></i>
+                2. Alocação de Membros
+            </h2>
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                 <p class="text-sm font-medium text-gray-700">A pontuação do ranking é calculada com base na equipe atual de cada membro.</p>
+            </div>
+
+            <!-- Indicador de Carregamento -->
+            <div id="loadingIndicator" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <div class="flex items-center">
+                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"></div>
+                    <p class="text-sm text-blue-700 font-medium">Carregando dados dos membros...</p>
+                </div>
+            </div>
+
+            <!-- Tabela de Membros para Alocação -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Membro</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipe Atual</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontuação Individual (Mock)</th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="membersTableBody">
+                        <!-- Linhas de Membros mockadas -->
+                        <tr data-member-id="user_maria">
+                            <td class="px-4 py-4 whitespace-nowrap font-medium text-gray-900">Maria Silva</td>
+                            <td class="px-4 py-4 whitespace-nowrap"><span class="team-badge team-dragoes">Dragões de Código</span></td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm">7.200 pts</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right">
+                                <button onclick="openAllocateModal('user_maria', 'Maria Silva')" class="text-sky-600 hover:text-sky-800 font-semibold text-sm">Mudar Equipe</button>
+                            </td>
+                        </tr>
+                        <tr data-member-id="user_joao">
+                            <td class="px-4 py-4 whitespace-nowrap font-medium text-gray-900">João Mendes</td>
+                            <td class="px-4 py-4 whitespace-nowrap"><span class="team-badge team-esquadrao">Esquadrão Beta</span></td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm">6.100 pts</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right">
+                                <button onclick="openAllocateModal('user_joao', 'João Mendes')" class="text-sky-600 hover:text-sky-800 font-semibold text-sm">Mudar Equipe</button>
+                            </td>
+                        </tr>
+                        <tr data-member-id="user_pedro">
+                            <td class="px-4 py-4 whitespace-nowrap font-medium text-gray-900">Pedro Santos</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">Nenhuma</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm">3.200 pts</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right">
+                                <button onclick="openAllocateModal('user_pedro', 'Pedro Santos')" class="text-sky-600 hover:text-sky-800 font-semibold text-sm">Alocar Equipe</button>
+                            </td>
+                        </tr>
+                        <!-- Adicione mais membros mockados aqui -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Modal Genérico para Edição/Criação de Equipe -->
+    <div id="genericModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="modalTitle" class="text-xl font-bold text-sky-800">Gerenciar Equipe</h3>
+                <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <form id="teamForm" class="p-4 space-y-4">
+                 <input type="hidden" id="teamIdField">
+                <div>
+                    <label for="teamName" class="block text-sm font-medium text-gray-700 mb-1">Nome da Equipe</label>
+                    <input type="text" id="teamName" class="input-styled" required>
+                </div>
+                <div class="flex justify-end pt-2 space-x-3">
+                     <button type="button" onclick="closeModal()" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Cancelar</button>
+                     <button type="submit" class="bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-yellow-600 transition-colors">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Alocação de Membro -->
+    <div id="allocateModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 id="allocateModalTitle" class="text-xl font-bold text-sky-800">Alocar Membro: <span id="memberNameAlloc" class="game-color"></span></h3>
+                <button type="button" onclick="closeAllocateModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x" class="h-6 w-6"></i></button>
+            </div>
+            <form id="allocateForm" class="p-4 space-y-4">
+                 <input type="hidden" id="memberIdAlloc">
+                <div>
+                    <label for="newTeamId" class="block text-sm font-medium text-gray-700 mb-1">Nova Equipe</label>
+                    <select id="newTeamId" class="input-styled bg-white" required>
+                        <option value="">-- Remover da Equipe --</option>
+                        <!-- Opções de Equipe Mockadas -->
+                        <option value="dragoes">Dragões de Código</option>
+                        <option value="esquadrao">Esquadrão Beta</option>
+                        <option value="guardioes">Guardiões do Bug</option>
+                        <option value="inovadores">Os Inovadores</option>
+                    </select>
+                </div>
+                <div class="flex justify-end pt-2 space-x-3">
+                     <button type="button" onclick="closeAllocateModal()" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Cancelar</button>
+                     <button type="submit" class="bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">Confirmar Alocação</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Variáveis Globais ---
+        let currentUser = null;
+        let isUserAdmin = false;
+        let teamsData = {};
+        let membersData = {};
+
+        // --- Controle de Acesso Administrativo ---
+        async function checkAdminAccess() {
+            console.log('🔍 Verificando acesso admin...');
+            console.log('Current user:', currentUser);
+            
+            if (!currentUser) {
+                console.log('❌ Usuário não logado');
+                redirectToLogin();
+                return false;
+            }
+
+            try {
+                console.log('🔍 Verificando se user está autenticado:', currentUser.uid, currentUser.email);
+                
+                // Verificar se é super admin (email específico)
+                if (currentUser.email === 'educhior@hotmail.com') {
+                    console.log('✅ Super admin detectado:', currentUser.email);
+                    isUserAdmin = true;
+                    return true;
+                }
+
+                // Verificar se é admin padrão no banco
+                console.log('🔍 Consultando admins/' + currentUser.uid);
+                const adminSnapshot = await db.ref(`admins/${currentUser.uid}`).once('value');
+                console.log('📊 Admin snapshot exists:', adminSnapshot.exists());
+                if (adminSnapshot.exists()) {
+                    console.log('✅ Admin padrão detectado:', currentUser.uid);
+                    isUserAdmin = true;
+                    return true;
+                }
+
+                // Verificar na tabela users se tem isAdmin
+                console.log('🔍 Consultando users/' + currentUser.uid);
+                const userSnapshot = await db.ref(`users/${currentUser.uid}`).once('value');
+                const userData = userSnapshot.val();
+                console.log('📊 User data:', userData);
+                
+                if (userData && userData.isAdmin) {
+                    console.log('✅ Admin via userData detectado:', currentUser.uid);
+                    isUserAdmin = true;
+                    return true;
+                }
+
+                console.log('❌ Usuário sem privilégios administrativos');
+                showAccessDenied();
+                return false;
+            } catch (error) {
+                console.error('Erro ao verificar permissões admin:', error);
+                showNotification('Erro ao verificar permissões: ' + error.message, 'error');
+                showAccessDenied();
+                return false;
+            }
+        }
+
+        function redirectToLogin() {
+            showNotification('Você precisa estar logado para acessar esta página.', 'error');
+            setTimeout(() => {
+                window.location.href = '../login.html';
+            }, 2000);
+        }
+
+        function showAccessDenied() {
+            document.body.innerHTML = `
+                <div class="min-h-screen flex items-center justify-center bg-gray-50">
+                    <div class="max-w-md mx-auto text-center">
+                        <div class="mb-4">
+                            <i data-lucide="shield-x" class="h-16 w-16 text-red-500 mx-auto mb-4"></i>
+                            <h1 class="text-2xl font-bold text-gray-900 mb-2">Acesso Negado</h1>
+                            <p class="text-gray-600 mb-6">Você não tem permissões administrativas para acessar esta página.</p>
+                            <div class="space-y-3">
+                                <a href="../sigav_hub.html" class="block w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">
+                                    Voltar ao Hub
+                                </a>
+                                <a href="modulo_gamificacao_times.html" class="block w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                                    Ver Ranking
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+        // --- Dados Mock como Fallback ---
+        const MOCK_TEAMS = [
+            { id: 'dragoes', name: 'Dragões de Código', colorClass: 'team-dragoes', memberCount: 2 },
+            { id: 'esquadrao', name: 'Esquadrão Beta', colorClass: 'team-esquadrao', memberCount: 1 },
+            { id: 'guardioes', name: 'Guardiões do Bug', colorClass: 'team-guardioes', memberCount: 1 },
+            { id: 'inovadores', name: 'Os Inovadores', colorClass: 'team-inovadores', memberCount: 0 }
+        ];
+
+        const MOCK_MEMBERS = [
+            { id: 'user_maria', name: 'Maria Silva', teamId: 'dragoes', score: 7200 },
+            { id: 'user_joao', name: 'João Mendes', teamId: 'esquadrao', score: 6100 },
+            { id: 'user_pedro', name: 'Pedro Santos', teamId: null, score: 3200 },
+            { id: 'user_ana', name: 'Ana Costa', teamId: 'dragoes', score: 5500 },
+            { id: 'user_carlos', name: 'Carlos Lima', teamId: 'guardioes', score: 4800 },
+        ];
+        
+        // --- Lógica de Modais ---
+
+        function closeModal() {
+            document.getElementById('genericModal').style.display = 'none';
+        }
+        function closeAllocateModal() {
+            document.getElementById('allocateModal').style.display = 'none';
+        }
+
+        // Modal de Edição/Criação de Equipe
+        function openTeamModal(teamId = null) {
+            const team = teamId ? teamsData[teamId] : null;
+            document.getElementById('modalTitle').textContent = team ? 'Editar Equipe: ' + team.name : 'Criar Nova Equipe';
+            document.getElementById('teamIdField').value = teamId || '';
+            document.getElementById('teamName').value = team ? team.name : '';
+            document.getElementById('genericModal').style.display = 'flex';
+        }
+
+        // Modal de Alocação de Membro
+        function openAllocateModal(memberId, memberName) {
+            console.log('🎯 Abrindo modal para membro:', memberId, memberName);
+            
+            const member = membersData[memberId];
+            const teamSelect = document.getElementById('newTeamId');
+            
+            if (!member) {
+                console.error('❌ Membro não encontrado:', memberId);
+                showNotification('Membro não encontrado!', 'error');
+                return;
+            }
+            
+            console.log('👤 Dados do membro:', member);
+            
+            // Atualizar opções de equipe no select
+            teamSelect.innerHTML = '<option value="">-- Remover da Equipe --</option>';
+            Object.values(teamsData).forEach(team => {
+                teamSelect.innerHTML += `<option value="${team.id}">${team.name}</option>`;
+            });
+            
+            document.getElementById('memberNameAlloc').textContent = memberName;
+            document.getElementById('memberIdAlloc').value = memberId;
+            document.getElementById('allocateModalTitle').innerHTML = `Alocar Membro: <span class="game-color">${memberName}</span>`;
+            
+            // Pré-selecionar a equipe atual
+            teamSelect.value = member.teamId || '';
+            
+            console.log('🎯 Equipe atual selecionada:', member.teamId);
+            
+            document.getElementById('allocateModal').style.display = 'flex';
+        }
+        
+        // --- Funções de Manipulação de Equipes (Mock) ---
+
+        function editTeam(teamId) {
+            openTeamModal(teamId);
+        }
+
+        async function deleteTeam(teamId) {
+             const team = teamsData[teamId];
+             const memberCount = Object.values(membersData).filter(m => m.teamId === teamId).length;
+
+            if (memberCount > 0) {
+                 showNotification(`Erro: A equipe "${team.name}" possui ${memberCount} membro(s) alocado(s). Remova-os primeiro.`, 'error');
+                 return;
+            }
+
+            if (confirm(`Tem certeza que deseja EXCLUIR a equipe "${team.name}"? Esta ação é irreversível e removerá todos os dados de pontuação históricos da equipe.`)) {
+                try {
+                    // Remover membros da equipe
+                    const membersInTeam = Object.values(membersData).filter(m => m.teamId === teamId);
+                    for (const member of membersInTeam) {
+                        await db.ref(`users/${member.id}/gamification/teamId`).remove();
+                    }
+                    
+                    // Excluir a equipe
+                    await db.ref(`gamification/teams/${teamId}`).remove();
+                    
+                    showNotification(`Equipe "${team.name}" excluída com sucesso!`, 'success');
+                } catch (error) {
+                    console.error('Erro ao excluir equipe:', error);
+                    showNotification('Erro ao excluir equipe: ' + error.message, 'error');
+                }
+            }
+        }
+
+        document.getElementById('teamForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const teamId = document.getElementById('teamIdField').value;
+            const teamName = document.getElementById('teamName').value.trim();
+            
+            if (!teamName) {
+                showNotification('Nome da equipe é obrigatório!', 'error');
+                return;
+            }
+            
+            // Verificar autenticação
+            if (!currentUser) {
+                showNotification('Usuário não autenticado. Faça login novamente.', 'error');
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Verificar se ainda tem acesso admin
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                showNotification('Acesso administrativo negado.', 'error');
+                return;
+            }
+            
+            try {
+                console.log('💾 Tentando salvar equipe...');
+                console.log('User autenticado:', currentUser?.uid, currentUser?.email);
+                console.log('Firebase auth state:', firebase.auth().currentUser);
+                console.log('Team data:', { teamId, teamName });
+                
+                if (teamId) {
+                    // Edição de equipe existente
+                    console.log('📝 Editando equipe:', teamId);
+                    await db.ref(`gamification/teams/${teamId}`).update({
+                        name: teamName,
+                        updatedAt: Date.now(),
+                        updatedBy: currentUser.uid
+                    });
+                    showNotification(`Equipe "${teamName}" atualizada com sucesso!`, 'success');
+                } else {
+                    // Criação de nova equipe
+                    console.log('➕ Criando nova equipe');
+                    const newTeamRef = db.ref('gamification/teams').push();
+                    const teamData = {
+                        id: newTeamRef.key,
+                        name: teamName,
+                        createdAt: Date.now(),
+                        createdBy: currentUser.uid
+                    };
+                    console.log('📋 Dados da equipe:', teamData);
+                    await newTeamRef.set(teamData);
+                    showNotification(`Equipe "${teamName}" criada com sucesso!`, 'success');
+                }
+                closeModal();
+            } catch (error) {
+                console.error('❌ Erro detalhado ao salvar equipe:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                showNotification('Erro ao salvar equipe: ' + error.message, 'error');
+            }
+        });
+
+        // --- Funções de Manipulação de Membros (Mock) ---
+
+        document.getElementById('allocateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('memberIdAlloc').value;
+            const newTeamId = document.getElementById('newTeamId').value || null;
+            const member = membersData[memberId];
+            
+            if (!member) {
+                showNotification('Membro não encontrado!', 'error');
+                return;
+            }
+
+            // Verificar autenticação
+            if (!currentUser) {
+                showNotification('Usuário não autenticado. Faça login novamente.', 'error');
+                window.location.href = '../login.html';
+                return;
+            }
+            
+            // Verificar se ainda tem acesso admin
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                showNotification('Acesso administrativo negado.', 'error');
+                return;
+            }
+            
+            try {
+                console.log('🔄 Atualizando alocação do membro:', memberId, 'para equipe:', newTeamId);
+                const userRef = db.ref(`users/${memberId}`);
+                // Verificar se o usuário existe no Firebase
+                const userSnapshot = await userRef.once('value');
+                if (!userSnapshot.exists()) {
+                    showNotification('Usuário não encontrado no banco de dados!', 'error');
+                    return;
+                }
+                // Buscar atividades do membro
+                const activitiesSnapshot = await db.ref('gamification/activities').orderByChild('userId').equalTo(memberId).once('value');
+                const activities = activitiesSnapshot.val() || {};
+                // Descobrir equipe antiga
+                const oldTeamId = member.teamId || null;
+                // Calcular total de pontos de equipe do membro
+                let totalTeamPoints = 0;
+                Object.values(activities).forEach(act => {
+                    totalTeamPoints += parseInt(act.pointsTeam) || 0;
+                });
+                // Se removendo da equipe antiga, subtrair pontos
+                if (oldTeamId && totalTeamPoints > 0) {
+                    const oldTeamScoreRef = db.ref(`gamification/teams/${oldTeamId}/score`);
+                    const oldTeamScoreSnap = await oldTeamScoreRef.once('value');
+                    const oldScore = parseInt(oldTeamScoreSnap.val()) || 0;
+                    await oldTeamScoreRef.set(Math.max(0, oldScore - totalTeamPoints));
+                }
+                // Se alocando em nova equipe, somar pontos
+                if (newTeamId && totalTeamPoints > 0) {
+                    const newTeamScoreRef = db.ref(`gamification/teams/${newTeamId}/score`);
+                    const newTeamScoreSnap = await newTeamScoreRef.once('value');
+                    const newScore = parseInt(newTeamScoreSnap.val()) || 0;
+                    await newTeamScoreRef.set(newScore + totalTeamPoints);
+                }
+                // Atualizar dados de gamificação
+                const gamificationData = {
+                    teamId: newTeamId,
+                    lastUpdated: Date.now(),
+                    updatedBy: currentUser.uid
+                };
+                if (newTeamId) {
+                    // Alocar à nova equipe
+                    await userRef.child('gamification').update(gamificationData);
+                    console.log('✅ Usuário alocado à equipe:', newTeamId);
+                } else {
+                    // Remover da equipe atual
+                    await userRef.child('gamification/teamId').remove();
+                    await userRef.child('gamification').update({
+                        lastUpdated: Date.now(),
+                        updatedBy: currentUser.uid
+                    });
+                    console.log('✅ Usuário removido da equipe');
+                }
+                const teamName = newTeamId ? teamsData[newTeamId]?.name : 'nenhuma equipe';
+                const action = newTeamId ? `alocado à equipe "${teamName}"` : 'removido da equipe atual';
+                showNotification(`${member.name || member.displayName} ${action} com sucesso!`, 'success');
+                closeAllocateModal();
+                // Os dados serão atualizados automaticamente pelos listeners
+            } catch (error) {
+                console.error('❌ Erro ao atualizar alocação:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                showNotification('Erro ao atualizar alocação: ' + error.message, 'error');
+            }
+        });
+
+        // --- Remover alocação de membro diretamente ---
+        async function removeMemberFromTeam(memberId) {
+            if (!confirm('Tem certeza que deseja REMOVER este membro da equipe? Esta ação apenas desvincula o membro da equipe atual.')) return;
+
+            const member = membersData[memberId];
+            if (!member) {
+                showNotification('Membro não encontrado!', 'error');
+                return;
+            }
+
+            if (!currentUser) {
+                showNotification('Usuário não autenticado. Faça login novamente.', 'error');
+                window.location.href = '../login.html';
+                return;
+            }
+
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) {
+                showNotification('Acesso administrativo negado.', 'error');
+                return;
+            }
+
+            try {
+                // Buscar atividades do membro para subtrair pontos de equipe
+                const activitiesSnapshot = await db.ref('gamification/activities').orderByChild('userId').equalTo(memberId).once('value');
+                const activities = activitiesSnapshot.val() || {};
+
+                let totalTeamPoints = 0;
+                Object.values(activities).forEach(act => {
+                    totalTeamPoints += parseInt(act.pointsTeam) || 0;
+                });
+
+                const oldTeamId = member.teamId || null;
+                if (oldTeamId && totalTeamPoints > 0) {
+                    const oldTeamScoreRef = db.ref(`gamification/teams/${oldTeamId}/score`);
+                    const oldTeamScoreSnap = await oldTeamScoreRef.once('value');
+                    const oldScore = parseInt(oldTeamScoreSnap.val()) || 0;
+                    await oldTeamScoreRef.set(Math.max(0, oldScore - totalTeamPoints));
+                }
+
+                // Remover teamId do usuário
+                await db.ref(`users/${memberId}/gamification/teamId`).remove();
+                await db.ref(`users/${memberId}/gamification`).update({ lastUpdated: Date.now(), updatedBy: currentUser.uid });
+
+                showNotification(`${member.name || member.displayName} removido(a) da equipe com sucesso.`, 'success');
+
+                // Atualizar dados locais (será atualizado pelos listeners, mas atualizar UI imediatamente)
+                if (membersData[memberId]) membersData[memberId].teamId = null;
+                renderMembersTable();
+                renderTeamList();
+            } catch (error) {
+                console.error('Erro ao remover membro da equipe:', error);
+                showNotification('Erro ao remover alocação: ' + error.message, 'error');
+            }
+        }
+
+        // --- Renderização Dinâmica (Mock) ---
+        
+        // Função para contar membros reais de uma equipe
+        function getMemberCount(teamId) {
+            return Object.values(membersData).filter(m => m.teamId === teamId).length;
+        }
+
+        function renderTeamList() {
+            const container = document.getElementById('teamListContainer');
+            if (!container) return;
+            
+            const teamsArray = Object.values(teamsData);
+            
+            if (teamsArray.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full p-8 text-center text-gray-500">
+                        <i data-lucide="users" class="h-12 w-12 mx-auto mb-4 opacity-50"></i>
+                        <p class="text-lg mb-2">Nenhuma equipe cadastrada</p>
+                        <p class="text-sm">Clique no botão abaixo para criar a primeira equipe</p>
+                    </div>
+                    <div class="flex items-center justify-center p-4 rounded-lg border-2 border-yellow-500 border-dashed hover:bg-yellow-50 transition-colors cursor-pointer" onclick="openTeamModal()">
+                        <i data-lucide="plus-circle" class="h-5 w-5 mr-2 text-yellow-600"></i>
+                        <span class="font-semibold text-yellow-600">Nova Equipe</span>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = teamsArray.map(team => {
+                    const count = getMemberCount(team.id);
+                    return `
+                        <div data-team-id="${team.id}" class="team-card p-4 border border-yellow-300 bg-yellow-50/50 rounded-lg shadow-sm">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-sky-800">${team.name || 'Equipe sem nome'}</span>
+                                <div class="flex space-x-2">
+                                     <button onclick="editTeam('${team.id}')" title="Editar" class="text-sky-600 hover:text-sky-800"><i data-lucide="pencil" class="h-4 w-4"></i></button>
+                                     <button onclick="deleteTeam('${team.id}')" title="Excluir" class="text-red-600 hover:text-red-800"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-700 mt-1" data-member-count="${count}">Membros: ${count}</p>
+                        </div>
+                    `;
+                }).join('') + `
+                    <div class="flex items-center justify-center p-4 rounded-lg border-2 border-yellow-500 border-dashed hover:bg-yellow-50 transition-colors cursor-pointer" onclick="openTeamModal()">
+                        <i data-lucide="plus-circle" class="h-5 w-5 mr-2 text-yellow-600"></i>
+                        <span class="font-semibold text-yellow-600">Nova Equipe</span>
+                    </div>
+                `;
+            }
+             
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+        
+        function renderMembersTable() {
+            console.log('📊 Renderizando tabela de membros...');
+            const tableBody = document.getElementById('membersTableBody');
+            if (!tableBody) {
+                console.error('❌ Elemento membersTableBody não encontrado');
+                return;
+            }
+
+            const membersArray = Object.values(membersData);
+            console.log('👥 Membros para renderizar:', membersArray.length);
+            
+            if (membersArray.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-gray-500">
+                            <i data-lucide="user-x" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                            <p class="text-lg mb-2">Nenhum membro cadastrado</p>
+                            <p class="text-sm">Os membros aparecerão aqui automaticamente quando usuários se registrarem no sistema</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = membersArray.map(member => {
+                    const team = teamsData[member.teamId];
+                    const teamName = team ? team.name : 'Nenhuma';
+                    const memberName = member.name || member.displayName || member.email?.split('@')[0] || 'Usuário sem nome';
+                    
+                    console.log(`👤 Renderizando membro: ${memberName} (${member.id}) - Equipe: ${teamName}`);
+                    
+                    return `
+                        <tr data-member-id="${member.id}">
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                <div class="font-medium text-gray-900">${memberName}</div>
+                                <div class="text-xs text-gray-500">${member.email || 'Email não disponível'}</div>
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                ${team ? `<span class="team-badge bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-semibold">${teamName}</span>` : `<span class="text-sm text-gray-500 italic">${teamName}</span>`}
+                            </td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">${(member.score || 0).toLocaleString()} pts</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-right">
+                                <div class="inline-flex items-center space-x-2">
+                                    <button onclick="openAllocateModal('${member.id}', '${memberName.replace(/'/g, "\\'")}') " 
+                                            class="inline-flex items-center px-3 py-1 text-xs font-medium text-sky-600 bg-sky-50 hover:bg-sky-100 hover:text-sky-800 rounded-md transition-colors duration-150">
+                                        <i data-lucide="${team ? 'refresh-cw' : 'user-plus'}" class="h-3 w-3 mr-1"></i>
+                                        ${team ? 'Mudar Equipe' : 'Alocar Equipe'}
+                                    </button>
+                                    <button onclick="removeMemberFromTeam('${member.id}')" 
+                                            class="inline-flex items-center px-2 py-1 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800 rounded-md transition-colors duration-150" title="Remover da equipe">
+                                        <i data-lucide="trash-2" class="h-3 w-3 mr-1"></i>
+                                        Remover
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            
+            // Atualizar as opções de equipe no modal de alocação
+            const selectAlloc = document.getElementById('newTeamId');
+            if (selectAlloc) {
+                selectAlloc.innerHTML = '<option value="">-- Remover da Equipe --</option>' + 
+                    Object.values(teamsData).map(team => 
+                        `<option value="${team.id}">${team.name}</option>`
+                    ).join('');
+                console.log('🎛️ Opções de equipe atualizadas no select:', Object.keys(teamsData).length);
+            }
+        }
+
+        // --- Sistema de Notificações ---
+        function showNotification(message, type = 'success') {
+            // Remove notificação existente se houver
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `notification-toast fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-transform duration-300 transform translate-x-full`;
+            
+            if (type === 'success') {
+                toast.className += ' bg-green-500 text-white';
+            } else if (type === 'error') {
+                toast.className += ' bg-red-500 text-white';
+            } else {
+                toast.className += ' bg-blue-500 text-white';
+            }
+            
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}" class="h-5 w-5"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // Inicializar ícones
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            
+            // Animar entrada
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Inicialização ---
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Inicializando Painel Administrativo da Gamificação...');
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+
+            // Verificar se o Firebase foi carregado
+            if (typeof firebase === 'undefined') {
+                console.error('❌ Firebase não foi carregado');
+                showNotification('Erro: Firebase não foi carregado. Recarregue a página.', 'error');
+                return;
+            }
+
+            // Verificar autenticação e permissões
+            auth.onAuthStateChanged(async (user) => {
+                console.log('🔐 Estado de autenticação mudou:', user ? user.email : 'não logado');
+                
+                if (user) {
+                    currentUser = user;
+                    console.log('✅ Usuário logado:', user.email, user.uid);
+                    
+                    // Verificar se tem permissões de admin
+                    const hasAccess = await checkAdminAccess();
+                    
+                    if (hasAccess) {
+                        console.log('✅ Acesso administrativo confirmado');
+                        
+                        // Carregar dados da gamificação
+                        loadGamificationData();
+                        
+                        // Mostrar notificação de boas-vindas
+                        setTimeout(() => {
+                            showNotification(`Bem-vindo(a), ${user.email}! Painel carregado com sucesso.`, 'success');
+                        }, 1000);
+                    }
+                } else {
+                    console.log('❌ Usuário não está logado');
+                    redirectToLogin();
+                }
+            }, (error) => {
+                console.error('❌ Erro no listener de autenticação:', error);
+                showNotification('Erro de autenticação: ' + error.message, 'error');
+            });
+        });
+
+        // Função para testar conexão com Firebase
+        function testFirebaseConnection() {
+            console.log('🧪 Testando conexão com Firebase...');
+            
+            db.ref('.info/connected').on('value', (snapshot) => {
+                if (snapshot.val() === true) {
+                    console.log('✅ Conectado ao Firebase Realtime Database');
+                } else {
+                    console.log('❌ Desconectado do Firebase Realtime Database');
+                    showNotification('Problema de conexão com o banco de dados', 'error');
+                }
+            });
+        }
+
+        // Testar conexão quando a página carregar
+        window.addEventListener('load', testFirebaseConnection);
+
+        // --- Carregamento de Dados ---
+        function loadGamificationData() {
+            console.log('📂 Carregando dados da gamificação...');
+            
+            // Mostrar indicador de carregamento
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) {
+                loadingIndicator.classList.remove('hidden');
+            }
+            
+            // Carregar equipes
+            db.ref('gamification/teams').on('value', (snapshot) => {
+                console.log('🏆 Equipes carregadas:', snapshot.val());
+                teamsData = snapshot.val() || {};
+                renderTeamList();
+            }, (error) => {
+                console.error('❌ Erro ao carregar equipes:', error);
+                showNotification('Erro ao carregar equipes: ' + error.message, 'error');
+            });
+
+            // Carregar usuários
+            db.ref('users').on('value', (snapshot) => {
+                console.log('👥 Usuários carregados do Firebase');
+                const users = snapshot.val() || {};
+                membersData = {};
+                
+                Object.keys(users).forEach(userId => {
+                    const user = users[userId];
+                    if (user && user.email) { // Só incluir usuários com email válido
+                        membersData[userId] = {
+                            id: userId,
+                            name: user.name || user.displayName || user.email?.split('@')[0] || 'Usuário',
+                            displayName: user.displayName || user.name || user.email?.split('@')[0] || 'Usuário',
+                            teamId: user.gamification?.teamId || null,
+                            score: user.gamification?.score || 0,
+                            email: user.email
+                        };
+                    }
+                });
+                
+                console.log('👥 Membros processados:', Object.keys(membersData).length);
+                
+                // Esconder indicador de carregamento
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
+                
+                renderMembersTable();
+                renderTeamList(); // Atualizar contagem de membros nas equipes
+            }, (error) => {
+                console.error('❌ Erro ao carregar usuários:', error);
+                showNotification('Erro ao carregar usuários: ' + error.message, 'error');
+                
+                // Esconder indicador de carregamento
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
+                }
+                
+                // Fallback para dados mock se houver erro
+                console.log('🔄 Usando dados mock como fallback...');
+                membersData = {};
+                MOCK_MEMBERS.forEach(member => {
+                    membersData[member.id] = member;
+                });
+                renderMembersTable();
+                renderTeamList(); // Atualizar contagem de membros nas equipes
+            });
+        }
+
+    </script>
+</body>
+</html>

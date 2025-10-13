@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Admin - Gerenciar Atividades</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../firebase-config.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .game-color {
+            color: #f59e0b;
+        }
+        .game-bg {
+            background-color: #fef3c7;
+        }
+        
+        /* Estilos para tabela responsiva */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        /* Badges para tipos de atividade */
+        .activity-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .activity-badge.zap {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .activity-badge.trophy {
+            background-color: #fecaca;
+            color: #991b1b;
+        }
+        
+        .activity-badge.star {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Admin Atividades</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span id="adminUserName" class="text-sm text-gray-600 hidden sm:inline-block"></span>
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Cabeçalho da Página -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-extrabold game-color mb-2">Gerenciar Atividades de Gamificação</h1>
+            <p class="text-xl text-gray-600">Visualize, edite e remova registros de pontuação do sistema.</p>
+        </div>
+
+        <!-- Navegação de Volta -->
+        <div class="flex justify-between items-center mb-8">
+            <a href="modulo_gamificacao_admin.html" class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-2"></i>
+                Voltar ao Admin
+            </a>
+            
+            <div class="flex space-x-3">
+                <a href="modulo_gamificacao_times.html" class="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                    <i data-lucide="trophy" class="h-5 w-5 mr-2"></i>
+                    Ver Ranking
+                </a>
+                <a href="modulo_gamificacao_contabilizar.html" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                    <i data-lucide="plus-circle" class="h-5 w-5 mr-2"></i>
+                    Nova Atividade
+                </a>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <section class="bg-white rounded-xl p-6 shadow-lg card-shadow mb-8">
+            <h2 class="text-xl font-bold text-sky-800 mb-4 flex items-center">
+                <i data-lucide="filter" class="h-5 w-5 mr-2"></i>
+                Filtros e Pesquisa
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="searchActivity" class="block text-sm font-medium text-gray-700 mb-1">Buscar Atividade</label>
+                    <input type="text" id="searchActivity" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" placeholder="Nome da atividade...">
+                </div>
+                
+                <div>
+                    <label for="filterUser" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Usuário</label>
+                    <select id="filterUser" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        <option value="">Todos os usuários</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="filterTeam" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por Equipe</label>
+                    <select id="filterTeam" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        <option value="">Todas as equipes</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button id="clearFilters" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                        <i data-lucide="x-circle" class="h-4 w-4 mr-2 inline"></i>
+                        Limpar Filtros
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lista de Atividades -->
+        <section class="bg-white rounded-xl shadow-lg card-shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-xl font-bold text-sky-800 flex items-center">
+                    <i data-lucide="list" class="h-5 w-5 mr-2"></i>
+                    Atividades Registradas
+                    <span id="activityCount" class="ml-2 text-sm text-gray-500">(0 atividades)</span>
+                </h2>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Atividade</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuário</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipe</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pontos</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activitiesTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Conteúdo será preenchido dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Estado vazio -->
+            <div id="emptyState" class="hidden p-12 text-center">
+                <i data-lucide="inbox" class="h-16 w-16 mx-auto mb-4 text-gray-300"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma atividade encontrada</h3>
+                <p class="text-gray-500 mb-6">Não há atividades registradas que correspondam aos filtros aplicados.</p>
+                <a href="modulo_gamificacao_contabilizar.html" class="inline-flex items-center bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                    <i data-lucide="plus" class="h-4 w-4 mr-2"></i>
+                    Registrar Primeira Atividade
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Edição -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="bg-gradient-to-r from-yellow-500 to-amber-600 text-white p-6 rounded-t-xl">
+                <div class="flex justify-between items-center">
+                    <h3 id="editModalTitle" class="text-xl font-bold">Editar Atividade</h3>
+                    <button onclick="closeEditModal()" class="text-white hover:text-gray-200">
+                        <i data-lucide="x" class="h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <form id="editActivityForm" class="space-y-4">
+                    <input type="hidden" id="editActivityId">
+                    
+                    <div>
+                        <label for="editActivityName" class="block text-sm font-medium text-gray-700 mb-1">Nome da Atividade</label>
+                        <input type="text" id="editActivityName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="editPointsIndividual" class="block text-sm font-medium text-gray-700 mb-1">Pontos Individuais</label>
+                            <input type="number" id="editPointsIndividual" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" min="0" required>
+                        </div>
+                        
+                        <div>
+                            <label for="editPointsTeam" class="block text-sm font-medium text-gray-700 mb-1">Pontos da Equipe</label>
+                            <input type="number" id="editPointsTeam" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent" min="0" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="editEvidence" class="block text-sm font-medium text-gray-700 mb-1">Evidência/Observações</label>
+                        <textarea id="editEvidence" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="closeEditModal()" class="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium rounded-lg transition-colors">
+                            <i data-lucide="save" class="h-4 w-4 mr-2 inline"></i>
+                            Salvar Alterações
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // --- Variáveis Globais ---
+        let currentUser = null;
+        let activitiesData = {};
+        let teamsData = {};
+        let usersData = {};
+        let filteredActivities = [];
+        let isFirebaseReady = false;
+
+        // --- Inicialização Firebase ---
+        function initializeFirebase() {
+            console.log('🚀 Inicializando Firebase para Admin de Atividades...');
+            
+            try {
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase SDK não foi carregado');
+                }
+                
+                if (firebase.apps.length === 0) {
+                    throw new Error('Firebase não foi inicializado');
+                }
+                
+                // Verificar se auth e database estão disponíveis
+                if (!firebase.auth || !firebase.database) {
+                    throw new Error('Serviços Firebase Auth ou Database não estão disponíveis');
+                }
+                
+                isFirebaseReady = true;
+                console.log('✅ Firebase inicializado com sucesso para admin de atividades');
+                
+                // Listener de autenticação
+                auth.onAuthStateChanged(user => {
+                    console.log('🔐 Estado de autenticação mudou:', user ? user.email : 'não logado');
+                    
+                    if (user) {
+                        currentUser = user;
+                        checkAdminAccess();
+                    } else {
+                        console.log('❌ Usuário não está logado, redirecionando...');
+                        showNotification('Você precisa estar logado para acessar esta área.', 'error');
+                        setTimeout(() => {
+                            window.location.href = '../login.html';
+                        }, 2000);
+                    }
+                }, (error) => {
+                    console.error('❌ Erro no listener de autenticação:', error);
+                    showNotification('Erro de autenticação: ' + error.message, 'error');
+                });
+                
+            } catch (error) {
+                console.error('❌ Erro crítico ao inicializar Firebase:', error);
+                isFirebaseReady = false;
+                showNotification('Erro ao conectar com Firebase: ' + error.message, 'error');
+                
+                // Mostrar uma mensagem na tela
+                document.body.innerHTML = `
+                    <div class="min-h-screen flex items-center justify-center bg-gray-50">
+                        <div class="max-w-md mx-auto text-center p-6">
+                            <div class="mb-4">
+                                <i data-lucide="wifi-off" class="h-16 w-16 text-red-500 mx-auto mb-4"></i>
+                                <h1 class="text-2xl font-bold text-gray-900 mb-2">Erro de Conexão</h1>
+                                <p class="text-gray-600 mb-6">Não foi possível conectar ao sistema. Verifique sua conexão e tente novamente.</p>
+                                <div class="space-y-3">
+                                    <a href="../sigav_hub.html" class="block w-full bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-sky-700 transition-colors">
+                                        Voltar ao Hub
+                                    </a>
+                                    <button onclick="location.reload()" class="block w-full bg-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">
+                                        Tentar Novamente
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // --- Verificação de Acesso Admin ---
+        async function checkAdminAccess() {
+            console.log('🔍 Verificando acesso admin...');
+            console.log('Current user:', currentUser);
+            
+            if (!currentUser) {
+                console.log('❌ Usuário não logado');
+                showNotification('Você precisa estar logado para acessar esta página.', 'error');
+                setTimeout(() => {
+                    window.location.href = '../login.html';
+                }, 2000);
+                return false;
+            }
+
+            try {
+                console.log('🔍 Verificando se user está autenticado:', currentUser.uid, currentUser.email);
+                
+                // Verificar se é super admin (email específico)
+                if (currentUser.email === 'educhior@hotmail.com') {
+                    console.log('✅ Super admin detectado:', currentUser.email);
+                    document.getElementById('adminUserName').textContent = `Super Admin: ${currentUser.email}`;
+                    loadAllData();
+                    return true;
+                }
+
+                // Verificar se é admin padrão no banco
+                console.log('🔍 Consultando admins/' + currentUser.uid);
+                const adminSnapshot = await db.ref(`admins/${currentUser.uid}`).once('value');
+                console.log('📊 Admin snapshot exists:', adminSnapshot.exists());
+                if (adminSnapshot.exists()) {
+                    console.log('✅ Admin padrão detectado:', currentUser.uid);
+                    document.getElementById('adminUserName').textContent = `Admin: ${currentUser.email}`;
+                    loadAllData();
+                    return true;
+                }
+
+                // Verificar na tabela users se tem isAdmin
+                console.log('🔍 Consultando users/' + currentUser.uid);
+                const userSnapshot = await db.ref(`users/${currentUser.uid}`).once('value');
+                const userData = userSnapshot.val();
+                console.log('📊 User data:', userData);
+                
+                if (userData && userData.isAdmin) {
+                    console.log('✅ Admin via userData detectado:', currentUser.uid);
+                    document.getElementById('adminUserName').textContent = `Admin: ${userData.name || currentUser.email}`;
+                    loadAllData();
+                    return true;
+                }
+
+                console.log('❌ Usuário sem privilégios administrativos');
+                showNotification('Acesso negado. Esta área é restrita a administradores.', 'error');
+                setTimeout(() => {
+                    window.location.href = '../sigav_hub.html';
+                }, 3000);
+                return false;
+                
+            } catch (error) {
+                console.error('❌ Erro ao verificar permissões admin:', error);
+                showNotification('Erro ao verificar permissões de acesso: ' + error.message, 'error');
+                setTimeout(() => {
+                    window.location.href = '../sigav_hub.html';
+                }, 3000);
+                return false;
+            }
+        }
+
+        // --- Carregamento de Dados ---
+        function loadAllData() {
+            if (!isFirebaseReady) {
+                console.log('❌ Firebase não está pronto, não é possível carregar dados');
+                return;
+            }
+
+            console.log('📂 Carregando todos os dados...');
+
+            // Carregar atividades
+            db.ref('gamification/activities').on('value', (snapshot) => {
+                const rawData = snapshot.val() || {};
+                
+                // Sanitizar dados de pontuação
+                activitiesData = {};
+                Object.keys(rawData).forEach(id => {
+                    const activity = rawData[id];
+                    activitiesData[id] = {
+                        ...activity,
+                        pointsIndividual: parseInt(activity.pointsIndividual) || 0,
+                        pointsTeam: parseInt(activity.pointsTeam) || 0
+                    };
+                });
+                
+                console.log('📋 Atividades carregadas:', Object.keys(activitiesData).length);
+                applyFilters();
+            }, (error) => {
+                console.error('❌ Erro ao carregar atividades:', error);
+                showNotification('Erro ao carregar atividades: ' + error.message, 'error');
+            });
+
+            // Carregar equipes
+            db.ref('gamification/teams').on('value', (snapshot) => {
+                teamsData = snapshot.val() || {};
+                console.log('🏆 Equipes carregadas:', Object.keys(teamsData).length);
+                populateTeamFilter();
+            }, (error) => {
+                console.error('❌ Erro ao carregar equipes:', error);
+                showNotification('Erro ao carregar equipes: ' + error.message, 'error');
+            });
+
+            // Carregar usuários
+            db.ref('users').on('value', (snapshot) => {
+                usersData = snapshot.val() || {};
+                console.log('👥 Usuários carregados:', Object.keys(usersData).length);
+                populateUserFilter();
+            }, (error) => {
+                console.error('❌ Erro ao carregar usuários:', error);
+                showNotification('Erro ao carregar usuários: ' + error.message, 'error');
+            });
+            
+            showNotification('Dados carregados com sucesso!', 'success');
+        }
+
+        // --- Popular Filtros ---
+        function populateUserFilter() {
+            const userSelect = document.getElementById('filterUser');
+            userSelect.innerHTML = '<option value="">Todos os usuários</option>';
+
+            // Percorre entries para obter o UID (chave) corretamente
+            Object.entries(usersData).forEach(([uid, user]) => {
+                if (user && (user.name || user.email)) {
+                    const option = document.createElement('option');
+                    option.value = uid;
+                    option.textContent = user.name || (user.email && user.email.split('@')[0]) || 'Usuário';
+                    userSelect.appendChild(option);
+                }
+            });
+        }
+
+        function populateTeamFilter() {
+            const teamSelect = document.getElementById('filterTeam');
+            teamSelect.innerHTML = '<option value="">Todas as equipes</option>';
+
+            // Usar entries para garantir que a value seja o ID da equipe (chave)
+            Object.entries(teamsData).forEach(([teamId, team]) => {
+                if (team && (team.name || teamId)) {
+                    const option = document.createElement('option');
+                    option.value = teamId;
+                    option.textContent = team.name || `Equipe ${teamId}`;
+                    teamSelect.appendChild(option);
+                }
+            });
+        }
+
+        // --- Aplicar Filtros ---
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchActivity').value.toLowerCase();
+            const userFilter = document.getElementById('filterUser').value;
+            const teamFilter = document.getElementById('filterTeam').value;
+            
+            filteredActivities = Object.entries(activitiesData).filter(([id, activity]) => {
+                const matchesSearch = !searchTerm || activity.activity?.toLowerCase().includes(searchTerm);
+                const matchesUser = !userFilter || activity.userId === userFilter;
+                const matchesTeam = !teamFilter || activity.teamId === teamFilter;
+                
+                return matchesSearch && matchesUser && matchesTeam;
+            });
+            
+            renderActivitiesTable();
+        }
+
+        // --- Renderizar Tabela de Atividades ---
+        function renderActivitiesTable() {
+            const tableBody = document.getElementById('activitiesTableBody');
+            const emptyState = document.getElementById('emptyState');
+            const activityCount = document.getElementById('activityCount');
+            
+            if (filteredActivities.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                activityCount.textContent = '(0 atividades)';
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            activityCount.textContent = `(${filteredActivities.length} atividades)`;
+            
+            // Ordenar por timestamp (mais recente primeiro)
+            filteredActivities.sort(([,a], [,b]) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            tableBody.innerHTML = filteredActivities.map(([id, activity]) => {
+                const user = usersData[activity.userId] || {};
+                const team = teamsData[activity.teamId] || {};
+                const date = new Date(activity.timestamp || Date.now());
+                
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${date.toLocaleDateString('pt-BR')}
+                            <br>
+                            <span class="text-xs text-gray-500">${date.toLocaleTimeString('pt-BR')}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm">
+                            <div class="font-medium text-gray-900">${activity.activity || 'Atividade sem nome'}</div>
+                            ${activity.evidence ? `<div class="text-xs text-gray-500 mt-1 truncate max-w-xs" title="${activity.evidence}">${activity.evidence}</div>` : ''}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${user.name || activity.user || 'Usuário desconhecido'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            ${team.name ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">${team.name}</span>` : '<span class="text-gray-500">Sem equipe</span>'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div class="flex flex-col space-y-1">
+                                <span class="text-green-600 font-medium">+${(parseInt(activity.pointsIndividual) || 0).toLocaleString('pt-BR')} individual</span>
+                                ${(parseInt(activity.pointsTeam) || 0) > 0 ? `<span class="text-blue-600 font-medium">+${(parseInt(activity.pointsTeam)).toLocaleString('pt-BR')} equipe</span>` : ''}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="activity-badge ${activity.type || 'zap'}">
+                                <i data-lucide="${getTypeIcon(activity.type)}" class="h-3 w-3 mr-1"></i>
+                                ${getTypeName(activity.type)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end space-x-2">
+                                <button onclick="editActivity('${id}')" class="text-blue-600 hover:text-blue-900" title="Editar">
+                                    <i data-lucide="edit-2" class="h-4 w-4"></i>
+                                </button>
+                                <button onclick="deleteActivity('${id}', '${activity.activity?.replace(/'/g, '\\\'') || 'esta atividade'}')" class="text-red-600 hover:text-red-900" title="Excluir">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+        // --- Funções Auxiliares ---
+        function getTypeIcon(type) {
+            switch(type) {
+                case 'trophy': return 'trophy';
+                case 'star': return 'star';
+                default: return 'zap';
+            }
+        }
+
+        function getTypeName(type) {
+            switch(type) {
+                case 'trophy': return 'Conquista';
+                case 'star': return 'Destaque';
+                default: return 'Atividade';
+            }
+        }
+
+        // --- Editar Atividade ---
+        function editActivity(activityId) {
+            const activity = activitiesData[activityId];
+            if (!activity) return;
+            
+            document.getElementById('editActivityId').value = activityId;
+            document.getElementById('editActivityName').value = activity.activity || '';
+            document.getElementById('editPointsIndividual').value = activity.pointsIndividual || 0;
+            document.getElementById('editPointsTeam').value = activity.pointsTeam || 0;
+            document.getElementById('editEvidence').value = activity.evidence || '';
+            
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // --- Excluir Atividade ---
+        async function deleteActivity(activityId, activityName) {
+            if (!confirm(`Tem certeza que deseja EXCLUIR a atividade "${activityName}"?\n\nEsta ação é irreversível e removerá:\n- O registro da atividade\n- Os pontos já contabilizados\n\nDeseja continuar?`)) {
+                return;
+            }
+            
+            try {
+                const activity = activitiesData[activityId];
+                // Remover pontos do usuário
+                const pointsToRemove = parseInt(activity.pointsIndividual) || 0;
+                if (activity.userId && pointsToRemove > 0) {
+                    const userScoreRef = db.ref(`users/${activity.userId}/gamification/score`);
+                    const scoreSnapshot = await userScoreRef.once('value');
+                    const currentScore = parseInt(scoreSnapshot.val()) || 0;
+                    const newScore = Math.max(0, currentScore - pointsToRemove);
+                    await userScoreRef.set(newScore);
+                    console.log(`📊 Pontos removidos: ${pointsToRemove}, Score atual: ${currentScore}, Novo score: ${newScore}`);
+                }
+                // Remover pontos da equipe
+                const pointsTeamToRemove = parseInt(activity.pointsTeam) || 0;
+                if (activity.teamId && pointsTeamToRemove > 0) {
+                    const teamScoreRef = db.ref(`gamification/teams/${activity.teamId}/score`);
+                    const teamScoreSnapshot = await teamScoreRef.once('value');
+                    const currentTeamScore = parseInt(teamScoreSnapshot.val()) || 0;
+                    const newTeamScore = Math.max(0, currentTeamScore - pointsTeamToRemove);
+                    await teamScoreRef.set(newTeamScore);
+                    console.log(`🏆 Pontos removidos da equipe: ${pointsTeamToRemove}, Score atual: ${currentTeamScore}, Novo score: ${newTeamScore}`);
+                }
+                // Remover a atividade
+                await db.ref(`gamification/activities/${activityId}`).remove();
+                showNotification(`Atividade "${activityName}" excluída com sucesso!`, 'success');
+            } catch (error) {
+                console.error('Erro ao excluir atividade:', error);
+                showNotification('Erro ao excluir atividade: ' + error.message, 'error');
+            }
+        }
+
+        // --- Salvar Edição ---
+        document.getElementById('editActivityForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const activityId = document.getElementById('editActivityId').value;
+            const activityName = document.getElementById('editActivityName').value.trim();
+            const pointsIndividual = parseInt(document.getElementById('editPointsIndividual').value) || 0;
+            const pointsTeam = parseInt(document.getElementById('editPointsTeam').value) || 0;
+            const evidence = document.getElementById('editEvidence').value.trim();
+            
+            if (!activityName) {
+                showNotification('Nome da atividade é obrigatório!', 'error');
+                return;
+            }
+            
+            if (isNaN(pointsIndividual) || pointsIndividual < 0) {
+                showNotification('Pontos individuais devem ser um número válido e não negativo!', 'error');
+                return;
+            }
+            
+            if (isNaN(pointsTeam) || pointsTeam < 0) {
+                showNotification('Pontos da equipe devem ser um número válido e não negativo!', 'error');
+                return;
+            }
+            
+            try {
+                const currentActivity = activitiesData[activityId];
+                const oldPointsIndividual = parseInt(currentActivity.pointsIndividual) || 0;
+                const pointsDifference = pointsIndividual - oldPointsIndividual;
+                // Atualizar pontuação do usuário se houve mudança
+                if (pointsDifference !== 0 && currentActivity.userId) {
+                    const userScoreRef = db.ref(`users/${currentActivity.userId}/gamification/score`);
+                    const scoreSnapshot = await userScoreRef.once('value');
+                    const currentScore = parseInt(scoreSnapshot.val()) || 0;
+                    const newScore = Math.max(0, currentScore + pointsDifference);
+                    await userScoreRef.set(newScore);
+                    console.log(`📊 Pontos atualizados - Diferença: ${pointsDifference}, Score atual: ${currentScore}, Novo score: ${newScore}`);
+                }
+                // Atualizar pontuação da equipe se houve mudança
+                const oldPointsTeam = parseInt(currentActivity.pointsTeam) || 0;
+                const pointsTeamDifference = pointsTeam - oldPointsTeam;
+                if (pointsTeamDifference !== 0 && currentActivity.teamId) {
+                    const teamScoreRef = db.ref(`gamification/teams/${currentActivity.teamId}/score`);
+                    const teamScoreSnapshot = await teamScoreRef.once('value');
+                    const currentTeamScore = parseInt(teamScoreSnapshot.val()) || 0;
+                    const newTeamScore = Math.max(0, currentTeamScore + pointsTeamDifference);
+                    await teamScoreRef.set(newTeamScore);
+                    console.log(`🏆 Pontos de equipe atualizados - Diferença: ${pointsTeamDifference}, Score atual: ${currentTeamScore}, Novo score: ${newTeamScore}`);
+                }
+                // Atualizar a atividade
+                await db.ref(`gamification/activities/${activityId}`).update({
+                    activity: activityName,
+                    pointsIndividual: pointsIndividual,
+                    pointsTeam: pointsTeam,
+                    evidence: evidence,
+                    updatedAt: Date.now(),
+                    updatedBy: currentUser.uid
+                });
+                closeEditModal();
+                showNotification('Atividade atualizada com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao atualizar atividade:', error);
+                showNotification('Erro ao atualizar atividade: ' + error.message, 'error');
+            }
+        });
+
+        // --- Event Listeners ---
+        document.getElementById('searchActivity').addEventListener('input', applyFilters);
+        document.getElementById('filterUser').addEventListener('change', applyFilters);
+        document.getElementById('filterTeam').addEventListener('change', applyFilters);
+        
+        document.getElementById('clearFilters').addEventListener('click', function() {
+            document.getElementById('searchActivity').value = '';
+            document.getElementById('filterUser').value = '';
+            document.getElementById('filterTeam').value = '';
+            applyFilters();
+        });
+
+        // --- Sistema de Notificações ---
+        function showNotification(message, type = 'success') {
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `notification-toast fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-transform duration-300 transform translate-x-full`;
+            
+            if (type === 'success') {
+                toast.className += ' bg-green-500 text-white';
+            } else if (type === 'error') {
+                toast.className += ' bg-red-500 text-white';
+            } else {
+                toast.className += ' bg-blue-500 text-white';
+            }
+            
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}" class="h-5 w-5"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // --- Inicialização ---
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            initializeFirebase();
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target === modal) {
+                closeEditModal();
+            }
+        });
+    </script>
+</body>
+</html>

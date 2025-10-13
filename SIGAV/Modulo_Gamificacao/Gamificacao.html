@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Gamificação por Equipe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .rank-highlight {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .rank-highlight:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3); /* yellow-500 shadow */
+        }
+        /* Cor de destaque da Gamificação */
+        .game-color {
+            color: #f59e0b; /* amber-500 */
+        }
+        .rank-item:nth-child(1) .rank-badge { background-color: #fcd34d; color: #b45309; } /* Ouro */
+        .rank-item:nth-child(2) .rank-badge { background-color: #d1d5db; color: #4b5563; } /* Prata */
+        .rank-item:nth-child(3) .rank-badge { background-color: #fca5a5; color: #991b1b; } /* Bronze */
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Gamificação</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold game-color mb-2">Placar de Astronautas</h1>
+        <p class="text-xl text-gray-600 mb-6">Acompanhe a pontuação da sua equipe e os pontos individuais.</p>
+        
+        <!-- Botão Voltar e Ações -->
+        <div class="flex justify-between items-center mb-6">
+            <a href="../sigav_hub.html" class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar ao Hub
+            </a>
+            
+            <div class="flex space-x-3">
+                <a href="modulo_gamificacao_admin.html" class="inline-flex items-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i data-lucide="settings" class="h-5 w-5 mr-1"></i> Admin Gamificação
+                </a>
+                <a href="modulo_gamificacao_contabilizar.html" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i data-lucide="plus-circle" class="h-5 w-5 mr-1"></i> Contabilizar Pontos
+                </a>
+            </div>
+        </div>
+
+        <!-- Botões de Troca de Ranking -->
+        <div class="flex space-x-4 mb-8">
+            <button id="teamRankBtn" class="bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition-colors flex items-center">
+                <i data-lucide="group" class="h-5 w-5 mr-2"></i> Ranking por Equipe
+            </button>
+            <button id="individualRankBtn" class="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-300 transition-colors flex items-center">
+                <i data-lucide="user" class="h-5 w-5 mr-2"></i> Ranking Individual
+            </button>
+        </div>
+
+        <!-- Layout principal: Rankings e Atividades -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Coluna 1 & 2: Rankings (Ocupa 2/3 no desktop) -->
+            <div class="lg:col-span-2">
+                
+                <!-- Ranking por Equipe (Visível por padrão) -->
+                <div id="teamRankingView" class="space-y-6">
+                    <h2 class="text-3xl font-bold text-sky-800 mb-4 flex items-center">
+                        <i data-lucide="crown" class="h-6 w-6 mr-3 text-yellow-500"></i>
+                        Ranking Geral por Equipe
+                    </h2>
+                    
+                    <!-- Destaque para a primeira colocada -->
+                    <div class="rank-highlight bg-white rounded-xl p-6 shadow-lg card-shadow border-l-4 border-yellow-500 flex items-center space-x-6">
+                        <span class="rank-badge text-4xl font-extrabold text-yellow-700">#1</span>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-gray-800">Equipe Dragões de Código</h3>
+                            <p class="text-gray-600">Total de Pontos: <span class="font-bold game-color">15.800</span></p>
+                        </div>
+                        <i data-lucide="chevrons-up" class="h-8 w-8 text-yellow-500"></i>
+                    </div>
+
+                    <!-- Tabela de Ranking de Equipes -->
+                    <div class="bg-white rounded-xl shadow-lg card-shadow overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipe</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total de Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-center">
+                                <!-- Item de ranking 1 (Mockado, com destaque) -->
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap"><span class="rank-badge font-bold">1</span></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-semibold text-yellow-600">Dragões de Código</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-gray-800">15.800</td>
+                                </tr>
+                                <!-- Itens de ranking restantes (Mock) -->
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap"><span class="rank-badge font-bold">2</span></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-semibold text-gray-700">Esquadrão Beta</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-gray-800">12.950</td>
+                                </tr>
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap"><span class="rank-badge font-bold">3</span></td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-semibold text-gray-700">Guardiões do Bug</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-gray-800">9.120</td>
+                                </tr>
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-500">4</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-medium text-gray-700">Mestres do Front</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-medium text-gray-700">8.800</td>
+                                </tr>
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-500">5</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-medium text-gray-700">Os Inovadores</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-medium text-gray-700">7.150</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Ranking Individual (Escondido por padrão) -->
+                <div id="individualRankingView" class="space-y-6 hidden">
+                    <h2 class="text-3xl font-bold text-sky-800 mb-4 flex items-center">
+                        <i data-lucide="medal" class="h-6 w-6 mr-3 text-purple-600"></i>
+                        Ranking Individual (Todos)
+                    </h2>
+                    
+                    <!-- Destaque para o usuário logado (Mock) -->
+                    <div class="rank-highlight bg-white rounded-xl p-6 shadow-lg card-shadow border-l-4 border-purple-500 flex items-center space-x-6">
+                        <span class="text-4xl font-extrabold text-purple-700">#3</span>
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-gray-800">Seu Nome Aqui (Dragões de Código)</h3>
+                            <p class="text-gray-600">Pontuação Individual: <span class="font-bold text-purple-600">5.500</span></p>
+                        </div>
+                        <i data-lucide="star" class="h-8 w-8 text-purple-500 fill-purple-500"></i>
+                    </div>
+                    
+                    <!-- Tabela de Ranking Individual -->
+                    <div class="bg-white rounded-xl shadow-lg card-shadow overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipe</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <!-- Itens de ranking individual (Mock) -->
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap font-bold text-amber-600">1</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-semibold text-amber-600">Maria Silva</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left text-gray-600">Dragões de Código</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-gray-800">7.200</td>
+                                </tr>
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap font-bold text-gray-600">2</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-semibold text-gray-700">João Mendes</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left text-gray-600">Esquadrão Beta</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-gray-800">6.100</td>
+                                </tr>
+                                <tr class="rank-item bg-blue-50/50"> <!-- Destaque para o usuário logado (simulado) -->
+                                    <td class="px-4 py-4 whitespace-nowrap font-bold text-purple-600">3</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left font-semibold text-purple-600">Seu Nome Aqui</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left text-gray-600">Dragões de Código</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-purple-600">5.500</td>
+                                </tr>
+                                <tr><td class="px-4 py-2 text-center text-gray-400" colspan="4">...</td></tr>
+                                <tr class="rank-item">
+                                    <td class="px-4 py-4 whitespace-nowrap">10</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left">Pedro Santos</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-left text-gray-600">Os Inovadores</td>
+                                    <td class="px-4 py-4 whitespace-nowrap text-right">3.200</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Coluna 3: Feed de Atividades Recentes -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl p-6 shadow-lg card-shadow h-full">
+                    <h2 class="text-xl font-bold text-sky-800 mb-4 flex items-center">
+                        <i data-lucide="zap" class="h-5 w-5 mr-2 text-red-500"></i>
+                        Feed de Pontuação Recente
+                    </h2>
+                    <div class="space-y-4">
+                        
+                        <!-- Atividade 1 -->
+                        <div class="flex items-start space-x-3 border-b pb-4 border-gray-100">
+                            <i data-lucide="check-square" class="h-6 w-6 text-green-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Maria S. <span class="font-normal text-gray-500">(Dragões)</span></p>
+                                <p class="text-xs text-gray-700">Concluiu 3 tópicos da **Trilha de Vue.js**.</p>
+                                <span class="text-xs font-bold text-green-600 mt-1 block">+150 pontos</span>
+                            </div>
+                        </div>
+
+                        <!-- Atividade 2 -->
+                        <div class="flex items-start space-x-3 border-b pb-4 border-gray-100">
+                            <i data-lucide="trophy" class="h-6 w-6 text-yellow-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Esquadrão Beta (Time)</p>
+                                <p class="text-xs text-gray-700">Primeira equipe a fechar o KR 1.1 de OKR.</p>
+                                <span class="text-xs font-bold text-yellow-600 mt-1 block">+500 pontos</span>
+                            </div>
+                        </div>
+
+                        <!-- Atividade 3 -->
+                        <div class="flex items-start space-x-3 border-b pb-4 border-gray-100">
+                            <i data-lucide="file-text" class="h-6 w-6 text-sky-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Você (Mestres)</p>
+                                <p class="text-xs text-gray-700">Submeteu o **Exercício Semanal de HTML/CSS**.</p>
+                                <span class="text-xs font-bold text-sky-600 mt-1 block">+200 pontos</span>
+                            </div>
+                        </div>
+
+                        <!-- Atividade 4 -->
+                        <div class="flex items-start space-x-3 border-b pb-4 border-gray-100">
+                            <i data-lucide="users" class="h-6 w-6 text-purple-500 flex-shrink-0 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">João M. <span class="font-normal text-gray-500">(Esquadrão)</span></p>
+                                <p class="text-xs text-gray-700">Completou a **Trilha de Gestão de Pessoas**.</p>
+                                <span class="text-xs font-bold text-purple-600 mt-1 block">+300 pontos</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // Sistema de Notificações
+        function showNotification(message, type = 'success') {
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `notification-toast fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-transform duration-300 transform translate-x-full`;
+            
+            if (type === 'success') {
+                toast.className += ' bg-green-500 text-white';
+            } else if (type === 'error') {
+                toast.className += ' bg-red-500 text-white';
+            } else {
+                toast.className += ' bg-blue-500 text-white';
+            }
+            
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}" class="h-5 w-5"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Inicializar os ícones do Lucide
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+
+            const teamRankBtn = document.getElementById('teamRankBtn');
+            const individualRankBtn = document.getElementById('individualRankBtn');
+            const teamRankingView = document.getElementById('teamRankingView');
+            const individualRankingView = document.getElementById('individualRankingView');
+
+            function showTeamRank() {
+                teamRankingView.classList.remove('hidden');
+                individualRankingView.classList.add('hidden');
+                teamRankBtn.classList.add('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                teamRankBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                individualRankBtn.classList.remove('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                individualRankBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                showNotification('Exibindo ranking por equipes', 'info');
+            }
+
+            function showIndividualRank() {
+                teamRankingView.classList.add('hidden');
+                individualRankingView.classList.remove('hidden');
+                individualRankBtn.classList.add('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                individualRankBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                teamRankBtn.classList.remove('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                teamRankBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                showNotification('Exibindo ranking individual', 'info');
+            }
+
+            teamRankBtn.addEventListener('click', showTeamRank);
+            individualRankBtn.addEventListener('click', showIndividualRank);
+
+            // Mostrar notificação de boas-vindas
+            setTimeout(() => {
+                showNotification('Placar de Astronautas carregado com sucesso!', 'success');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

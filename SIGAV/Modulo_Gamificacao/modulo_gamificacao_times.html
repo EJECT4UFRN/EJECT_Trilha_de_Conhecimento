@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Ranking por Times</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="../firebase-config.js"></script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
+            color: #1f2937;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+        }
+        .rank-highlight {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .rank-highlight:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3); /* yellow-500 shadow */
+        }
+        /* Cor de destaque da Gamificação */
+        .game-color {
+            color: #f59e0b; /* amber-500 */
+        }
+        .rank-item:nth-child(1) .rank-badge { background-color: #fcd34d; color: #b45309; } /* Ouro */
+        .rank-item:nth-child(2) .rank-badge { background-color: #d1d5db; color: #4b5563; } /* Prata */
+        .rank-item:nth-child(3) .rank-badge { background-color: #fca5a5; color: #991b1b; } /* Bronze */
+        
+        .team-badge {
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+        .team-dragoes { 
+            background-color: #fef2f2; 
+            color: #991b1b; 
+        }
+        .team-esquadrao { 
+            background-color: #eff6ff; 
+            color: #1e40af; 
+        }
+        .team-guardioes { 
+            background-color: #f0fdf4; 
+            color: #166534; 
+        }
+        .team-inovadores { 
+            background-color: #faf5ff; 
+            color: #7c2d12; 
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center">
+                    <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700 hover:text-sky-800 transition-colors">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Gamificação</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Logotipo da EJECT -->
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 class="text-4xl font-extrabold game-color mb-2">Placar de Astronautas</h1>
+        <p class="text-xl text-gray-600 mb-6">Acompanhe a pontuação da sua equipe e os pontos individuais.</p>
+        
+        <!-- Botão Voltar e Ações -->
+        <div class="flex justify-between items-center mb-8">
+            <a href="../sigav_hub.html" class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow transition duration-150 ease-in-out">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-1"></i>
+                Voltar ao Hub
+            </a>
+            
+            <div class="flex space-x-3">
+                <a id="adminBtn" href="modulo_gamificacao_admin.html" class="hidden inline-flex items-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i data-lucide="settings" class="h-5 w-5 mr-1"></i> Admin Gamificação
+                </a>
+                <a id="contabilizarBtn" href="modulo_gamificacao_contabilizar.html" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out">
+                    <i data-lucide="plus-circle" class="h-5 w-5 mr-1"></i> Contabilizar Pontos
+                </a>
+            </div>
+        </div>
+
+        <!-- Botões de Troca de Ranking -->
+        <div class="flex space-x-4 mb-8">
+            <button id="teamRankBtn" class="bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition-colors flex items-center">
+                <i data-lucide="users" class="h-5 w-5 mr-2"></i> Ranking por Equipe
+            </button>
+            <button id="individualRankBtn" class="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-300 transition-colors flex items-center">
+                <i data-lucide="user" class="h-5 w-5 mr-2"></i> Ranking Individual
+            </button>
+        </div>
+
+        <!-- Layout principal: Rankings e Atividades -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Coluna 1 & 2: Rankings (Ocupa 2/3 no desktop) -->
+            <div class="lg:col-span-2">
+                
+                <!-- Ranking por Equipe (Visível por padrão) -->
+                <div id="teamRankingView" class="space-y-6">
+                    <h2 class="text-3xl font-bold text-sky-800 mb-4 flex items-center">
+                        <i data-lucide="crown" class="h-6 w-6 mr-3 text-yellow-500"></i>
+                        Ranking Geral por Equipe
+                    </h2>
+                    
+                    <!-- Destaque para a primeira colocada -->
+                    <div id="firstPlaceHighlight" class="rank-highlight bg-white rounded-xl p-6 shadow-lg card-shadow border-l-4 border-yellow-500 flex items-center space-x-6">
+                        <span id="firstPlaceRank" class="rank-badge text-4xl font-extrabold text-yellow-700">#1</span>
+                        <div class="flex-1">
+                            <h3 id="firstPlaceTeam" class="text-2xl font-bold text-gray-800">Carregando...</h3>
+                            <p class="text-gray-600">Total de Pontos: <span id="firstPlacePoints" class="font-bold game-color">0</span></p>
+                        </div>
+                        <i data-lucide="chevrons-up" class="h-8 w-8 text-yellow-500"></i>
+                    </div>
+
+                    <!-- Tabela de Ranking de Equipes -->
+                    <div class="bg-white rounded-xl shadow-lg card-shadow overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipe</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total de Pontos</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Membros</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="teamRankingBody">
+                                <!-- Será preenchido dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Ranking Individual (Escondido por padrão) -->
+                <div id="individualRankingView" class="space-y-6 hidden">
+                    <h2 class="text-3xl font-bold text-sky-800 mb-4 flex items-center">
+                        <i data-lucide="medal" class="h-6 w-6 mr-3 text-purple-600"></i>
+                        Ranking Individual (Todos)
+                    </h2>
+                    
+                    <!-- Destaque para o usuário logado -->
+                    <div id="currentUserHighlight" class="rank-highlight bg-white rounded-xl p-6 shadow-lg card-shadow border-l-4 border-purple-500 flex items-center space-x-6 hidden">
+                        <span id="currentUserRank" class="text-4xl font-extrabold text-purple-700">#-</span>
+                        <div class="flex-1">
+                            <h3 id="currentUserInfo" class="text-2xl font-bold text-gray-800">Carregando...</h3>
+                            <p class="text-gray-600">Pontuação Individual: <span id="currentUserPoints" class="font-bold text-purple-600">0</span></p>
+                        </div>
+                        <i data-lucide="star" class="h-8 w-8 text-purple-500 fill-purple-500"></i>
+                    </div>
+                    
+                    <!-- Tabela de Ranking Individual -->
+                    <div class="bg-white rounded-xl shadow-lg card-shadow overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipe</th>
+                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Pontos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="individualRankingBody">
+                                <!-- Será preenchido dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna 3: Feed de Atividades Recentes -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl p-6 shadow-lg card-shadow h-full">
+                    <h2 class="text-xl font-bold text-sky-800 mb-4 flex items-center">
+                        <i data-lucide="zap" class="h-5 w-5 mr-2 text-red-500"></i>
+                        Feed de Pontuação Recente
+                    </h2>
+                    <div class="space-y-4" id="activityFeed">
+                        <!-- Será preenchido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        // --- Variáveis Globais ---
+        let currentUser = null;
+        let teamsData = {};
+        let membersData = {};
+        let activitiesData = {};
+        let isFirebaseReady = false;
+
+        // --- Inicialização Firebase ---
+        function initializeFirebase() {
+            try {
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    isFirebaseReady = true;
+                    console.log('✅ Firebase inicializado para gamificação');
+                    
+                    // Listener de autenticação
+                    auth.onAuthStateChanged(async (user) => {
+                        if (user) {
+                            currentUser = user;
+                            // Sincronizar perfil público primeiro
+                            await syncUserProfile(user);
+                            loadGamificationData();
+                            await checkAndShowAdminButtons(user);
+                        } else {
+                            window.location.href = '../login.html';
+                        }
+                    });
+                } else {
+                    throw new Error('Firebase não encontrado');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao inicializar Firebase:', error);
+                isFirebaseReady = false;
+                showNotification('Erro ao conectar com Firebase. Recarregue a página.', 'error');
+            }
+        }
+
+        // --- Verificação de Permissões Admin ---
+        async function checkAndShowAdminButtons(user) {
+            try {
+                let isAdmin = false;
+
+                // Verificar se é super admin
+                if (user.email === 'educhior@hotmail.com') {
+                    isAdmin = true;
+                } else {
+                    // Verificar se é admin no banco
+                    const adminSnapshot = await db.ref(`admins/${user.uid}`).once('value');
+                    if (adminSnapshot.exists()) {
+                        isAdmin = true;
+                    }
+                }
+
+                // Mostrar/esconder botões baseado nas permissões
+                const adminBtn = document.getElementById('adminBtn');
+                const contabilizarBtn = document.getElementById('contabilizarBtn');
+
+                if (isAdmin && adminBtn) {
+                    adminBtn.classList.remove('hidden');
+                    console.log('✅ Botões administrativos habilitados');
+                }
+
+                // Mostrar botão contabilizar para todos os usuários logados
+                if (contabilizarBtn) {
+                    contabilizarBtn.classList.remove('hidden');
+                    console.log('✅ Botão contabilizar habilitado para usuário logado');
+                }
+
+            } catch (error) {
+                console.error('Erro ao verificar permissões:', error);
+                // Mesmo com erro, mostrar botão contabilizar para usuários logados
+                const contabilizarBtn = document.getElementById('contabilizarBtn');
+                if (contabilizarBtn) {
+                    contabilizarBtn.classList.remove('hidden');
+                }
+            }
+        }
+
+        // --- Sincronização de Perfil Público ---
+        async function syncUserProfile(user) {
+            try {
+                // Verificar se o perfil público já existe
+                const profileRef = db.ref(`profiles/${user.uid}`);
+                const profileSnapshot = await profileRef.once('value');
+
+                if (!profileSnapshot.exists()) {
+                    // Buscar dados do usuário privado (apenas admins podem fazer isso)
+                    const userRef = db.ref(`users/${user.uid}`);
+                    const userSnapshot = await userRef.once('value');
+
+                    if (userSnapshot.exists()) {
+                        const userData = userSnapshot.val();
+
+                        // Criar perfil público com dados não sensíveis
+                        const publicProfile = {
+                            name: userData.name || user.email?.split('@')[0] || 'Usuário',
+                            email: userData.email || user.email,
+                            gamification: {
+                                teamId: userData.gamification?.teamId || null,
+                                score: userData.gamification?.score || 0
+                            },
+                            lastSync: Date.now()
+                        };
+
+                        await profileRef.set(publicProfile);
+                        console.log('✅ Perfil público sincronizado para:', user.uid);
+                    } else {
+                        // Se não há dados privados, criar perfil básico
+                        const basicProfile = {
+                            name: user.displayName || user.email?.split('@')[0] || 'Usuário',
+                            email: user.email,
+                            gamification: {
+                                teamId: null,
+                                score: 0
+                            },
+                            lastSync: Date.now()
+                        };
+
+                        await profileRef.set(basicProfile);
+                        console.log('✅ Perfil público básico criado para:', user.uid);
+                    }
+                } else {
+                    // Verificar se precisa sincronizar dados oficiais (para admins)
+                    const currentMember = membersData[user.uid];
+                    const isAdmin = currentMember ? Boolean(currentMember.isAdmin) : false;
+
+                    if (isAdmin) {
+                        // Buscar dados oficiais e sincronizar com perfil público
+                        const userRef = db.ref(`users/${user.uid}`);
+                        const userSnapshot = await userRef.once('value');
+
+                        if (userSnapshot.exists()) {
+                            const userData = userSnapshot.val();
+                            const profileData = profileSnapshot.val();
+
+                            // Se os pontos oficiais são diferentes dos públicos, atualizar público
+                            const officialScore = userData.gamification?.score || 0;
+                            const publicScore = profileData.gamification?.score || 0;
+
+                            if (officialScore !== publicScore) {
+                                await profileRef.child('gamification/score').set(officialScore);
+                                console.log('✅ Pontuação oficial sincronizada para perfil público:', user.uid);
+                            }
+                        }
+                    }
+
+                    console.log('ℹ️ Perfil público já existe para:', user.uid);
+                }
+            } catch (error) {
+                console.error('Erro ao sincronizar perfil público:', error);
+                // Não mostrar erro para usuário comum, apenas log
+            }
+        }
+
+        // --- Carregamento de Dados do Firebase ---
+        function loadGamificationData() {
+            if (!isFirebaseReady) return;
+
+            // Listener para equipes
+            db.ref('gamification/teams').on('value', (snapshot) => {
+                teamsData = snapshot.val() || {};
+                console.log('Equipes carregadas:', teamsData);
+                renderTeamRanking();
+            }, (error) => {
+                console.error('Erro ao carregar equipes:', error);
+                // Mensagem amigável para o usuário quando for problema de permissão
+                if (error && (error.code === 'PERMISSION_DENIED' || (error.message && error.message.toLowerCase().includes('permission_denied')))) {
+                    showNotification('Sem permissão para ler equipes. Verifique as regras do Firebase ou faça login.', 'error');
+                } else {
+                    showNotification('Erro ao carregar equipes. Veja o console para mais detalhes.', 'error');
+                }
+                showEmptyState();
+            });
+
+            // Listener para membros e suas pontuações (usando profiles públicos)
+            db.ref('profiles').on('value', (snapshot) => {
+                const profiles = snapshot.val() || {};
+                membersData = {};
+
+                Object.keys(profiles).forEach(userId => {
+                    const profile = profiles[userId];
+                    if (profile && profile.email) { // Só incluir se tiver email (usuário válido)
+                        membersData[userId] = {
+                            id: userId,
+                            name: profile.name || profile.email?.split('@')[0] || 'Usuário',
+                            teamId: profile.gamification?.teamId || null,
+                            score: profile.gamification?.score || 0,
+                            email: profile.email
+                        };
+                    }
+                });
+
+                console.log('Perfis públicos carregados:', membersData);
+                renderIndividualRanking();
+                // Recalcular ranking por equipes sempre que os membros mudarem
+                renderTeamRanking();
+            }, (error) => {
+                console.error('Erro ao carregar perfis públicos:', error);
+                if (error && (error.code === 'PERMISSION_DENIED' || (error.message && error.message.toLowerCase().includes('permission_denied')))) {
+                    showNotification('Sem permissão para ler perfis públicos. Verifique suas credenciais ou as regras do Firebase.', 'error');
+                } else {
+                    showNotification('Erro ao carregar perfis públicos. Veja o console para mais detalhes.', 'error');
+                }
+                showEmptyState();
+            });
+
+            // Listener para atividades recentes
+            db.ref('gamification/activities').limitToLast(10).on('value', (snapshot) => {
+                const activities = snapshot.val() || {};
+                activitiesData = Object.values(activities).reverse(); // Mais recentes primeiro
+                console.log('Atividades carregadas:', activitiesData);
+                renderActivityFeed();
+                // Atividades podem afetar pontuação de equipes — recalcular por segurança
+                renderTeamRanking();
+            });
+        }
+
+        // --- Função para Mostrar Estado Vazio ---
+        function showEmptyState() {
+            const teamTableBody = document.getElementById('teamRankingBody');
+            const individualTableBody = document.getElementById('individualRankingBody');
+            
+            if (teamTableBody) {
+                teamTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-gray-500">
+                            <i data-lucide="users" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                            <p>Nenhuma equipe cadastrada ainda</p>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            if (individualTableBody) {
+                individualTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-gray-500">
+                            <i data-lucide="user" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                            <p>Nenhum membro encontrado</p>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            updateFirstPlaceHighlight(null);
+            updateCurrentUserHighlight([]);
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+        // --- Funções de Renderização ---
+        function renderTeamRanking() {
+            const tbody = document.getElementById('teamRankingBody');
+            if (!tbody) return;
+
+            // Função auxiliar: resolve a chave do time em teamsData a partir de um teamId
+            function resolveTeamKey(teamId) {
+                if (!teamId) return null;
+                // Caso já seja a chave
+                if (teamsData[teamId]) return teamId;
+                // Tentar achar por campo id ou por nome
+                for (const k of Object.keys(teamsData)) {
+                    const t = teamsData[k];
+                    if (!t) continue;
+                    if (t.id && t.id === teamId) return k;
+                    if (t.name && t.name === teamId) return k;
+                }
+                return null;
+            }
+
+            // Calcular pontuação das equipes baseada nos dados disponíveis
+            const teamScores = {};
+            // Inicializa com os dados existentes (usando a chave como id padrão)
+            Object.keys(teamsData).forEach(key => {
+                const team = teamsData[key] || {};
+                const hasTeamScore = typeof team.score !== 'undefined' && team.score !== null;
+                teamScores[key] = {
+                    id: team.id || key,
+                    name: team.name || ('Equipe ' + key),
+                    color: team.color || 'gray',
+                    // Se team.score existir, usá-lo como fonte de verdade
+                    totalPoints: hasTeamScore ? (parseInt(team.score) || 0) : 0,
+                    memberCount: 0,
+                    _hasTeamScore: hasTeamScore
+                };
+            });
+
+            // Somar membros (sempre contar membros, mas só somar pontos se team não tiver score)
+            Object.values(membersData).forEach(member => {
+                const teamKey = resolveTeamKey(member.teamId);
+                const memberScore = parseInt(member.score) || 0;
+                if (teamKey && teamScores[teamKey]) {
+                    teamScores[teamKey].memberCount += 1;
+                    if (!teamScores[teamKey]._hasTeamScore) {
+                        teamScores[teamKey].totalPoints += memberScore;
+                    }
+                }
+            });
+
+            // Agregar pontos de equipe registrados nas activities somente quando
+            // a equipe NÃO tem score no nó `teams` (para evitar duplicidade)
+            if (activitiesData && Object.keys(activitiesData).length) {
+                Object.values(activitiesData).forEach(activity => {
+                    const pts = parseInt(activity.pointsTeam) || 0;
+                    if (!pts) return;
+
+                    // Prioriza teamId, depois tenta casar pelo nome da equipe
+                    let aTeamKey = resolveTeamKey(activity.teamId);
+                    if (!aTeamKey && activity.team) {
+                        for (const k of Object.keys(teamScores)) {
+                            if (teamScores[k].name === activity.team) {
+                                aTeamKey = k;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (aTeamKey && teamScores[aTeamKey] && !teamScores[aTeamKey]._hasTeamScore) {
+                        teamScores[aTeamKey].totalPoints += pts;
+                    }
+                });
+            }
+
+            const sortedTeams = Object.values(teamScores).sort((a, b) => b.totalPoints - a.totalPoints);
+
+            tbody.innerHTML = sortedTeams.map((team, index) => {
+                const rank = index + 1;
+                let rankClass = '';
+                if (rank === 1) rankClass = 'rank-badge font-bold text-yellow-600';
+                else if (rank === 2) rankClass = 'rank-badge font-bold text-gray-600';
+                else if (rank === 3) rankClass = 'rank-badge font-bold text-red-600';
+                else rankClass = 'font-medium text-gray-500';
+
+                return `
+                    <tr class="rank-item ${rank <= 3 ? 'bg-gradient-to-r from-yellow-50 to-transparent' : ''}">
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <span class="${rankClass}">${rank}</span>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-left font-semibold ${rank === 1 ? 'text-yellow-600' : 'text-gray-700'}">
+                            ${team.name || 'Equipe sem nome'}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right font-bold text-gray-800">
+                            ${(parseInt(team.totalPoints) || 0).toLocaleString('pt-BR')}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center">
+                            <span class="team-badge bg-${team.color || 'gray'}-100 text-${team.color || 'gray'}-800">
+                                ${(parseInt(team.memberCount) || 0).toLocaleString('pt-BR')}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Atualizar destaque da primeira colocação
+            updateFirstPlaceHighlight(sortedTeams[0]);
+        }
+
+        function renderIndividualRanking() {
+            const tbody = document.getElementById('individualRankingBody');
+            if (!tbody) return;
+
+            const sortedMembers = Object.values(membersData).sort((a, b) => (b.score || 0) - (a.score || 0));
+            
+            tbody.innerHTML = sortedMembers.map((member, index) => {
+                const rank = index + 1;
+                const isCurrentUser = currentUser && member.id === currentUser.uid;
+                const teamName = member.teamId && teamsData[member.teamId] ? teamsData[member.teamId].name : 'Sem equipe';
+                
+                let rankClass = '';
+                if (rank === 1) rankClass = 'font-bold text-yellow-600';
+                else if (rank === 2) rankClass = 'font-bold text-gray-600';
+                else if (rank === 3) rankClass = 'font-bold text-red-600';
+                else rankClass = isCurrentUser ? 'font-bold text-purple-600' : 'text-gray-500';
+
+                return `
+                    <tr class="rank-item ${isCurrentUser ? 'bg-blue-50/50' : ''}">
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <span class="${rankClass}">${rank}</span>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-left font-semibold ${isCurrentUser ? 'text-purple-600' : 'text-gray-700'}">
+                            ${member.name}${isCurrentUser ? ' (Você)' : ''}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-left text-gray-600">
+                            ${teamName}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-right font-bold ${isCurrentUser ? 'text-purple-600' : 'text-gray-800'}">
+                            ${(member.score || 0).toLocaleString()}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Atualizar destaque do usuário atual
+            if (currentUser && sortedMembers.length > 0) {
+                updateCurrentUserHighlight(sortedMembers);
+            }
+        }
+
+        function renderActivityFeed() {
+            const feed = document.getElementById('activityFeed');
+            if (!feed) return;
+
+            if (!activitiesData || activitiesData.length === 0) {
+                feed.innerHTML = `
+                    <div class="text-center text-gray-500 py-4">
+                        <i data-lucide="activity" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                        <p class="text-sm">Nenhuma atividade recente</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            feed.innerHTML = activitiesData.map(activity => {
+                const timeAgo = activity.timestamp ? getTimeAgo(activity.timestamp) : 'Há pouco tempo';
+                // Pontuação: usar pointsIndividual, pointsTeam ou points (fallback)
+                let pontos = 0;
+                if (activity.pointsIndividual !== undefined) {
+                    pontos += parseInt(activity.pointsIndividual) || 0;
+                }
+                if (activity.pointsTeam !== undefined) {
+                    pontos += parseInt(activity.pointsTeam) || 0;
+                }
+                if (pontos === 0 && activity.points !== undefined) {
+                    pontos = parseInt(activity.points) || 0;
+                }
+                return `
+                    <div class="flex items-start space-x-3 border-b pb-4 border-gray-100">
+                        <i data-lucide="${activity.type || 'zap'}" class="h-6 w-6 text-${activity.color || 'blue'}-500 flex-shrink-0 mt-1"></i>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800">
+                                ${activity.user || 'Usuário'} 
+                                <span class="font-normal text-gray-500">(${activity.team || 'Sem equipe'})</span>
+                            </p>
+                            <p class="text-xs text-gray-700">${activity.activity || 'Atividade realizada'}</p>
+                            <div class="flex justify-between items-center mt-1">
+                                <span class="text-xs font-bold text-${activity.color || 'blue'}-600">
+                                    +${pontos.toLocaleString('pt-BR')} pontos
+                                </span>
+                                <span class="text-xs text-gray-400">${timeAgo}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- Funções Auxiliares ---
+        function updateFirstPlaceHighlight(firstTeam) {
+            const teamNameEl = document.getElementById('firstPlaceTeam');
+            const pointsEl = document.getElementById('firstPlacePoints');
+            
+            if (firstTeam && teamNameEl && pointsEl) {
+                teamNameEl.textContent = `Equipe ${firstTeam.name || 'Sem nome'}`;
+                pointsEl.textContent = (firstTeam.totalPoints || 0).toLocaleString();
+            } else if (teamNameEl && pointsEl) {
+                teamNameEl.textContent = 'Nenhuma equipe cadastrada';
+                pointsEl.textContent = '0';
+            }
+        }
+
+        function updateCurrentUserHighlight(sortedMembers) {
+            const highlightDiv = document.getElementById('currentUserHighlight');
+            
+            if (!currentUser || !highlightDiv) return;
+            
+            const userRank = sortedMembers.findIndex(member => member.id === currentUser.uid) + 1;
+            const userMember = sortedMembers.find(member => member.id === currentUser.uid);
+            
+            if (userMember && userRank > 0) {
+                // Mostrar o destaque do usuário
+                highlightDiv.classList.remove('hidden');
+                
+                const rankEl = document.getElementById('currentUserRank');
+                const infoEl = document.getElementById('currentUserInfo');
+                const pointsEl = document.getElementById('currentUserPoints');
+                
+                if (rankEl) rankEl.textContent = `#${userRank}`;
+                if (infoEl) {
+                    const teamName = userMember.teamId && teamsData[userMember.teamId] 
+                        ? teamsData[userMember.teamId].name 
+                        : 'Sem equipe';
+                    infoEl.textContent = `${userMember.name} (${teamName})`;
+                }
+                if (pointsEl) pointsEl.textContent = (userMember.score || 0).toLocaleString();
+            } else {
+                // Esconder o destaque se o usuário não foi encontrado
+                highlightDiv.classList.add('hidden');
+            }
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'Agora';
+            if (minutes < 60) return `${minutes}min atrás`;
+            if (hours < 24) return `${hours}h atrás`;
+            return `${days}d atrás`;
+        }
+
+        // --- Sistema de Notificações ---
+        function showNotification(message, type = 'success') {
+            const existing = document.querySelector('.notification-toast');
+            if (existing) existing.remove();
+            
+            const toast = document.createElement('div');
+            toast.className = `notification-toast fixed top-20 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transition-transform duration-300 transform translate-x-full`;
+            
+            if (type === 'success') {
+                toast.className += ' bg-green-500 text-white';
+            } else if (type === 'error') {
+                toast.className += ' bg-red-500 text-white';
+            } else {
+                toast.className += ' bg-blue-500 text-white';
+            }
+            
+            toast.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info'}" class="h-5 w-5"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Inicialização ---
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+
+            const teamRankBtn = document.getElementById('teamRankBtn');
+            const individualRankBtn = document.getElementById('individualRankBtn');
+            const teamRankingView = document.getElementById('teamRankingView');
+            const individualRankingView = document.getElementById('individualRankingView');
+
+            function showTeamRank() {
+                teamRankingView.classList.remove('hidden');
+                individualRankingView.classList.add('hidden');
+                teamRankBtn.classList.add('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                teamRankBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                individualRankBtn.classList.remove('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                individualRankBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                showNotification('Exibindo ranking por equipes', 'info');
+            }
+
+            function showIndividualRank() {
+                teamRankingView.classList.add('hidden');
+                individualRankingView.classList.remove('hidden');
+                individualRankBtn.classList.add('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                individualRankBtn.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                teamRankBtn.classList.remove('bg-yellow-500', 'text-white', 'hover:bg-yellow-600');
+                teamRankBtn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                showNotification('Exibindo ranking individual', 'info');
+            }
+
+            teamRankBtn.addEventListener('click', showTeamRank);
+            individualRankBtn.addEventListener('click', showIndividualRank);
+
+            // Inicializar Firebase e dados
+            initializeFirebase();
+            
+            // Mostrar notificação de carregamento
+            setTimeout(() => {
+                showNotification('Placar de Astronautas carregado!', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
