@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | O Astronauta vai à Lua</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script>
+        // Configuração do Tailwind (Mesma do index.html + Cores específicas da trilha)
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Exo 2"', 'sans-serif'],
+                    },
+                    colors: {
+                        'eject-blue-dark': '#001A33',
+                        'eject-blue-medium': '#003366',
+                        'eject-blue-light': '#0055AA',
+                        'eject-yellow': '#FFCC00',
+                        'eject-text-primary': '#1A1A1A',
+                        'eject-text-secondary': '#4A4A4A',
+                    },
+                    backgroundImage: {
+                        'space-gradient': 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%)',
+                        'card-gradient': 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Efeito de estrelas simples no fundo */
+        .stars-bg {
+            background-color: #0f172a;
+            background-image:
+                radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255, 255, 255, .1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+        }
+
+        /* Animação suave para os cards */
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-eject-text-primary flex flex-col min-h-screen">
+
+    <header
+        class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-white shadow-slate-200/50 relative z-50">
+        <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
+
+            <div class="flex items-center space-x-4 flex-shrink-0">
+                <button onclick="window.history.back()"
+                    class="text-eject-text-primary hover:text-eject-blue-light transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
+                    aria-label="Voltar">
+                    <span
+                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">
+                        arrow_back
+                    </span>
+                </button>
+
+                <a href="index.html" class="no-underline flex-shrink-0">
+                    <h1
+                        class="font-bold text-eject-text-primary text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">
+                        O Astronauta vai à Lua</h1>
+                </a>
+            </div>
+
+            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="xs:block">
+                    <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
+                </a>
+                <div class="relative">
+                    <a href="../SIGAV/sigav_hub.html" id="loginIconContainer" aria-label="SIGAV Hub"
+                        class="text-eject-text-primary hover:text-eject-blue-light transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
+                        <span id="loginIcon" class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">
+                            account_circle
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow">
+
+        <section class="stars-bg text-white relative overflow-hidden py-16 sm:py-24">
+            <div class="flex-col absolute inset-0 bg-gradient-to-b from-transparent to-gray-50/10"></div>
+
+            <div class="mx-auto mb-6 w-32">
+                <img src="../img/logo_trilha.png" alt="">
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div
+                    class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full mb-6 border border-white/20">
+                    <span class="material-symbols-outlined text-eject-yellow animate-pulse">rocket_launch</span>
+                    <span class="text-sm font-semibold tracking-wide uppercase">Programa de Nivelamento</span>
+                </div>
+
+                <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">
+                    DOMINE SUA <br /><span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-eject-yellow to-white">TRILHA
+                        TÉCNICA</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 font-light">
+                    O programa "O Astronauta vai à Lua" foi desenhado para te levar do zero à excelência em UX, Frontend
+                    ou Backend através de desafios práticos e trilhas bem estruturadas.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="#escolha-area"
+                        class="px-8 py-4 bg-eject-yellow text-eject-blue-dark font-bold rounded-lg shadow-lg hover:bg-yellow-400 hover:scale-105 transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">rocket</span>
+                        ESCOLHER MISSÃO
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-white relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-eject-blue-dark">Metodologia da Missão</h2>
+                    <p class="text-eject-text-secondary mt-2 max-w-2xl mx-auto">
+                        Não é apenas teoria. Cada área (UX/UI, Front e Back) segue uma estrutura rigorosa de 3 níveis.
+                        Para avançar, você precisa provar que sabe fazer.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8 relative">
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gray-100 -z-10 -translate-y-1/2">
+                    </div>
+
+                    <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg relative hover-lift">
+                        <div
+                            class="w-14 h-14 bg-blue-50 text-eject-blue-light rounded-full flex items-center justify-center mb-6 text-2xl font-bold border-4 border-white shadow-sm mx-auto md:mx-0">
+                            1
+                        </div>
+                        <h3 class="text-xl font-bold text-eject-blue-dark mb-3 text-center md:text-left">Imersão Técnica
+                        </h3>
+                        <p class="text-gray-600 text-sm text-center md:text-left">
+                            Acesse conteúdos curados, aulas e documentações específicas para aquele nível. Aprenda os
+                            fundamentos necessários para a missão.
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-eject-blue-dark p-8 rounded-2xl border border-eject-blue-dark shadow-xl relative transform md:-translate-y-4 hover-lift">
+                        <div
+                            class="absolute -top-3 left-1/2 -translate-x-1/2 bg-eject-yellow text-eject-blue-dark text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                            Crucial
+                        </div>
+                        <div
+                            class="w-14 h-14 bg-white/10 text-eject-yellow rounded-full flex items-center justify-center mb-6 text-2xl font-bold border-4 border-eject-blue-dark shadow-sm mx-auto md:mx-0">
+                            2
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 text-center md:text-left">Desafio Final</h3>
+                        <p class="text-gray-300 text-sm text-center md:text-left">
+                            O coração da trilha. Para passar de nível, você deve completar um <strong>Desafio Prático
+                                Real</strong> e estará vinculado com o <a
+                                class="underline hover:text-white font-semibold" target="_blank"
+                                href="https://github.com/EJECT4UFRN/banco-componentes">banco de
+                                componentes da
+                                EJECT.</a>
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-lg relative hover-lift">
+                        <div
+                            class="w-14 h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mb-6 text-2xl font-bold border-4 border-white shadow-sm mx-auto md:mx-0">
+                            3
+                        </div>
+                        <h3 class="text-xl font-bold text-eject-blue-dark mb-3 text-center md:text-left">Conquista &
+                            Evolução</h3>
+                        <p class="text-gray-600 text-sm text-center md:text-left">
+                            Após a aprovação do desafio, você desbloqueia a <strong>Insígnia do Nível</strong> e ganha
+                            acesso imediato aos conteúdos do próximo estágio.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-eject-blue-dark text-white relative">
+            <div class="absolute inset-0 bg-[url('../img/grid-pattern.svg')] opacity-10"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white">Estrutura de Níveis</h2>
+                        <p class="text-gray-400 mt-2">Independentemente da área, sua evolução segue esta escala.</p>
+                    </div>
+                    <div class="hidden md:block">
+                        <span class="material-symbols-outlined text-6xl text-white/10">stairs</span>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div
+                        class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="material-symbols-outlined text-eject-yellow">filter_1</span>
+                            <span class="text-lg font-bold">Básico</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4">
+                            Foco em fundamentos. Você aprende a base da tecnologia e suas aplicações práticas.
+                        </p>
+                        <div class="border-t border-white/10 pt-4 mt-4">
+                            <p class="text-xs text-gray-500 uppercase font-bold">Desafio Final:</p>
+                            <p class="text-sm text-eject-yellow">Elaboração de componentes</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all ring-1 ring-eject-yellow/30">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="material-symbols-outlined text-eject-yellow">filter_2</span>
+                            <span class="text-lg font-bold">Intermediário</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4">
+                            Aprofundamento técnico. Você utiliza frameworks e ferramentas usadas na EJECT.
+                        </p>
+                        <div class="border-t border-white/10 pt-4 mt-4">
+                            <p class="text-xs text-gray-500 uppercase font-bold">Desafio Final:</p>
+                            <p class="text-sm text-eject-yellow">Desenvolvimento de componentes avançados</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
+                        <div class="flex items-center gap-3 mb-4">
+                            <span class="material-symbols-outlined text-eject-yellow">filter_3</span>
+                            <span class="text-lg font-bold">Avançado</span>
+                        </div>
+                        <p class="text-sm text-gray-400 mb-4">
+                            Excelência e arquitetura. Foco em performance, boas práticas e assuntos avançados.
+                        </p>
+                        <div class="border-t border-white/10 pt-4 mt-4">
+                            <p class="text-xs text-gray-500 uppercase font-bold">Desafio Final:</p>
+                            <p class="text-sm text-eject-yellow">Projeto Completo Integrado</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-gray-50 relative overflow-hidden" id="escolha-area">
+            <div
+                class="absolute top-0 left-0 w-full h-full bg-[url('../img/grid-pattern.svg')] opacity-5 pointer-events-none">
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-eject-blue-dark">Escolha sua Especialidade</h2>
+                    <p class="text-eject-text-secondary mt-2 text-lg">
+                        Cada trilha possui 3 níveis de profundidade com desafios práticos obrigatórios.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+
+                    <div
+                        class="group relative bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col">
+                        <div class="h-1 bg-purple-500 w-full"></div>
+                        <div class="p-8 flex-grow flex flex-col">
+                            <div
+                                class="w-16 h-16 mx-auto bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
+                                <span class="material-symbols-outlined text-4xl">brush</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-eject-blue-dark mb-2 text-center">UX/UI Design</h3>
+                            <p class="text-gray-500 text-sm mb-6 text-center">Desenhe experiências. Do wireframe ao
+                                protótipo de alta fidelidade.</p>
+
+                            <div class="space-y-4 mb-8 mt-auto">
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">1</span>
+                                    <span>Básico: Fundamentos do Figma</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">2</span>
+                                    <span>Intermediário: Prototipagem</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">3</span>
+                                    <span>Avançado: Design System</span>
+                                </div>
+                            </div>
+
+                            <a href="./uxui/trilha_uxui.html"
+                                class="block w-full py-3 px-4 bg-white border border-purple-200 text-purple-600 font-bold rounded-lg hover:bg-purple-600 hover:text-white transition-all text-center">
+                                INICIAR MISSÃO
+                            </a>
+                        </div>
+                    </div>
+
+                    <div
+                        class="group relative bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col">
+                        <div class="h-1 bg-cyan-500 w-full"></div>
+                        <div class="p-8 flex-grow flex flex-col">
+                            <div
+                                class="w-16 h-16 mx-auto bg-cyan-50 text-cyan-600 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
+                                <span class="material-symbols-outlined text-4xl">code</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-eject-blue-dark mb-2 text-center">Frontend</h3>
+                            <p class="text-gray-500 text-sm mb-6 text-center">Dê vida às interfaces. React, componentes
+                                e integração com APIs.</p>
+
+                            <div class="space-y-4 mb-8 mt-auto">
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-cyan-100 text-cyan-600 flex items-center justify-center text-xs font-bold">1</span>
+                                    <span>Básico: HTML/JS</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-cyan-100 text-cyan-600 flex items-center justify-center text-xs font-bold">2</span>
+                                    <span>Intermediário: React & Hooks</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-cyan-100 text-cyan-600 flex items-center justify-center text-xs font-bold">3</span>
+                                    <span>Avançado: Design System</span>
+                                </div>
+                            </div>
+
+                            <a href="./front/trilha_front.html"
+                                class="block w-full py-3 px-4 bg-white border border-cyan-200 text-cyan-600 font-bold rounded-lg hover:bg-cyan-500 hover:text-white transition-all text-center">
+                                INICIAR MISSÃO
+                            </a>
+                        </div>
+                    </div>
+
+                    <div
+                        class="group relative bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col">
+                        <div class="h-1 bg-green-600 w-full"></div>
+                        <div class="p-8 flex-grow flex flex-col">
+                            <div
+                                class="w-16 h-16 mx-auto bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mb-6 group-hover:rotate-6 transition-transform duration-300">
+                                <span class="material-symbols-outlined text-4xl">terminal</span>
+                            </div>
+                            <h3 class="text-2xl font-bold text-eject-blue-dark mb-2 text-center">Backend</h3>
+                            <p class="text-gray-500 text-sm mb-6 text-center">Construa o motor. Lógica, banco de dados e
+                                infraestrutura robusta.</p>
+
+                            <div class="space-y-4 mb-8 mt-auto">
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">1</span>
+                                    <span>Básico: Python/Lógica</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">2</span>
+                                    <span>Intermediário: Django & APIs</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-sm text-gray-600">
+                                    <span
+                                        class="w-6 h-6 rounded bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">3</span>
+                                    <span>Avançado: API REST</span>
+                                </div>
+                            </div>
+
+                            <a href="./back/trilha_back.html"
+                                class="block w-full py-3 px-4 bg-white border border-green-200 text-green-600 font-bold rounded-lg hover:bg-green-600 hover:text-white transition-all text-center">
+                                INICIAR MISSÃO
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+            <div class="max-w-6xl mx-auto text-center">
+                <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                    <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                    reservados.
+                </p>
+                <p class="text-xs text-gray-400">
+                    <a href="termos_de_uso.html"
+                        class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                        Termos de Uso
+                    </a>
+                </p>
+            </div>
+        </footer>
+
+    </main>
+</body>
+
+</html>
