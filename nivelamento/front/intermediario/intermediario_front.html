@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Nível 1: Lançamento UX/UI</title>
+    <title>EJECT | Nível 2: Órbita Frontend</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -27,15 +27,18 @@
                     },
                     colors: {
                         'space-dark': '#05070A',
-                        'ux-purple': '#D946EF',
+                        'front-blue': '#3B82F6',
+                        'front-light': '#60A5FA',
+                        'js-yellow': '#F7DF1E', /* Cor do JS */
                         'eject-yellow': '#FFCC00',
                         'success': '#00FF94',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #1e1b4b 0%, #05070A 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1e3a8a 0%, #05070A 100%)',
                     },
                     boxShadow: {
-                        'neon-purple': '0 0 20px rgba(217, 70, 239, 0.3)',
+                        'neon-blue': '0 0 20px rgba(59, 130, 246, 0.3)',
+                        'neon-js': '0 0 20px rgba(247, 223, 30, 0.3)',
                         'neon-gold': '0 0 30px rgba(255, 204, 0, 0.4)',
                     }
                 }
@@ -104,55 +107,60 @@
     </style>
 </head>
 
-<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-ux-purple selection:text-white">
+<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-js-yellow selection:text-black">
 
     <div class="stars"></div>
 
     <header
-        class="fixed top-0 w-full z-50 transition-all duration-300 bg-space-dark/80 backdrop-blur-md border-b border-white/5">
-        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="../../index.html"
-                class="group flex items-center gap-3 text-gray-400 hover:text-white transition-colors">
-                <div
-                    class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-all">
+        class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-white shadow-slate-200/50 relative z-50">
+        <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
+            <div class="flex items-center space-x-4 flex-shrink-0">
+                <button onclick="window.history.back()"
+                    class="text-gray-800 hover:text-blue-600 transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
+                    aria-label="Voltar">
                     <span
-                        class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                </div>
-                <div class="flex flex-col">
-                    <span
-                        class="text-[10px] uppercase tracking-widest font-bold text-gray-500 group-hover:text-ux-purple">Retornar</span>
-                    <span class="text-sm font-bold">Mapa das Estrelas</span>
-                </div>
-            </a>
-
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                <span class="text-xs font-mono uppercase text-gray-400">Sistema Online</span>
+                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                </button>
+                <a href="../../index.html" class="no-underline flex-shrink-0">
+                    <h1 class="font-bold text-gray-800 text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">O
+                        Astronauta vai à Lua</h1>
+                </a>
             </div>
-        </div>
+            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="xs:block">
+                    <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
+                </a>
+                <div class="relative">
+                    <a href="../../../SIGAV/perfil.html" id="loginIconContainer"
+                        class="text-gray-800 hover:text-blue-600 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
+                        <span id="loginIcon"
+                            class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">account_circle</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
     </header>
 
     <main class="flex-grow pt-32 pb-40 px-4">
 
         <section class="max-w-4xl mx-auto mb-12 text-center">
             <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-ux-purple/10 border border-ux-purple/30 text-ux-purple text-xs font-bold uppercase tracking-widest mb-4">
-                <span class="material-symbols-outlined text-sm">school</span>
-                Módulo de Treinamento
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-js-yellow/10 border border-js-yellow/30 text-js-yellow text-xs font-bold uppercase tracking-widest mb-4">
+                <span class="material-symbols-outlined text-sm">javascript</span>
+                Módulo Intermediário
             </div>
             <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
-                Fundamentos <br> <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-ux-purple to-blue-500">&
-                    Ferramentas</span>
+                Lógica & <br> <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-js-yellow to-yellow-500">Interatividade</span>
             </h1>
             <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-                Bem-vindo à cabine de comando. Complete os módulos abaixo para desbloquear o desafio final.
+                É hora de dar vida às interfaces. Domine o JavaScript, manipule o DOM e crie experiências dinâmicas.
             </p>
 
             <div class="w-full max-w-lg mx-auto opacity-50">
                 <div class="h-1 bg-gray-800 rounded-full overflow-hidden border border-white/10">
                     <div id="hero-progress-bar"
-                        class="h-full bg-gradient-to-r from-ux-purple to-blue-500 w-0 transition-all duration-700">
+                        class="h-full bg-gradient-to-r from-js-yellow to-yellow-600 w-0 transition-all duration-700">
                     </div>
                 </div>
             </div>
@@ -161,27 +169,27 @@
         <div class="max-w-4xl mx-auto space-y-24 relative">
 
             <div
-                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-ux-purple via-blue-500 to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
+                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-js-yellow via-front-blue to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
             </div>
 
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-ux-purple flex items-center justify-center text-ux-purple font-bold text-xs shadow-neon-purple">
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-js-yellow flex items-center justify-center text-js-yellow font-bold text-xs shadow-neon-js">
                         01</div>
                 </div>
 
                 <div
-                    class="glass-panel rounded-3xl overflow-hidden hover:border-ux-purple/30 transition-all duration-500">
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-js-yellow/30 transition-all duration-500">
 
                     <div
-                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-ux-purple/10 to-transparent">
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-js-yellow/10 to-transparent">
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1">O que é UX Design?</h2>
+                            <h2 class="text-2xl font-bold text-white mb-1">Fundamentos do JavaScript</h2>
                             <p class="text-sm text-gray-400 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span> 10 min
+                                <span class="material-symbols-outlined text-sm">schedule</span> 20 min
                                 <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
-                                <span class="text-ux-purple font-bold">Teoria Essencial</span>
+                                <span class="text-js-yellow font-bold">Lógica Pura</span>
                             </p>
                         </div>
                         <span
@@ -190,12 +198,12 @@
 
                     <div class="p-6 md:p-8">
                         <div
-                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-purple transition-all duration-500">
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-js transition-all duration-500">
                             <div
-                                class="absolute -inset-1 bg-ux-purple/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                class="absolute -inset-1 bg-js-yellow/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                             </div>
-                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/S2qwbMvIu6M"
-                                title="O que é UX" frameborder="0"
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/Ptbk2af68e8"
+                                title="JS Tutorial" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
@@ -203,8 +211,8 @@
                         <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
                             <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
                                 <strong class="text-white block mb-1">Briefing:</strong>
-                                Entenda a diferença fundamental entre desenhar telas (UI) e projetar a experiência
-                                completa do usuário (UX). Não pule este conceito.
+                                Variáveis, Funções, Condicionais e Loops. Estes são os blocos de construção de qualquer
+                                software. Sem eles, nada acontece.
                             </div>
 
                             <div class="w-full md:w-auto">
@@ -233,21 +241,21 @@
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-blue-500 flex items-center justify-center text-blue-500 font-bold text-xs shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-front-blue flex items-center justify-center text-front-blue font-bold text-xs shadow-neon-blue">
                         02</div>
                 </div>
 
                 <div
-                    class="glass-panel rounded-3xl overflow-hidden hover:border-blue-500/30 transition-all duration-500">
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-front-blue/30 transition-all duration-500">
 
                     <div
-                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-blue-500/10 to-transparent">
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-front-blue/10 to-transparent">
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1">Crash Course: Figma</h2>
+                            <h2 class="text-2xl font-bold text-white mb-1">Manipulação do DOM</h2>
                             <p class="text-sm text-gray-400 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span> 15 min
+                                <span class="material-symbols-outlined text-sm">schedule</span> 25 min
                                 <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
-                                <span class="text-blue-400 font-bold">Prática Obrigatória</span>
+                                <span class="text-front-blue font-bold">Interatividade</span>
                             </p>
                         </div>
                         <span
@@ -258,10 +266,10 @@
                         <div
                             class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-all duration-500">
                             <div
-                                class="absolute -inset-1 bg-blue-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                class="absolute -inset-1 bg-front-blue/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                             </div>
-                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/FTFaQWZBqQ8"
-                                title="Figma Tutorial" frameborder="0"
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/U34l-XrI3PQ"
+                                title="DOM Manipulation" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
@@ -269,8 +277,8 @@
                         <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
                             <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
                                 <strong class="text-white block mb-1">Briefing:</strong>
-                                Crie sua conta no Figma e aprenda o básico: Frames, Shapes e Textos. Sem isso, você não
-                                consegue completar a missão final.
+                                Aprenda a selecionar elementos HTML, escutar cliques (EventListener) e modificar o
+                                conteúdo da página em tempo real.
                             </div>
 
                             <div class="w-full md:w-auto">
@@ -310,29 +318,28 @@
                     </h3>
 
                     <div class="grid md:grid-cols-2 gap-4">
-                        <a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank"
-                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-ux-purple/50 transition-all group/card">
+                        <a href="https://javascript.info/" target="_blank"
+                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-js-yellow/50 transition-all group/card">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-ux-purple uppercase tracking-widest">Artigo
-                                    Vital</span>
+                                <span class="text-xs font-bold text-js-yellow uppercase tracking-widest">A Bíblia
+                                    JS</span>
                                 <span
                                     class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
                             </div>
-                            <h4 class="font-bold text-white mb-1">10 Heurísticas de Nielsen</h4>
-                            <p class="text-xs text-gray-400">Os mandamentos da usabilidade explicados.</p>
+                            <h4 class="font-bold text-white mb-1">Javascript.info</h4>
+                            <p class="text-xs text-gray-400">Tutorial moderno e completo.</p>
                         </a>
 
-                        <a href="https://help.figma.com/hc/en-us/articles/360040451373-Create-dynamic-designs-with-auto-layout"
-                            target="_blank"
-                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-blue-500/50 transition-all group/card">
+                        <a href="https://keycode.info/" target="_blank"
+                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-front-blue/50 transition-all group/card">
                             <div class="flex justify-between items-start mb-2">
                                 <span
-                                    class="text-xs font-bold text-blue-400 uppercase tracking-widest">Documentação</span>
+                                    class="text-xs font-bold text-front-blue uppercase tracking-widest">Ferramenta</span>
                                 <span
                                     class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
                             </div>
-                            <h4 class="font-bold text-white mb-1">Guia Auto Layout</h4>
-                            <p class="text-xs text-gray-400">Documentação oficial do Figma sobre responsividade.</p>
+                            <h4 class="font-bold text-white mb-1">Keycode Info</h4>
+                            <p class="text-xs text-gray-400">Descubra códigos de tecla para eventos.</p>
                         </a>
                     </div>
 
@@ -341,7 +348,7 @@
                             class="w-5 h-5 rounded bg-black border-gray-600 checked:bg-eject-yellow checked:border-eject-yellow focus:ring-0 cursor-pointer"
                             onchange="saveTaskProgress('check-03')">
                         <label for="check-03" class="text-sm text-gray-400 cursor-pointer hover:text-white">Confirmo que
-                            acessei os materiais complementares.</label>
+                            estudei os materiais complementares.</label>
                     </div>
                 </div>
             </div>
@@ -355,12 +362,13 @@
                             class="material-symbols-outlined text-4xl text-gray-500 transition-colors duration-500">lock</span>
                     </div>
 
-                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio Final</h2>
+                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio: Dashboard</h2>
                     <p class="text-gray-400 mb-8 max-w-lg mx-auto">
-                        Crie uma tela de Login completa aplicando os conceitos de Auto Layout e Heurísticas aprendidos.
+                        Crie um painel de controle interativo. Receba dados de um Array e renderize cards na tela
+                        dinamicamente.
                     </p>
 
-                    <button id="btn-challenge" onclick="window.location.href='desafio_final.html'" disabled
+                    <button id="btn-challenge" onclick="window.location.href='desafio_inter_front.html'" disabled
                         class="px-10 py-4 bg-white/5 text-gray-500 font-bold rounded-xl border border-white/10 cursor-not-allowed uppercase tracking-widest text-sm transition-all duration-300">
                         Acesso Negado
                     </button>
@@ -383,7 +391,7 @@
 
     <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md">
         <div
-            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-purple/20 border-white/10">
+            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-js/20 border-white/10">
             <div class="flex flex-col">
                 <span class="text-[10px] text-gray-400 uppercase font-mono tracking-widest">Status da Missão</span>
                 <span id="floating-progress-text" class="text-sm font-bold text-white font-mono">...</span>
@@ -391,11 +399,11 @@
 
             <div class="w-32 h-2 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-4">
                 <div id="floating-progress-bar"
-                    class="h-full bg-gradient-to-r from-ux-purple to-blue-500 w-0 transition-all duration-700"></div>
+                    class="h-full bg-gradient-to-r from-js-yellow to-yellow-600 w-0 transition-all duration-700"></div>
             </div>
 
             <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                <span class="material-symbols-outlined text-xs text-ux-purple animate-pulse">satellite_alt</span>
+                <span class="material-symbols-outlined text-xs text-js-yellow animate-pulse">data_object</span>
             </div>
         </div>
     </div>
@@ -403,50 +411,43 @@
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
+        // CONFIGURAÇÃO DO NÍVEL
+        const TRACK_ID = 'frontend';
+        const LEVEL_ID = 'level2'; // Importante: Salva no nível 2
+
         // Função chamada quando qualquer checkbox muda
         function saveTaskProgress(taskId) {
             const isChecked = document.getElementById(taskId).checked;
             const user = auth.currentUser;
 
             if (user) {
-                // Salva no caminho: users/{uid}/progress/uxui/level1/tasks/{taskId}
-                db.ref(`users/${user.uid}/progress/uxui/level1/tasks/${taskId}`).set(isChecked)
-                    .then(() => {
-                        // Após salvar, recalcula a barra visualmente
-                        updateVisualProgress();
-                    })
-                    .catch(err => console.error("Erro ao salvar progresso:", err));
+                // Salva em: users/{uid}/progress/frontend/level2/tasks/{taskId}
+                db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks/${taskId}`).set(isChecked)
+                    .then(() => updateVisualProgress())
+                    .catch(err => console.error("Erro ao salvar:", err));
             } else {
-                console.warn("Usuário não autenticado. Progresso não salvo.");
-                // Ainda atualiza visualmente para a sessão atual
                 updateVisualProgress();
             }
         }
 
-        // Função para carregar o progresso ao abrir a página
+        // Carrega o progresso
         function loadUserProgress(uid) {
-            db.ref(`users/${uid}/progress/uxui/level1/tasks`).once('value')
+            db.ref(`users/${uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks`).once('value')
                 .then((snapshot) => {
                     const tasks = snapshot.val() || {};
-
-                    // Aplica o estado aos checkboxes
                     if (tasks['check-01']) document.getElementById('check-01').checked = true;
                     if (tasks['check-02']) document.getElementById('check-02').checked = true;
                     if (tasks['check-03']) document.getElementById('check-03').checked = true;
-
-                    // Atualiza a barra e o bloqueio
                     updateVisualProgress();
                 });
         }
 
-        // Apenas atualiza a UI baseada no estado atual dos inputs HTML
+        // Atualiza UI
         function updateVisualProgress() {
-            // 1. Get Values
             const check1 = document.getElementById('check-01').checked;
             const check2 = document.getElementById('check-02').checked;
             const check3 = document.getElementById('check-03').checked;
 
-            // 2. Calculate
             let completed = 0;
             if (check1) completed++;
             if (check2) completed++;
@@ -455,7 +456,7 @@
             const total = 3;
             const percentage = Math.round((completed / total) * 100);
 
-            // 3. Update UI Elements
+            // UI Elements
             const heroBar = document.getElementById('hero-progress-bar');
             const floatText = document.getElementById('floating-progress-text');
             const floatBar = document.getElementById('floating-progress-bar');
@@ -464,7 +465,7 @@
             if (floatBar) floatBar.style.width = percentage + '%';
             if (floatText) floatText.innerText = percentage + '% PROCESSADO';
 
-            // 4. Unlock Logic
+            // Unlock Logic
             const container = document.getElementById('final-challenge-container');
             const overlay = document.getElementById('lock-overlay');
             const btn = document.getElementById('btn-challenge');
@@ -480,7 +481,7 @@
                 btn.disabled = false;
                 btn.classList.remove('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
                 btn.classList.add('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
-                btn.innerText = "INICIAR MISSÃO PRÁTICA";
+                btn.innerText = "INICIAR DESAFIO JS";
 
                 icon.innerText = "lock_open";
                 icon.classList.remove('text-gray-500');
@@ -490,7 +491,6 @@
                 // LOCK
                 container.classList.add('blur-sm', 'grayscale', 'opacity-60', 'pointer-events-none');
                 container.classList.remove('border-eject-yellow', 'shadow-neon-gold');
-
                 overlay.classList.remove('opacity-0', 'pointer-events-none');
 
                 btn.disabled = true;
@@ -505,15 +505,10 @@
             }
         }
 
-        // --- INICIALIZAÇÃO ---
         document.addEventListener('DOMContentLoaded', () => {
             auth.onAuthStateChanged(user => {
                 if (user) {
                     loadUserProgress(user.uid);
-                } else {
-                    // Se não tiver logado, pode redirecionar ou apenas deixar sem salvar
-                    console.log("Usuário não logado - Modo visitante");
-                    updateVisualProgress();
                 }
             });
         });

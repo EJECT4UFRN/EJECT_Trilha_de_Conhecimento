@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Frontend</title>
+    <title>EJECT | Desafio Final React</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet"
@@ -22,20 +22,23 @@
                 extend: {
                     fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
                     colors: {
-                        'space-dark': '#0B0E14',
+                        'space-dark': '#05070A',
                         'space-blue': '#151925',
-                        'front-blue': '#3B82F6', /* Azul Frontend */
-                        'front-light': '#60A5FA',
+                        'front-blue': '#3B82F6',
+                        'react-cyan': '#61DAFB', /* Cor Principal do React */
+                        'react-dark': '#20232A',
                         'eject-yellow': '#FFCC00',
                         'success-green': '#00FF94',
                         'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #0f172a 0%, #0B0E14 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #0f172a 0%, #05070A 100%)',
+                        'react-gradient': 'linear-gradient(135deg, #61DAFB 0%, #2563EB 100%)',
                     },
                     animation: {
                         'float': 'float 4s ease-in-out infinite',
                         'shimmer': 'shimmer 1.5s infinite',
+                        'spin-slow': 'spin 15s linear infinite',
                     },
                     keyframes: {
                         float: {
@@ -52,7 +55,7 @@
     </script>
     <style>
         body {
-            background-color: #0B0E14;
+            background-color: #05070A;
             color: white;
         }
 
@@ -84,95 +87,110 @@
         <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
             <div class="flex items-center space-x-4 flex-shrink-0">
                 <button onclick="window.history.back()"
-                    class="text-eject-text-primary hover:text-front-blue transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
+                    class="text-gray-800 hover:text-blue-600 transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
                     aria-label="Voltar">
                     <span
-                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">
-                        arrow_back
-                    </span>
+                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
                 </button>
-
                 <a href="../../index.html" class="no-underline flex-shrink-0">
-                    <h1
-                        class="font-bold text-eject-text-primary text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">
-                        O Astronauta vai à Lua</h1>
+                    <h1 class="font-bold text-gray-800 text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">O
+                        Astronauta vai à Lua</h1>
                 </a>
             </div>
-
             <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
                 <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="xs:block">
                     <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
                 </a>
                 <div class="relative">
                     <a href="../../../SIGAV/perfil.html" id="loginIconContainer"
-                        class="text-eject-text-primary hover:text-front-blue transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
-                        <span id="loginIcon" class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">
-                            account_circle
-                        </span>
+                        class="text-gray-800 hover:text-blue-600 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
+                        <span id="loginIcon"
+                            class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">account_circle</span>
                     </a>
                 </div>
             </div>
         </nav>
     </header>
 
-    <main class="flex-grow pb-24">
+    <main class="flex-grow pb-24 relative overflow-hidden">
+
+        <div class="absolute -right-20 top-20 opacity-5 pointer-events-none">
+            <svg width="400" height="400" viewBox="-10.5 -9.45 21 18.9" fill="none" xmlns="http://www.w3.org/2000/svg"
+                class="text-react-cyan animate-spin-slow">
+                <circle cx="0" cy="0" r="2" fill="currentColor"></circle>
+                <g stroke="currentColor" stroke-width="1" fill="none">
+                    <ellipse rx="10" ry="4.5"></ellipse>
+                    <ellipse rx="10" ry="4.5" transform="rotate(60)"></ellipse>
+                    <ellipse rx="10" ry="4.5" transform="rotate(120)"></ellipse>
+                </g>
+            </svg>
+        </div>
 
         <section class="max-w-5xl mx-auto px-4 py-10">
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-front-blue/20 border border-front-blue/30 text-front-light text-xs font-bold uppercase">
-                    <span class="material-symbols-outlined text-sm">terminal</span>
-                    Missão Prática
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-react-cyan/20 border border-react-cyan/30 text-react-cyan text-xs font-bold uppercase shadow-[0_0_15px_rgba(97,218,251,0.2)]">
+                    <span class="material-symbols-outlined text-sm">science</span>
+                    Missão de Graduação
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                    DESAFIO FINAL: BÁSICO - FRONTEND
+                    DESAFIO FINAL: AVANÇADO - REACT
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Siga as instruções abaixo para acessar o banco de componentes da EJECT no GitHub e submeter sua
-                    solução HTML/CSS.
+                    Este é o teste final. Desenvolva uma aplicação completa (SPA), consumindo APIs, gerenciando rotas e
+                    estado global.
                 </p>
             </div>
         </section>
 
         <section class="max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-8">
 
-            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+            <div
+                class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col relative group">
+                <div
+                    class="absolute inset-0 bg-react-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                </div>
+
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">code</span>
+                        <span class="material-symbols-outlined text-white">integration_instructions</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Repositório Oficial</h2>
+                    <h2 class="text-xl font-bold text-white">Briefing Técnico</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
                     <div class="space-y-4 text-gray-300 text-sm">
-                        <p>O desafio técnico está hospedado no nosso GitHub. Siga o fluxo:</p>
+                        <p>Acesse o GitHub da EJECT para o projeto final:</p>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-react-cyan text-black flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block mb-1">Clone o Repo</strong>
-                                <p class="text-gray-400">Entre no repositório "EJECT-Web-Basics".</p>
+                                <strong class="text-white block mb-1">E-commerce SPA</strong>
+                                <p class="text-gray-400">Clone o repo <span
+                                        class="text-react-cyan font-mono">EJECT-React-Store</span>.</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-react-cyan text-black flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block mb-1">Issue #101</strong>
-                                <p class="text-gray-400">Procure a tarefa: <span
-                                        class="text-green-400 font-mono">landing-page-html-css</span>.</p>
+                                <strong class="text-white block mb-1">Requisitos</strong>
+                                <ul class="list-disc list-inside text-gray-500 mt-1">
+                                    <li>Consumo de API (FakeStoreAPI)</li>
+                                    <li>Carrinho de Compras (Context API)</li>
+                                    <li>React Router DOM</li>
+                                </ul>
                             </div>
                         </div>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-react-cyan text-black flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong class="text-white block mb-1">Pull Request</strong>
-                                <p class="text-gray-400">Suba seu código e abra um PR para revisão.</p>
+                                <strong class="text-white block mb-1">Deploy</strong>
+                                <p class="text-gray-400">Suba na Vercel ou Netlify e envie o link junto com o PR.</p>
                             </div>
                         </div>
                     </div>
@@ -181,7 +199,7 @@
                         <a href="https://github.com" target="_blank"
                             class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
                             <span class="material-symbols-outlined">open_in_new</span>
-                            Acessar GitHub
+                            Repositório Oficial
                         </a>
                     </div>
                 </div>
@@ -193,32 +211,37 @@
                         class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
                         <span class="material-symbols-outlined">send</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
+                    <h2 class="text-xl font-bold text-white">Entregar Projeto</h2>
                 </div>
 
                 <div class="p-6 flex-grow relative">
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR
-                                (GitHub)</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Repositório /
+                                PR</label>
                             <div class="relative">
                                 <span
-                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
-                                <input type="url" required placeholder="https://github.com/eject/..."
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-front-blue focus:ring-1 focus:ring-front-blue transition-all text-sm placeholder-gray-600">
+                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">code</span>
+                                <input type="url" required placeholder="https://github.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-react-cyan focus:ring-1 focus:ring-react-cyan transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Comentários</label>
-                            <textarea rows="3" placeholder="Dificuldades encontradas?"
-                                class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-front-blue focus:ring-1 focus:ring-front-blue transition-all text-sm resize-none placeholder-gray-600"></textarea>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Deploy
+                                (Opcional)</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">public</span>
+                                <input type="url" placeholder="https://minha-loja.vercel.app"
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-react-cyan focus:ring-1 focus:ring-react-cyan transition-all text-sm placeholder-gray-600">
+                            </div>
                         </div>
 
                         <button type="submit" id="btn-submit"
                             class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer">
-                            <span>Confirmar Envio</span>
+                            <span>Finalizar Trilha</span>
                             <span class="material-symbols-outlined">rocket_launch</span>
                         </button>
                     </form>
@@ -226,9 +249,9 @@
                     <div id="loading-overlay"
                         class="absolute inset-0 bg-space-blue/90 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl">
                         <div
-                            class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
+                            class="w-10 h-10 border-4 border-white/10 border-t-react-cyan rounded-full animate-spin mb-4">
                         </div>
-                        <p class="text-sm font-bold text-white">Validando repositório...</p>
+                        <p class="text-sm font-bold text-white">Validando projeto...</p>
                     </div>
                 </div>
             </div>
@@ -237,63 +260,57 @@
     </main>
 
     <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-
         <div id="modal-overlay"
-            class="absolute inset-0 bg-[#05070A]/90 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
+            class="absolute inset-0 bg-[#05070A]/95 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
 
         <div id="modal-card"
-            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_50px_rgba(59,130,246,0.15)] transition-all duration-500 scale-95 opacity-0">
+            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-react-cyan/30 bg-[#0B0E14] shadow-[0_0_60px_rgba(97,218,251,0.3)] transition-all duration-500 scale-95 opacity-0">
 
             <div
-                class="h-1.5 w-full bg-gradient-to-r from-success-green via-green-400 to-success-green shadow-[0_0_10px_#00FF94]">
+                class="h-1.5 w-full bg-gradient-to-r from-react-cyan via-blue-500 to-react-cyan shadow-[0_0_15px_#61DAFB] animate-pulse">
             </div>
 
             <div class="relative p-8 text-center">
-
-                <div class="absolute inset-0 opacity-10"
-                    style="background-image: radial-gradient(#4f4f4f 1px, transparent 1px); background-size: 20px 20px;">
+                <div class="absolute inset-0 opacity-20"
+                    style="background-image: radial-gradient(#61DAFB 1px, transparent 1px); background-size: 20px 20px;">
                 </div>
 
                 <div class="relative mb-6">
                     <span
-                        class="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">
-                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        Missão Cumprida
+                        class="inline-flex items-center gap-2 rounded-full border border-react-cyan/50 bg-react-cyan/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-react-cyan shadow-neon-react">
+                        <span class="material-symbols-outlined text-sm">trophy</span>
+                        Trilha Concluída
                     </span>
                 </div>
 
-                <div class="relative mx-auto mb-6 h-40 w-40 group flex items-center justify-center">
-                    <div class="absolute w-2/3 h-2/3 rounded-full bg-front-blue blur-3xl opacity-50 animate-pulse">
+                <div class="relative mx-auto mb-6 h-48 w-48 group flex items-center justify-center">
+                    <div class="absolute w-2/3 h-2/3 rounded-full bg-react-cyan blur-[50px] opacity-60 animate-pulse">
                     </div>
                     <div
-                        class="absolute -inset-2 rounded-full border border-dashed border-white/10 animate-[spin_10s_linear_infinite]">
+                        class="absolute -inset-4 rounded-full border border-dashed border-white/20 animate-[spin_20s_linear_infinite]">
                     </div>
                     <div class="relative z-10 h-full w-full animate-float">
-                        <img src="../../img/html_css.png" alt="Insígnia Frontend Básico"
-                            class="h-full w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                        <img src="../../../img/react_master.png" alt="Insígnia React Master"
+                            class="h-full w-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">
                     </div>
                 </div>
 
-                <h2 class="text-2xl font-black text-white mb-1 uppercase italic tracking-wide">
-                    Desbloqueado
+                <h2 class="text-3xl font-black text-white mb-2 uppercase italic tracking-wide">
+                    Especialista
                 </h2>
-
-                <div class="mb-6 inline-block rounded border border-front-blue/30 bg-front-blue/5 px-4 py-1">
-                    <h3 class="font-mono text-sm font-bold text-front-light tracking-widest">
-                        INSIGNIA: FRONTEND_BÁSICO
-                    </h3>
+                <div class="mb-6 inline-block rounded border border-react-cyan/30 bg-react-cyan/5 px-4 py-1">
+                    <h3 class="font-mono text-sm font-bold text-react-cyan tracking-widest">FRONTEND DEVELOPER</h3>
                 </div>
 
                 <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
-                    Excelente trabalho, dev. Sua estrutura semântica e estilização foram aprovadas.
+                    Você completou todos os desafios. O universo do desenvolvimento web está em suas mãos.
                 </p>
 
                 <div class="flex flex-col gap-3">
                     <button onclick="redeemBadge()"
-                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-white text-black py-4 font-bold uppercase tracking-wider transition-all hover:bg-eject-yellow hover:scale-[1.02] shadow-lg cursor-pointer">
-                        <span
-                            class="material-symbols-outlined text-lg transition-transform group-hover:-translate-y-1">military_tech</span>
-                        <span>Resgatar Insígnia</span>
+                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-react-cyan to-blue-600 text-black py-4 font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">workspace_premium</span>
+                        <span>Resgatar Certificação</span>
                         <div
                             class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
                         </div>
@@ -301,25 +318,16 @@
 
                     <button onclick="closeModal()"
                         class="text-xs font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
-                        Fechar Janela
+                        Fechar
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
-        <div class="max-w-6xl mx-auto text-center">
-            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
-                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025.
-            </p>
-        </div>
-    </footer>
-
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        // Função para mostrar o modal (Simulação visual)
         function submitMission(e) {
             e.preventDefault();
             const loading = document.getElementById('loading-overlay');
@@ -333,7 +341,7 @@
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
                 openModal();
-            }, 2000);
+            }, 2500);
         }
 
         function openModal() {
@@ -364,32 +372,32 @@
             }, 500);
         }
 
-        // --- 3. LÓGICA DE SALVAMENTO NO FIREBASE ---
+        // --- LÓGICA DE RESGATE FINAL ---
         function redeemBadge() {
             const user = auth.currentUser;
 
             if (!user) {
-                alert("Você precisa estar logado para salvar seu progresso.");
+                alert("Você precisa estar logado.");
                 return;
             }
 
             const updates = {};
 
-            // 1. Salva a Insígnia (Badge)
-            updates['users/' + user.uid + '/badges/frontend_basico'] = {
-                id: 'frontend_basico',
-                name: 'Frontend Básico',
-                image: '../../img/html_css.png', // Ajuste para o caminho correto da sua imagem
+            // 1. Salva a Insígnia Final
+            updates['users/' + user.uid + '/badges/frontend_avancado'] = {
+                id: 'frontend_avancado',
+                name: 'Especialista Frontend',
+                image: '../../../img/react_master.png',
                 date: Date.now()
             };
 
-            // 2. Desbloqueia o Nível 2 na trilha de Frontend
-            updates['users/' + user.uid + '/progress/frontend/level2_unlocked'] = true;
+            // 2. Marca a trilha completa como CONCLUÍDA
+            updates['users/' + user.uid + '/progress/frontend/completed'] = true;
 
             db.ref().update(updates)
                 .then(() => {
-                    alert("Insígnia resgatada e Nível 2 desbloqueado!");
-                    // Redireciona para o mapa da trilha Frontend
+                    alert("Parabéns! Trilha Frontend concluída com sucesso.");
+                    // Volta para o mapa da trilha Frontend (que agora deve mostrar tudo completo)
                     window.location.href = '../trilha_front.html';
                 })
                 .catch((error) => {

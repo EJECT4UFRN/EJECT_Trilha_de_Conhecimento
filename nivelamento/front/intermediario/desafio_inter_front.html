@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Frontend</title>
+    <title>EJECT | Desafio Intermediário JS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet"
@@ -24,14 +24,15 @@
                     colors: {
                         'space-dark': '#0B0E14',
                         'space-blue': '#151925',
-                        'front-blue': '#3B82F6', /* Azul Frontend */
-                        'front-light': '#60A5FA',
+                        'front-blue': '#3B82F6',
+                        'js-yellow': '#F7DF1E', /* Amarelo JS */
                         'eject-yellow': '#FFCC00',
                         'success-green': '#00FF94',
                         'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #0f172a 0%, #0B0E14 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1e3a8a 0%, #0B0E14 100%)',
+                        'js-gradient': 'linear-gradient(135deg, #F7DF1E 0%, #EAB308 100%)',
                     },
                     animation: {
                         'float': 'float 4s ease-in-out infinite',
@@ -84,31 +85,25 @@
         <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
             <div class="flex items-center space-x-4 flex-shrink-0">
                 <button onclick="window.history.back()"
-                    class="text-eject-text-primary hover:text-front-blue transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
+                    class="text-gray-800 hover:text-blue-600 transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
                     aria-label="Voltar">
                     <span
-                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">
-                        arrow_back
-                    </span>
+                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
                 </button>
-
                 <a href="../../index.html" class="no-underline flex-shrink-0">
-                    <h1
-                        class="font-bold text-eject-text-primary text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">
-                        O Astronauta vai à Lua</h1>
+                    <h1 class="font-bold text-gray-800 text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">O
+                        Astronauta vai à Lua</h1>
                 </a>
             </div>
-
             <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
                 <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="xs:block">
                     <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
                 </a>
                 <div class="relative">
                     <a href="../../../SIGAV/perfil.html" id="loginIconContainer"
-                        class="text-eject-text-primary hover:text-front-blue transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
-                        <span id="loginIcon" class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">
-                            account_circle
-                        </span>
+                        class="text-gray-800 hover:text-blue-600 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
+                        <span id="loginIcon"
+                            class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">account_circle</span>
                     </a>
                 </div>
             </div>
@@ -120,16 +115,16 @@
         <section class="max-w-5xl mx-auto px-4 py-10">
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-front-blue/20 border border-front-blue/30 text-front-light text-xs font-bold uppercase">
-                    <span class="material-symbols-outlined text-sm">terminal</span>
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-js-yellow/20 border border-js-yellow/30 text-js-yellow text-xs font-bold uppercase">
+                    <span class="material-symbols-outlined text-sm">code</span>
                     Missão Prática
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                    DESAFIO FINAL: BÁSICO - FRONTEND
+                    DESAFIO FINAL: INTERMEDIÁRIO - JS
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Siga as instruções abaixo para acessar o banco de componentes da EJECT no GitHub e submeter sua
-                    solução HTML/CSS.
+                    Hora de provar sua lógica. Construa uma aplicação funcional manipulando o DOM e gerenciando estados
+                    com JavaScript.
                 </p>
             </div>
         </section>
@@ -139,40 +134,40 @@
             <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">code</span>
+                        <span class="material-symbols-outlined text-white">data_object</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Repositório Oficial</h2>
+                    <h2 class="text-xl font-bold text-white">Instruções da Missão</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
                     <div class="space-y-4 text-gray-300 text-sm">
-                        <p>O desafio técnico está hospedado no nosso GitHub. Siga o fluxo:</p>
+                        <p>O desafio está no GitHub. Siga o protocolo:</p>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-js-yellow text-black flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block mb-1">Clone o Repo</strong>
-                                <p class="text-gray-400">Entre no repositório "EJECT-Web-Basics".</p>
+                                <strong class="text-white block mb-1">Acesse o Repo</strong>
+                                <p class="text-gray-400">Clone o repositório "EJECT-JS-Dynamics".</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-js-yellow text-black flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block mb-1">Issue #101</strong>
-                                <p class="text-gray-400">Procure a tarefa: <span
-                                        class="text-green-400 font-mono">landing-page-html-css</span>.</p>
+                                <strong class="text-white block mb-1">Issue #204</strong>
+                                <p class="text-gray-400">Resolva a tarefa: <span
+                                        class="text-js-yellow font-mono">interactive-dashboard-logic</span>.</p>
                             </div>
                         </div>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-js-yellow text-black flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong class="text-white block mb-1">Pull Request</strong>
-                                <p class="text-gray-400">Suba seu código e abra um PR para revisão.</p>
+                                <strong class="text-white block mb-1">Code Review</strong>
+                                <p class="text-gray-400">Submeta seu Pull Request para avaliação.</p>
                             </div>
                         </div>
                     </div>
@@ -200,20 +195,19 @@
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR
-                                (GitHub)</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR</label>
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
-                                <input type="url" required placeholder="https://github.com/eject/..."
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-front-blue focus:ring-1 focus:ring-front-blue transition-all text-sm placeholder-gray-600">
+                                <input type="url" required placeholder="https://github.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-js-yellow focus:ring-1 focus:ring-js-yellow transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Comentários</label>
-                            <textarea rows="3" placeholder="Dificuldades encontradas?"
-                                class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-front-blue focus:ring-1 focus:ring-front-blue transition-all text-sm resize-none placeholder-gray-600"></textarea>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações</label>
+                            <textarea rows="3" placeholder="Como foi manipular o DOM?"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-js-yellow focus:ring-1 focus:ring-js-yellow transition-all text-sm resize-none placeholder-gray-600"></textarea>
                         </div>
 
                         <button type="submit" id="btn-submit"
@@ -228,7 +222,7 @@
                         <div
                             class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
                         </div>
-                        <p class="text-sm font-bold text-white">Validando repositório...</p>
+                        <p class="text-sm font-bold text-white">Processando código...</p>
                     </div>
                 </div>
             </div>
@@ -237,55 +231,48 @@
     </main>
 
     <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-
         <div id="modal-overlay"
             class="absolute inset-0 bg-[#05070A]/90 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
 
         <div id="modal-card"
-            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_50px_rgba(59,130,246,0.15)] transition-all duration-500 scale-95 opacity-0">
+            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_50px_rgba(247,223,30,0.2)] transition-all duration-500 scale-95 opacity-0">
 
             <div
-                class="h-1.5 w-full bg-gradient-to-r from-success-green via-green-400 to-success-green shadow-[0_0_10px_#00FF94]">
+                class="h-1.5 w-full bg-gradient-to-r from-js-yellow via-yellow-400 to-js-yellow shadow-[0_0_10px_#F7DF1E]">
             </div>
 
             <div class="relative p-8 text-center">
-
                 <div class="absolute inset-0 opacity-10"
                     style="background-image: radial-gradient(#4f4f4f 1px, transparent 1px); background-size: 20px 20px;">
                 </div>
 
                 <div class="relative mb-6">
                     <span
-                        class="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">
-                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        Missão Cumprida
+                        class="inline-flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-yellow-400">
+                        <span class="h-1.5 w-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                        Desafio Concluído
                     </span>
                 </div>
 
                 <div class="relative mx-auto mb-6 h-40 w-40 group flex items-center justify-center">
-                    <div class="absolute w-2/3 h-2/3 rounded-full bg-front-blue blur-3xl opacity-50 animate-pulse">
-                    </div>
+                    <div class="absolute w-2/3 h-2/3 rounded-full bg-js-yellow blur-3xl opacity-50 animate-pulse"></div>
                     <div
                         class="absolute -inset-2 rounded-full border border-dashed border-white/10 animate-[spin_10s_linear_infinite]">
                     </div>
                     <div class="relative z-10 h-full w-full animate-float">
-                        <img src="../../img/html_css.png" alt="Insígnia Frontend Básico"
+                        <img src="../../../img/js_dom.png" alt="Insígnia JS Intermediário"
                             class="h-full w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                     </div>
                 </div>
 
-                <h2 class="text-2xl font-black text-white mb-1 uppercase italic tracking-wide">
-                    Desbloqueado
-                </h2>
-
-                <div class="mb-6 inline-block rounded border border-front-blue/30 bg-front-blue/5 px-4 py-1">
-                    <h3 class="font-mono text-sm font-bold text-front-light tracking-widest">
-                        INSIGNIA: FRONTEND_BÁSICO
-                    </h3>
+                <h2 class="text-2xl font-black text-white mb-1 uppercase italic tracking-wide">Desbloqueado</h2>
+                <div class="mb-6 inline-block rounded border border-js-yellow/30 bg-js-yellow/5 px-4 py-1">
+                    <h3 class="font-mono text-sm font-bold text-js-yellow tracking-widest">INSIGNIA:
+                        FRONTEND_INTERMEDIÁRIO</h3>
                 </div>
 
                 <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
-                    Excelente trabalho, dev. Sua estrutura semântica e estilização foram aprovadas.
+                    Lógica impecável. Você dominou o DOM e agora está pronto para frameworks avançados.
                 </p>
 
                 <div class="flex flex-col gap-3">
@@ -293,7 +280,7 @@
                         class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-white text-black py-4 font-bold uppercase tracking-wider transition-all hover:bg-eject-yellow hover:scale-[1.02] shadow-lg cursor-pointer">
                         <span
                             class="material-symbols-outlined text-lg transition-transform group-hover:-translate-y-1">military_tech</span>
-                        <span>Resgatar Insígnia</span>
+                        <span>Resgatar e Avançar</span>
                         <div
                             class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
                         </div>
@@ -308,18 +295,9 @@
         </div>
     </div>
 
-    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
-        <div class="max-w-6xl mx-auto text-center">
-            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
-                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025.
-            </p>
-        </div>
-    </footer>
-
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        // Função para mostrar o modal (Simulação visual)
         function submitMission(e) {
             e.preventDefault();
             const loading = document.getElementById('loading-overlay');
@@ -364,32 +342,32 @@
             }, 500);
         }
 
-        // --- 3. LÓGICA DE SALVAMENTO NO FIREBASE ---
+        // --- LÓGICA DE RESGATE ---
         function redeemBadge() {
             const user = auth.currentUser;
 
             if (!user) {
-                alert("Você precisa estar logado para salvar seu progresso.");
+                alert("Você precisa estar logado.");
                 return;
             }
 
             const updates = {};
 
-            // 1. Salva a Insígnia (Badge)
-            updates['users/' + user.uid + '/badges/frontend_basico'] = {
-                id: 'frontend_basico',
-                name: 'Frontend Básico',
-                image: '../../img/html_css.png', // Ajuste para o caminho correto da sua imagem
+            // 1. Salva a Insígnia Intermediária
+            updates['users/' + user.uid + '/badges/frontend_intermediario'] = {
+                id: 'frontend_intermediario',
+                name: 'Frontend Intermediário',
+                image: '../../../img/js_dom.png', // Ajuste o caminho se necessário
                 date: Date.now()
             };
 
-            // 2. Desbloqueia o Nível 2 na trilha de Frontend
-            updates['users/' + user.uid + '/progress/frontend/level2_unlocked'] = true;
+            // 2. Desbloqueia o Nível 3 (Avançado/React)
+            updates['users/' + user.uid + '/progress/frontend/level3_unlocked'] = true;
 
             db.ref().update(updates)
                 .then(() => {
-                    alert("Insígnia resgatada e Nível 2 desbloqueado!");
-                    // Redireciona para o mapa da trilha Frontend
+                    alert("Parabéns! Nível Avançado desbloqueado.");
+                    // Volta para o mapa da trilha Frontend
                     window.location.href = '../trilha_front.html';
                 })
                 .catch((error) => {

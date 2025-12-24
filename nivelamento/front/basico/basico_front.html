@@ -9,24 +9,35 @@
     <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
         rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
+                    fontFamily: {
+                        sans: ['"Exo 2"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
                     colors: {
-                        'space-dark': '#0B0E14',
-                        'space-blue': '#151925',
-                        'front-cyan': '#00F0FF', /* Cor Principal Frontend */
-                        'front-light': '#80F8FF',
+                        'space-dark': '#05070A',
+                        'front-blue': '#3B82F6', /* Cor Principal Frontend */
+                        'front-light': '#60A5FA',
                         'eject-yellow': '#FFCC00',
-                        'success-green': '#00FF94',
+                        'success': '#00FF94',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #083344 0%, #0B0E14 100%)', /* Fundo azulado */
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #0f172a 0%, #05070A 100%)',
+                    },
+                    boxShadow: {
+                        'neon-blue': '0 0 20px rgba(59, 130, 246, 0.3)',
+                        'neon-gold': '0 0 30px rgba(255, 204, 0, 0.4)',
                     }
                 }
             }
@@ -34,8 +45,9 @@
     </script>
     <style>
         body {
-            background-color: #0B0E14;
+            background-color: #05070A;
             color: white;
+            scroll-behavior: smooth;
         }
 
         .stars {
@@ -46,319 +58,455 @@
             height: 100%;
             pointer-events: none;
             z-index: -1;
-            background-image: radial-gradient(white, rgba(255, 255, 255, .2) 1px, transparent 2px);
+            background-image: radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 2px);
             background-size: 550px 550px;
         }
 
-        /* Checkbox Customizado */
-        .task-checkbox input:checked+div {
-            background-color: #00FF94;
-            border-color: #00FF94;
+        /* Glass Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .task-checkbox input:checked+div span {
-            display: block;
-            color: black;
-        }
-
-        /* Efeito de Bloqueio */
-        .locked-card {
-            filter: grayscale(1) opacity(0.5);
-            pointer-events: none;
-            user-select: none;
-            position: relative;
-        }
-
-        .locked-card::after {
-            content: "BLOQUEADO - COMPLETE O TREINAMENTO";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            border: 1px solid white;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-        /* Remove o bloqueio */
-        .unlocked-card {
-            filter: none;
-            pointer-events: auto;
-            opacity: 1;
-            animation: pulse-gold 2s infinite;
-        }
-
-        .unlocked-card::after {
+        /* Checkbox Button Logic */
+        input:checked+label .btn-content-unchecked {
             display: none;
         }
 
-        @keyframes pulse-gold {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.4);
-            }
+        input:checked+label .btn-content-checked {
+            display: flex;
+        }
 
-            70% {
-                box-shadow: 0 0 0 15px rgba(255, 204, 0, 0);
-            }
+        input:checked+label {
+            background-color: rgba(0, 255, 148, 0.1);
+            border-color: #00FF94;
+            color: #00FF94;
+        }
 
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 204, 0, 0);
-            }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0B0E14;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
 
-<body class="bg-deep-space min-h-screen flex flex-col font-sans">
+<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-front-blue selection:text-white">
 
     <div class="stars"></div>
 
-    <header class="w-full py-4 px-6 border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <a href="trilha_frontend.html"
-                class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">arrow_back</span>
-                <span class="text-sm font-bold uppercase tracking-wider">Voltar ao Mapa</span>
-            </a>
-            <div class="flex items-center gap-3">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs text-gray-400 uppercase">Status da Missão</p>
-                    <p class="text-sm font-bold text-front-light" id="progress-text">0% Concluído</p>
-                </div>
-                <div class="w-10 h-10 rounded-full border-2 border-white/20 relative flex items-center justify-center">
-                    <div id="header-progress-fill"
-                        class="absolute inset-0 rounded-full border-2 border-front-cyan border-t-transparent animate-spin hidden">
-                    </div>
-                    <span class="material-symbols-outlined text-front-cyan text-lg">code</span>
+    <header
+        class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-white shadow-slate-200/50 relative z-50">
+        <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
+            <div class="flex items-center space-x-4 flex-shrink-0">
+                <button onclick="window.history.back()"
+                    class="text-gray-800 hover:text-blue-600 transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
+                    aria-label="Voltar">
+                    <span
+                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                </button>
+                <a href="../../index.html" class="no-underline flex-shrink-0">
+                    <h1 class="font-bold text-gray-800 text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">O
+                        Astronauta vai à Lua</h1>
+                </a>
+            </div>
+            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="xs:block">
+                    <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
+                </a>
+                <div class="relative">
+                    <a href="../../../SIGAV/perfil.html" id="loginIconContainer"
+                        class="text-gray-800 hover:text-blue-600 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
+                        <span id="loginIcon"
+                            class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">account_circle</span>
+                    </a>
                 </div>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <main class="flex-grow pb-24">
+    <main class="flex-grow pt-32 pb-40 px-4">
 
-        <section class="max-w-5xl mx-auto px-4 py-10">
-            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-8">
-                <div>
-                    <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                        <span class="w-3 h-8 bg-front-cyan rounded-sm block"></span>
-                        Nível 1: Lançamento
-                    </h1>
-                    <p class="text-gray-400 max-w-xl">
-                        Domine a tríade da web (HTML, CSS e JavaScript) e aprenda a versionar seu código com Git.
-                    </p>
-                </div>
-                <div class="bg-white/5 border border-white/10 px-4 py-2 rounded-lg text-center">
-                    <span class="block text-2xl font-bold text-eject-yellow">500 XP</span>
-                    <span class="text-xs text-gray-500 uppercase font-bold">Recompensa Total</span>
-                </div>
+        <section class="max-w-4xl mx-auto mb-12 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-front-blue/10 border border-front-blue/30 text-front-blue text-xs font-bold uppercase tracking-widest mb-4">
+                <span class="material-symbols-outlined text-sm">code</span>
+                Módulo de Treinamento
             </div>
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                Estrutura <br> <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-front-blue to-cyan-400">&
+                    Estilização</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+                Domine a base da web. Entenda como o navegador lê seu código e como deixar tudo bonito com CSS.
+            </p>
 
-            <div class="w-full h-4 bg-gray-800 rounded-full overflow-hidden mb-12 border border-white/10 relative">
-                <div id="main-progress-bar"
-                    class="h-full bg-gradient-to-r from-front-cyan to-front-light width-0 transition-all duration-700 relative"
-                    style="width: 0%">
-                    <div class="absolute right-0 top-0 bottom-0 w-2 bg-white/50 animate-pulse"></div>
+            <div class="w-full max-w-lg mx-auto opacity-50">
+                <div class="h-1 bg-gray-800 rounded-full overflow-hidden border border-white/10">
+                    <div id="hero-progress-bar"
+                        class="h-full bg-gradient-to-r from-front-blue to-cyan-400 w-0 transition-all duration-700">
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="max-w-4xl mx-auto px-4 space-y-8">
+        <div class="max-w-4xl mx-auto space-y-24 relative">
 
-            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden">
-                <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
-                    <h2 class="text-xl font-bold text-white">Módulo 01: A Base da Web</h2>
-                    <span class="text-xs font-bold px-2 py-1 bg-white/10 rounded text-gray-300">Estrutura</span>
-                </div>
-
-                <div class="divide-y divide-white/5">
-
-                    <div class="p-4 hover:bg-white/5 transition-colors flex gap-4 items-start">
-                        <label class="task-checkbox relative cursor-pointer mt-1">
-                            <input type="checkbox" class="hidden" onchange="updateProgress()">
-                            <div
-                                class="w-6 h-6 border-2 border-gray-500 rounded flex items-center justify-center transition-all hover:border-front-light">
-                                <span class="material-symbols-outlined text-sm hidden font-bold">check</span>
-                            </div>
-                        </label>
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-gray-200">HTML Semântico e Acessibilidade</h3>
-                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                <span class="flex items-center gap-1 text-blue-400"><span
-                                        class="material-symbols-outlined text-sm">article</span> Artigo</span>
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-sm">schedule</span> 15 min</span>
-                                <span class="text-eject-yellow font-bold">+50 XP</span>
-                            </div>
-                            <a href="#" target="_blank"
-                                class="inline-block mt-3 text-sm text-front-light hover:underline hover:text-white transition-colors">Acessar
-                                Conteúdo &rarr;</a>
-                        </div>
-                    </div>
-
-                    <div class="p-4 hover:bg-white/5 transition-colors flex gap-4 items-start">
-                        <label class="task-checkbox relative cursor-pointer mt-1">
-                            <input type="checkbox" class="hidden" onchange="updateProgress()">
-                            <div
-                                class="w-6 h-6 border-2 border-gray-500 rounded flex items-center justify-center transition-all hover:border-front-light">
-                                <span class="material-symbols-outlined text-sm hidden font-bold">check</span>
-                            </div>
-                        </label>
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-gray-200">Dominando Flexbox e Grid</h3>
-                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                <span class="flex items-center gap-1 text-purple-400"><span
-                                        class="material-symbols-outlined text-sm">sports_esports</span>
-                                    Jogo/Prática</span>
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-sm">schedule</span> 30 min</span>
-                                <span class="text-eject-yellow font-bold">+100 XP</span>
-                            </div>
-                            <a href="#" target="_blank"
-                                class="inline-block mt-3 text-sm text-front-light hover:underline hover:text-white transition-colors">Jogar
-                                Flexbox Froggy &rarr;</a>
-                        </div>
-                    </div>
-
-                </div>
+            <div
+                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-front-blue via-cyan-500 to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
             </div>
 
-            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden">
-                <div class="p-6 border-b border-white/10 flex justify-between items-center bg-black/20">
-                    <h2 class="text-xl font-bold text-white">Módulo 02: JavaScript Moderno</h2>
-                    <span
-                        class="text-xs font-bold px-2 py-1 bg-front-cyan/20 text-front-light rounded border border-front-cyan/30">Lógica</span>
-                </div>
-
-                <div class="divide-y divide-white/5">
-
-                    <div class="p-4 hover:bg-white/5 transition-colors flex gap-4 items-start">
-                        <label class="task-checkbox relative cursor-pointer mt-1">
-                            <input type="checkbox" class="hidden" onchange="updateProgress()">
-                            <div
-                                class="w-6 h-6 border-2 border-gray-500 rounded flex items-center justify-center transition-all hover:border-front-light">
-                                <span class="material-symbols-outlined text-sm hidden font-bold">check</span>
-                            </div>
-                        </label>
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-gray-200">Manipulação de DOM</h3>
-                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                <span class="flex items-center gap-1 text-red-400"><span
-                                        class="material-symbols-outlined text-sm">play_circle</span> Vídeo</span>
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-sm">schedule</span> 20 min</span>
-                                <span class="text-eject-yellow font-bold">+50 XP</span>
-                            </div>
-                            <a href="#" target="_blank"
-                                class="inline-block mt-3 text-sm text-front-light hover:underline hover:text-white transition-colors">Assistir
-                                Aula &rarr;</a>
-                        </div>
-                    </div>
-
-                    <div class="p-4 hover:bg-white/5 transition-colors flex gap-4 items-start">
-                        <label class="task-checkbox relative cursor-pointer mt-1">
-                            <input type="checkbox" class="hidden" onchange="updateProgress()">
-                            <div
-                                class="w-6 h-6 border-2 border-gray-500 rounded flex items-center justify-center transition-all hover:border-front-light">
-                                <span class="material-symbols-outlined text-sm hidden font-bold">check</span>
-                            </div>
-                        </label>
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-gray-200">ES6+: Arrow Functions & Map/Filter</h3>
-                            <p class="text-sm text-gray-400 mt-1">O básico para entrar no React.</p>
-                            <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                                <span class="flex items-center gap-1 text-blue-400"><span
-                                        class="material-symbols-outlined text-sm">code</span> Exercício</span>
-                                <span class="flex items-center gap-1"><span
-                                        class="material-symbols-outlined text-sm">schedule</span> 45 min</span>
-                                <span class="text-eject-yellow font-bold">+150 XP</span>
-                            </div>
-                            <a href="#" target="_blank"
-                                class="inline-block mt-3 text-sm text-front-light hover:underline hover:text-white transition-colors">Acessar
-                                Exercícios &rarr;</a>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="relative pt-10">
-                <div class="absolute left-1/2 -top-4 w-px h-14 bg-gradient-to-b from-transparent to-eject-yellow/50">
-                </div>
-
-                <div id="final-challenge"
-                    class="locked-card bg-gradient-to-br from-space-blue to-black border border-eject-yellow/30 rounded-2xl p-8 text-center transition-all duration-700">
+            <div class="relative group">
+                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-16 h-16 mx-auto bg-eject-yellow/10 rounded-full flex items-center justify-center mb-4 border border-eject-yellow/50">
-                        <span id="challenge-icon"
-                            class="material-symbols-outlined text-3xl text-eject-yellow">lock</span>
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-front-blue flex items-center justify-center text-front-blue font-bold text-xs shadow-neon-blue">
+                        01</div>
+                </div>
+
+                <div
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-front-blue/30 transition-all duration-500">
+
+                    <div
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-front-blue/10 to-transparent">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-1">HTML5 Semântico</h2>
+                            <p class="text-sm text-gray-400 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">schedule</span> 15 min
+                                <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
+                                <span class="text-front-blue font-bold">A Espinha Dorsal</span>
+                            </p>
+                        </div>
+                        <span
+                            class="px-3 py-1 rounded bg-black/40 border border-white/10 text-xs font-mono text-gray-300">VIDEO_LOG_01</span>
                     </div>
 
-                    <h2 class="text-2xl font-bold text-white mb-2">Desafio: Landing Page Responsiva</h2>
-                    <p class="text-gray-400 mb-6 max-w-lg mx-auto">
-                        Crie uma página de portfólio pessoal. Ela deve ser responsiva (mobile-first), ter um menu
-                        funcional (JS) e código semântico.
-                    </p>
+                    <div class="p-6 md:p-8">
+                        <div
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-blue transition-all duration-500">
+                            <div
+                                class="absolute -inset-1 bg-front-blue/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            </div>
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/epDCjksKMok"
+                                title="HTML Tutorial" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
 
-                    <div class="flex flex-col items-center gap-4">
-                        <a id="btn-challenge" href="./desafio_final.html"
-                            class="px-8 py-3 bg-eject-yellow text-black font-bold rounded-lg shadow-lg hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled onclick="alert('Iniciando desafio de código! Boa sorte, piloto.')">
-                            INICIAR MISSÃO PRÁTICA
-                        </a>
-                        <span class="text-xs text-gray-500 uppercase tracking-widest">Recompensa: 150 XP +
-                            Insígnia</span>
+                        <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
+                            <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
+                                <strong class="text-white block mb-1">Briefing:</strong>
+                                Esqueça as `divs` sem sentido. Aprenda a usar `<header>`, `<main>`, `<article>` e `
+                                            <footer>` para criar sites que o Google ama e que são acessíveis a todos.
+                            </div>
+
+                            <div class="w-full md:w-auto">
+                                <input type="checkbox" id="check-01" class="hidden"
+                                    onchange="saveTaskProgress('check-01')">
+                                <label for="check-01" class="cursor-pointer group block">
+                                    <div
+                                        class="btn-content-unchecked flex items-center justify-center gap-3 px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl transition-all active:scale-95">
+                                        <div class="w-5 h-5 rounded border-2 border-gray-500 group-hover:border-white">
+                                        </div>
+                                        <span class="font-bold text-sm tracking-wide">MARCAR COMO VISTO</span>
+                                    </div>
+                                    <div
+                                        class="btn-content-checked hidden items-center justify-center gap-3 px-6 py-4 bg-green-500/10 border border-green-500 rounded-xl transition-all animate-pulse">
+                                        <span class="material-symbols-outlined text-green-400">check_circle</span>
+                                        <span class="font-bold text-sm tracking-wide text-green-400">MÓDULO
+                                            CONCLUÍDO</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-        </section>
+            <div class="relative group">
+                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
+                    <div
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-cyan-400 flex items-center justify-center text-cyan-400 font-bold text-xs shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+                        02</div>
+                </div>
+
+                <div
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-cyan-400/30 transition-all duration-500">
+
+                    <div
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-cyan-400/10 to-transparent">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-1">Fundamentos do CSS3</h2>
+                            <p class="text-sm text-gray-400 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">schedule</span> 20 min
+                                <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
+                                <span class="text-cyan-400 font-bold">Prática Obrigatória</span>
+                            </p>
+                        </div>
+                        <span
+                            class="px-3 py-1 rounded bg-black/40 border border-white/10 text-xs font-mono text-gray-300">VIDEO_LOG_02</span>
+                    </div>
+
+                    <div class="p-6 md:p-8">
+                        <div
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(34,211,238,0.3)] transition-all duration-500">
+                            <div
+                                class="absolute -inset-1 bg-cyan-400/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                            </div>
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/w77zPXtVzBk"
+                                title="CSS Tutorial" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
+
+                        <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
+                            <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
+                                <strong class="text-white block mb-1">Briefing:</strong>
+                                Entenda o Box Model, seletores e como posicionar elementos. Sem isso, seus sites
+                                parecerão documentos do Word quebrados.
+                            </div>
+
+                            <div class="w-full md:w-auto">
+                                <input type="checkbox" id="check-02" class="hidden"
+                                    onchange="saveTaskProgress('check-02')">
+                                <label for="check-02" class="cursor-pointer group block">
+                                    <div
+                                        class="btn-content-unchecked flex items-center justify-center gap-3 px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl transition-all active:scale-95">
+                                        <div class="w-5 h-5 rounded border-2 border-gray-500 group-hover:border-white">
+                                        </div>
+                                        <span class="font-bold text-sm tracking-wide">MARCAR COMO VISTO</span>
+                                    </div>
+                                    <div
+                                        class="btn-content-checked hidden items-center justify-center gap-3 px-6 py-4 bg-green-500/10 border border-green-500 rounded-xl transition-all animate-pulse">
+                                        <span class="material-symbols-outlined text-green-400">check_circle</span>
+                                        <span class="font-bold text-sm tracking-wide text-green-400">MÓDULO
+                                            CONCLUÍDO</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative group">
+                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
+                    <div
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-white/50 flex items-center justify-center text-white font-bold text-xs">
+                        EXTRA</div>
+                </div>
+
+                <div class="glass-panel rounded-3xl p-6 md:p-8">
+                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-eject-yellow">folder_open</span>
+                        Banco de Dados Auxiliar
+                    </h3>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <a href="https://developer.mozilla.org/pt-BR/docs/Web/HTML/Element" target="_blank"
+                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-front-blue/50 transition-all group/card">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-bold text-front-blue uppercase tracking-widest">MDN Web
+                                    Docs</span>
+                                <span
+                                    class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
+                            </div>
+                            <h4 class="font-bold text-white mb-1">Referência HTML</h4>
+                            <p class="text-xs text-gray-400">Lista completa de tags e seus atributos.</p>
+                        </a>
+
+                        <a href="https://flexboxfroggy.com/#pt-br" target="_blank"
+                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-cyan-400/50 transition-all group/card">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Jogo
+                                    Prático</span>
+                                <span
+                                    class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
+                            </div>
+                            <h4 class="font-bold text-white mb-1">Flexbox Froggy</h4>
+                            <p class="text-xs text-gray-400">Aprenda posicionamento CSS jogando.</p>
+                        </a>
+                    </div>
+
+                    <div class="mt-6 flex items-center gap-3 pt-4 border-t border-white/10">
+                        <input type="checkbox" id="check-03"
+                            class="w-5 h-5 rounded bg-black border-gray-600 checked:bg-eject-yellow checked:border-eject-yellow focus:ring-0 cursor-pointer"
+                            onchange="saveTaskProgress('check-03')">
+                        <label for="check-03" class="text-sm text-gray-400 cursor-pointer hover:text-white">Confirmo que
+                            acessei os materiais complementares.</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <div id="final-challenge-container"
+                    class="glass-panel p-8 md:p-12 rounded-3xl text-center relative overflow-hidden blur-sm grayscale opacity-60 pointer-events-none transition-all duration-700">
+                    <div
+                        class="w-20 h-20 mx-auto bg-black/40 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                        <span id="challenge-icon"
+                            class="material-symbols-outlined text-4xl text-gray-500 transition-colors duration-500">lock</span>
+                    </div>
+
+                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio Final</h2>
+                    <p class="text-gray-400 mb-8 max-w-lg mx-auto">
+                        Crie uma Landing Page simples para uma startup fictícia, utilizando HTML Semântico e Flexbox.
+                    </p>
+
+                    <button id="btn-challenge" onclick="window.location.href='desafio_final.html'" disabled
+                        class="px-10 py-4 bg-white/5 text-gray-500 font-bold rounded-xl border border-white/10 cursor-not-allowed uppercase tracking-widest text-sm transition-all duration-300">
+                        Acesso Negado
+                    </button>
+                </div>
+
+                <div id="lock-overlay"
+                    class="absolute inset-0 flex items-center justify-center z-20 transition-opacity duration-500">
+                    <div
+                        class="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-2xl">
+                        <span class="material-symbols-outlined text-eject-yellow animate-pulse">warning</span>
+                        <span class="text-sm font-bold text-white uppercase tracking-wider">Complete os módulos
+                            acima</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </main>
 
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md">
+        <div
+            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-blue/20 border-white/10">
+            <div class="flex flex-col">
+                <span class="text-[10px] text-gray-400 uppercase font-mono tracking-widest">Status da Missão</span>
+                <span id="floating-progress-text" class="text-sm font-bold text-white font-mono">...</span>
+            </div>
+
+            <div class="w-32 h-2 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-4">
+                <div id="floating-progress-bar"
+                    class="h-full bg-gradient-to-r from-front-blue to-cyan-400 w-0 transition-all duration-700"></div>
+            </div>
+
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                <span class="material-symbols-outlined text-xs text-front-blue animate-pulse">code_blocks</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../../SIGAV/firebase-config.js"></script>
+
     <script>
-        function updateProgress() {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            const total = checkboxes.length;
-            const checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+        // TRILHA: FRONTEND (ID: 'frontend')
+        const TRACK_ID = 'frontend';
+        const LEVEL_ID = 'level1';
 
-            const percentage = Math.round((checked / total) * 100);
+        function saveTaskProgress(taskId) {
+            const isChecked = document.getElementById(taskId).checked;
+            const user = auth.currentUser;
 
-            // Atualiza barra principal
-            document.getElementById('main-progress-bar').style.width = percentage + '%';
-
-            // Atualiza texto do header
-            document.getElementById('progress-text').innerText = percentage + '% Concluído';
-
-            // Lógica do Desafio Final
-            const challengeCard = document.getElementById('final-challenge');
-            const challengeBtn = document.getElementById('btn-challenge');
-            const challengeIcon = document.getElementById('challenge-icon');
-
-            if (percentage === 100) {
-                // Desbloqueia
-                if (challengeCard.classList.contains('locked-card')) {
-                    challengeCard.classList.remove('locked-card');
-                    challengeCard.classList.add('unlocked-card');
-
-                    challengeBtn.disabled = false;
-                    challengeBtn.removeAttribute('disabled'); // Garante compatibilidade
-
-                    challengeIcon.innerText = "trophy";
-                    challengeIcon.classList.add('animate-bounce');
-                }
+            if (user) {
+                // SALVA EM: users/{uid}/progress/frontend/level1/tasks/{taskId}
+                db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks/${taskId}`).set(isChecked)
+                    .then(() => updateVisualProgress())
+                    .catch(err => console.error("Erro ao salvar:", err));
             } else {
-                // Mantém bloqueado
-                challengeCard.classList.add('locked-card');
-                challengeCard.classList.remove('unlocked-card');
-                challengeBtn.disabled = true;
-                challengeBtn.setAttribute('disabled', 'true');
-                challengeIcon.innerText = "lock";
-                challengeIcon.classList.remove('animate-bounce');
+                updateVisualProgress();
             }
         }
+
+        function loadUserProgress(uid) {
+            db.ref(`users/${uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks`).once('value')
+                .then((snapshot) => {
+                    const tasks = snapshot.val() || {};
+                    if (tasks['check-01']) document.getElementById('check-01').checked = true;
+                    if (tasks['check-02']) document.getElementById('check-02').checked = true;
+                    if (tasks['check-03']) document.getElementById('check-03').checked = true;
+                    updateVisualProgress();
+                });
+        }
+
+        function updateVisualProgress() {
+            const check1 = document.getElementById('check-01').checked;
+            const check2 = document.getElementById('check-02').checked;
+            const check3 = document.getElementById('check-03').checked;
+
+            let completed = 0;
+            if (check1) completed++;
+            if (check2) completed++;
+            if (check3) completed++;
+
+            const total = 3;
+            const percentage = Math.round((completed / total) * 100);
+
+            // UI Updates
+            const heroBar = document.getElementById('hero-progress-bar');
+            const floatText = document.getElementById('floating-progress-text');
+            const floatBar = document.getElementById('floating-progress-bar');
+
+            if (heroBar) heroBar.style.width = percentage + '%';
+            if (floatBar) floatBar.style.width = percentage + '%';
+            if (floatText) floatText.innerText = percentage + '% PROCESSADO';
+
+            // Unlock Logic
+            const container = document.getElementById('final-challenge-container');
+            const overlay = document.getElementById('lock-overlay');
+            const btn = document.getElementById('btn-challenge');
+            const icon = document.getElementById('challenge-icon');
+
+            if (percentage === 100) {
+                // UNLOCK
+                container.classList.remove('blur-sm', 'grayscale', 'opacity-60', 'pointer-events-none');
+                container.classList.add('border-eject-yellow', 'shadow-neon-gold');
+
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+
+                btn.disabled = false;
+                btn.classList.remove('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
+                btn.classList.add('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
+                btn.innerText = "INICIAR MISSÃO PRÁTICA";
+
+                icon.innerText = "lock_open";
+                icon.classList.remove('text-gray-500');
+                icon.classList.add('text-eject-yellow');
+                icon.parentElement.classList.add('bg-eject-yellow/20', 'border-eject-yellow');
+            } else {
+                // LOCK
+                container.classList.add('blur-sm', 'grayscale', 'opacity-60', 'pointer-events-none');
+                container.classList.remove('border-eject-yellow', 'shadow-neon-gold');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+
+                btn.disabled = true;
+                btn.classList.add('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
+                btn.classList.remove('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
+                btn.innerText = "Acesso Negado";
+
+                icon.innerText = "lock";
+                icon.classList.add('text-gray-500');
+                icon.classList.remove('text-eject-yellow');
+                icon.parentElement.classList.remove('bg-eject-yellow/20', 'border-eject-yellow');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loadUserProgress(user.uid);
+                }
+            });
+        });
     </script>
 </body>
 
