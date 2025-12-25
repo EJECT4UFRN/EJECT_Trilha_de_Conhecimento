@@ -17,6 +17,23 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -114,30 +131,34 @@
 
     <div class="stars"></div>
 
-    <header
-        class="w-full min-h-[70px] sm:min-h-[80px] md:min-h-[90px] flex items-center px-3 sm:px-4 shadow-lg bg-white shadow-slate-200/50 relative z-50">
-        <nav class="w-full max-w-6xl mx-auto flex flex-row justify-between items-center py-2">
-            <div class="flex items-center space-x-4 flex-shrink-0">
-                <button onclick="window.history.back()"
-                    class="text-gray-800 hover:text-blue-600 transition-all duration-200 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center group"
-                    aria-label="Voltar">
-                    <span
-                        class="material-symbols-outlined text-2xl sm:text-3xl group-hover:-translate-x-1 transition-transform">arrow_back</span>
-                </button>
-                <a href="../../index.html" class="no-underline flex-shrink-0">
-                    <h1 class="font-bold text-gray-800 text-lg sm:text-xl md:text-2xl lg:text-3xl m-0 leading-tight">O
-                        Astronauta vai à Lua</h1>
-                </a>
-            </div>
-            <div class="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
-                <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="xs:block">
-                    <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-9 md:h-10">
-                </a>
-                <div class="relative">
-                    <a href="../../../SIGAV/perfil.html" id="loginIconContainer"
-                        class="text-gray-800 hover:text-blue-600 transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center p-1 rounded-full hover:bg-gray-100">
-                        <span id="loginIcon"
-                            class="material-symbols-outlined text-2xl sm:text-3xl md:text-4xl">account_circle</span>
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <button onclick="window.history.back()"
+                        class="text-gray-800 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">
+                        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                    </button>
+                    <span class="text-2xl font-bold text-sky-700">
+                        <a href="../../../index.html">HUB DE CONHECIMENTOS</a>
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ <a
+                            href="../../index.html">Astronauta vai à
+                            Lua</a></span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                    <a href="../../../SIGAV/sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../../../SIGAV/perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
                     </a>
                 </div>
             </div>

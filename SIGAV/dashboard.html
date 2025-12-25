@@ -39,33 +39,64 @@
 
 <body class="antialiased text-gray-800">
 
-    <header class="bg-white shadow-sm sticky top-0 z-50">
+    <header class="bg-white shadow-md sticky top-0 z-50">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center gap-4">
-                    <img src="../img/logo.svg" alt="EJECT" class="h-8">
-                    <span class="text-xl font-bold text-sky-900 border-l border-gray-200 pl-4">
-                        HUB DO MEMBRO
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <span class="text-2xl font-bold text-sky-700">
+                        SIGAV
                     </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Dashboard</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="hidden md:flex items-center gap-2 mr-4">
-                        <div class="text-right">
-                            <p id="userNameDisplay" class="text-sm font-bold text-gray-700">Carregando...</p>
-                            <p class="text-xs text-gray-500">Membro EJECT</p>
-                        </div>
-                        <a href="perfil.html"
-                            class="h-10 w-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600 hover:ring-2 ring-sky-300 transition-all">
-                            <i data-lucide="user" class="h-5 w-5"></i>
-                        </a>
-                    </div>
-                    <button id="logoutBtn" class="text-gray-500 hover:text-red-600 transition-colors" title="Sair">
-                        <i data-lucide="log-out" class="h-5 w-5"></i>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+
+                    <span id="userNameDisplay"
+                        class="text-sm font-medium text-gray-700 hidden sm:block">Carregando...</span>
+
+                    <a href="sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a id="manageAdminsBtn" href="gerenciar-admins.html" title="Gerenciar Admins"
+                        class="p-2 rounded-full text-purple-600 bg-purple-100 hover:bg-purple-200 hidden">
+                        <i data-lucide="user-cog" class="h-6 w-6"></i>
+                    </a>
+
+                    <a id="manageUsersBtn" href="gerenciar-usuarios.html" title="Gerenciar Usuários"
+                        class="p-2 rounded-full text-cyan-600 bg-cyan-100 hover:bg-cyan-200 hidden">
+                        <i data-lucide="users" class="h-6 w-6"></i>
+                    </a>
+
+                    <a id="adminPanelBtn" href="Painel de Administração.html" title="Painel de Administração"
+                        class="p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors hidden">
+                        <i data-lucide="shield" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="./perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <button id="logoutBtn" title="Sair / Trocar Usuário"
+                        class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
+                        <i data-lucide="log-out" class="h-6 w-6"></i>
                     </button>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
                 </div>
             </div>
         </nav>
     </header>
+
+    <div id="loadingScreen" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto mb-4"></div>
+            <p class="text-gray-600">Carregando dashboard...</p>
+        </div>
+    </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
 
@@ -95,10 +126,20 @@
                 <i data-lucide="book-open" class="h-12 w-12 mx-auto text-sky-300"></i>
                 <h2 class="mt-4 text-xl font-bold text-gray-600">Nenhuma trilha complementar iniciada</h2>
                 <p class="text-gray-400 mt-2 text-sm">Explore o catálogo para começar novos aprendizados.</p>
+                <a href="../index.html"
+                    class="inline-flex mt-5 items-center gap-2 px-5 py-2.5 bg-sky-600 text-white font-bold rounded-lg transition-all shadow-lg hover:bg-sky-700">
+                    Explorar Trilhas
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
             </div>
         </section>
 
     </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong
+                class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
 
     <script src="./firebase-config.js"></script>
 
@@ -137,27 +178,63 @@
 
         // --- LISTA DE TRILHAS PADRÃO (PARALELAS) ---
         const ALL_TRAILS = [
-            { id: 'html_e_css', title: 'HTML 5 e CSS 3', description: 'Fundamentos web.', link: '../Trilhas/html_e_css.html', totalTopics: 12 },
-            { id: 'javaScript', title: 'JavaScript Essencial', description: 'Lógica e DOM.', link: '../Trilhas/javaScript.html', totalTopics: 5 },
-            { id: 'marketing_comercial', title: 'Marketing e Comercial', description: 'Estratégias de venda.', link: '../Trilhas/marketing_comercial.html', totalTopics: 11 },
-            { id: 'git_e_github', title: 'Git e GitHub', description: 'Versionamento de código.', link: '../Trilhas/git_e_github.html', totalTopics: 8 },
+            { id: 'html_e_css', title: 'HTML 5 e CSS 3', description: 'Fundamentos do desenvolvimento web, da semântica à responsividade.', link: '../Trilhas/html_e_css.html', totalTopics: 12 },
+            { id: 'javaScript', title: 'JavaScript Essencial', description: 'Lógica, manipulação do DOM e os primeiros passos na interatividade.', link: '../Trilhas/javaScript.html', totalTopics: 5 },
+            { id: 'git_e_github', title: 'Git e GitHub', description: 'Controle de versão para organizar e colaborar em seus projetos.', link: '../Trilhas/git_e_github.html', totalTopics: 8 },
+            { id: 'python_basico', title: 'Python Básico', description: 'Introdução à uma das linguagens mais versáteis e populares do mercado.', link: '../Trilhas/python_basico.html', totalTopics: 11 },
+            { id: 'django', title: 'Django Framework', description: 'Crie aplicações web robustas e escaláveis com o poder do Python.', link: '../Trilhas/django.html', totalTopics: 8 },
+            { id: 'vue', title: 'Vue.js', description: 'Desenvolva interfaces reativas e modernas com este framework progressivo.', link: '../Trilhas/vue.html', totalTopics: 6 },
+            { id: 'typescript', title: 'TypeScript', description: 'Adicione superpoderes ao seu JavaScript com tipagem estática.', link: '../Trilhas/typescript.html', totalTopics: 8 },
+            { id: 'ux_ui', title: 'UX/UI Design', description: 'Conceitos de experiência do usuário e design de interfaces.', link: '../Trilhas/ux_ui.html', totalTopics: 15 },
+            { id: 'Scrum', title: 'Metodologia Scrum', description: 'Aprenda o framework ágil mais usado para gestão de projetos.', link: '../Trilhas/Scrum.html', totalTopics: 6 },
+            { id: 'Metodologia_5S', title: 'Metodologia 5S', description: 'Organização e disciplina para um ambiente de trabalho mais eficiente.', link: '../Trilhas/Metodologia_5S.html', totalTopics: 5 },
+            { id: 'gestao_de_tempo', title: 'Gestão de Tempo', description: 'Técnicas para aumentar sua produtividade e organização pessoal.', link: '../Trilhas/gestao_de_tempo.html', totalTopics: 7 },
+            { id: 'desenvolvimento_humano', title: 'Desenvolvimento Humano', description: 'Habilidades interpessoais e crescimento pessoal para sua carreira.', link: '../Trilhas/desenvolvimento_humano.html', totalTopics: 14 },
+            { id: 'financeiro', title: 'Financeiro', description: 'Princípios de gestão financeira para projetos e para a vida.', link: '../Trilhas/financeiro.html', totalTopics: 9 },
+            { id: 'marketing_comercial', title: 'Marketing e Comercial', description: 'Estratégias para promover e vender produtos e serviços.', link: '../Trilhas/marketing_comercial.html', totalTopics: 11 },
+            { id: 'okrs_kpis_e_bpmn', title: 'OKRs, KPIs e BPMN', description: 'Métricas e modelagem de processos para gestão de performance.', link: '../Trilhas/okrs_kpis_e_bpmn.html', totalTopics: 7 },
+            { id: 'wordpress', title: 'WordPress', description: 'Crie sites e blogs poderosos sem precisar de código.', link: '../Trilhas/wordpress.html', totalTopics: 8 },
+            { id: 'historia_eject', title: 'História da EJECT', description: 'Conheça a trajetória e os valores da nossa empresa.', link: '../Trilhas/historia_eject.html', totalTopics: 4 },
         ];
 
 
         // 1. CONTROLADOR PRINCIPAL
         async function showDashboard(user) {
+            // 1. Pegamos a referência do loader logo no início
+            // Nota: Se você usou o código anterior, o ID pode ser 'globalLoader' em vez de 'loadingScreen'
+            const loadingScreen = document.getElementById('globalLoader') || document.getElementById('loadingScreen');
+
             try {
                 const userRef = db.ref(`users/${user.uid}`);
+
+                // Buscamos os dados do usuário
                 const userSnapshot = await userRef.once('value');
                 const userData = userSnapshot.val() || {};
                 const userName = userData.name || user.displayName || user.email.split('@')[0];
-                document.getElementById('userNameDisplay').textContent = userName;
-                document.getElementById('welcomeMessage').textContent = `Olá, ${userName.split(' ')[0]}!`;
 
-                loadDashboardData(user.uid);
+                // Atualizamos os textos de boas-vindas
+                const nameDisplay = document.getElementById('userNameDisplay');
+                if (nameDisplay) nameDisplay.textContent = userName;
+
+                const welcomeMsg = document.getElementById('welcomeMessage');
+                if (welcomeMsg) welcomeMsg.textContent = `Olá, ${userName.split(' ')[0]}!`;
+
+                // 2. O PULO DO GATO: Adicionamos 'await' aqui
+                // O código vai PAUSAR nesta linha até os dados terminarem de carregar
+                await loadDashboardData(user.uid);
 
             } catch (error) {
                 console.error("Erro no dashboard:", error);
+            } finally {
+                // 3. Escondemos o loading aqui
+                // O 'finally' roda SEMPRE, dando certo ou dando erro
+                if (loadingScreen) {
+                    // Se você estiver usando o CSS de fade-out que passamos antes:
+                    loadingScreen.classList.add('loader-hidden');
+                    setTimeout(() => {
+                        loadingScreen.remove(); // Ou loadingScreen.classList.add('hidden');
+                    }, 500);
+                }
             }
         }
 
@@ -191,7 +268,12 @@
                             <i data-lucide="compass" class="h-8 w-8 text-sky-600"></i>
                         </div>
                         <h2 class="text-2xl font-bold text-gray-800 mb-2">Comece sua Jornada</h2>
-                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Escolha uma trilha de especialização (Astronauta) ou um curso rápido para ver seu progresso aqui.</p>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Você não escolheu nenhuma especialidade para iniciar a jornada "O astronauta vai à lua". </p> 
+                        <a href="../nivelamento/index.html"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-600 text-white font-bold rounded-lg transition-all shadow-lg hover:bg-sky-700">
+                            Acessar a trilha "O astronauta vai à lua"
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a> 
                     </div>
                 `;
             }

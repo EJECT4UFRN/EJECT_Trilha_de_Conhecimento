@@ -4,13 +4,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Final</title>
+    <title>EJECT | Desafio Final UX/UI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
 
     <script>
         tailwind.config = {
@@ -21,16 +42,28 @@
                         'space-dark': '#0B0E14',
                         'space-blue': '#151925',
                         'ux-purple': '#BD00FF',
-                        'ux-light': '#E080FF',
+                        'ux-pink': '#EC4899',
                         'eject-yellow': '#FFCC00',
                         'success-green': '#00FF94',
+                        'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #2e1065 0%, #0B0E14 100%)',
-                        'gold-gradient': 'linear-gradient(135deg, #FFCC00 0%, #FF9900 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #2e1065 0%, #05070A 100%)',
+                        'ux-gradient': 'linear-gradient(135deg, #BD00FF 0%, #EC4899 100%)',
                     },
                     animation: {
-                        'bounce-slow': 'bounce 3s infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                        'shimmer': 'shimmer 1.5s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '100%': { transform: 'translateX(100%)' }
+                        }
                     }
                 }
             }
@@ -54,55 +87,9 @@
             background-size: 550px 550px;
         }
 
-        /* Animação de Entrada do Modal */
-        .modal-enter {
-            animation: modal-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes modal-pop {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        /* Efeito de Brilho da Insígnia (Sunburst) */
-        .insignia-glow {
-            position: relative;
-        }
-
-        .insignia-glow::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: rgba(255, 204, 0, 0.6);
-            filter: blur(20px);
-            animation: pulse-gold 2s infinite;
-            z-index: -1;
-        }
-
-        @keyframes pulse-gold {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 30px rgba(255, 204, 0, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 204, 0, 0);
-            }
+        .modal-enter-active {
+            scale: 1 !important;
+            opacity: 1 !important;
         }
     </style>
 </head>
@@ -111,59 +98,97 @@
 
     <div class="stars"></div>
 
-    <header class="w-full py-4 px-6 border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <a href="trilha_uxui_basico.html"
-                class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">arrow_back</span>
-                <span class="text-sm font-bold uppercase tracking-wider">Cancelar Missão</span>
-            </a>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-eject-yellow animate-pulse"></span>
-                <span class="text-xs font-bold text-eject-yellow uppercase tracking-widest">Protocolo de Entrega</span>
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <button onclick="window.history.back()"
+                        class="text-gray-800 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">
+                        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                    </button>
+                    <span class="text-2xl font-bold text-sky-700">
+                        <a href="../../../index.html">HUB DE CONHECIMENTOS</a>
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ <a
+                            href="../../index.html">Astronauta vai à
+                            Lua</a></span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                    <a href="../../../SIGAV/sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../../../SIGAV/perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <main class="flex-grow pb-24">
+    <main class="flex-grow pb-24 relative overflow-hidden">
+
+        <div class="absolute -right-20 top-40 opacity-10 pointer-events-none animate-pulse-slow">
+            <svg width="400" height="400" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100 0L122.45 77.55L200 100L122.45 122.45L100 200L77.55 122.45L0 100L77.55 77.55L100 0Z"
+                    fill="url(#paint0_linear)" />
+                <defs>
+                    <linearGradient id="paint0_linear" x1="100" y1="0" x2="100" y2="200" gradientUnits="userSpaceOnUse">
+                        <stop stop-color="#BD00FF" />
+                        <stop offset="1" stop-color="#EC4899" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
 
         <section class="max-w-5xl mx-auto px-4 py-10">
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-ux-purple/20 border border-ux-purple/30 text-ux-light text-xs font-bold uppercase">
-                    <span class="material-symbols-outlined text-sm">terminal</span>
-                    Missão Prática
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-ux-purple/20 border border-ux-purple/30 text-ux-light text-xs font-bold uppercase shadow-[0_0_15px_rgba(189,0,255,0.2)]">
+                    <span class="material-symbols-outlined text-sm">workspace_premium</span>
+                    Missão de Graduação
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                    Desafio Final: Tela de Login
+                    DESAFIO FINAL: AVANÇADO - UX/UI
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Siga as instruções abaixo para acessar o banco de componentes da EJECT no GitHub e submeter sua
-                    solução.
+                    Sua jornada culmina aqui. Entregue um estudo de caso completo que demonstre domínio sobre todo o
+                    processo de design.
                 </p>
             </div>
         </section>
 
         <section class="max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-8">
 
-            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+            <div
+                class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col relative group">
+                <div
+                    class="absolute inset-0 bg-ux-purple/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                </div>
+
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">code</span>
+                        <span class="material-symbols-outlined text-white">cases</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Repositório Oficial</h2>
+                    <h2 class="text-xl font-bold text-white">O Case Study</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
                     <div class="space-y-4 text-gray-300 text-sm">
-                        <p>O desafio técnico está hospedado no nosso GitHub. Siga o fluxo:</p>
+                        <p>Escolha um problema real e documente sua solução. Estrutura sugerida:</p>
 
                         <div class="flex gap-4 items-start">
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-ux-purple text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block mb-1">Acesse o GitHub</strong>
-                                <p class="text-gray-400">Entre no repositório "Banco de Componentes".</p>
+                                <strong class="text-white block mb-1">Discovery</strong>
+                                <p class="text-gray-400">Desk Research, Benchmarking e Entrevistas.</p>
                             </div>
                         </div>
 
@@ -171,11 +196,8 @@
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-ux-purple text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block mb-1">Encontre a Issue</strong>
-                                <p class="text-gray-400">Vá na aba <em>Issues</em> e procure pela tarefa:</p>
-                                <span
-                                    class="inline-block mt-2 px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded border border-green-500/30 font-mono">Nível
-                                    1 - Desafio Login</span>
+                                <strong class="text-white block mb-1">Definition</strong>
+                                <p class="text-gray-400">Personas, Jornada do Usuário e Wireframes.</p>
                             </div>
                         </div>
 
@@ -183,17 +205,17 @@
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-ux-purple text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong class="text-white block mb-1">Desenvolva</strong>
-                                <p class="text-gray-400">Leia os requisitos e crie sua solução.</p>
+                                <strong class="text-white block mb-1">Delivery</strong>
+                                <p class="text-gray-400">UI Final, Style Guide e Protótipo Navegável.</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-auto pt-4">
-                        <a href="https://github.com" target="_blank"
+                        <a href="https://www.behance.net/" target="_blank"
                             class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
                             <span class="material-symbols-outlined">open_in_new</span>
-                            Acessar GitHub
+                            Referência (Behance)
                         </a>
                     </div>
                 </div>
@@ -205,33 +227,37 @@
                         class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
                         <span class="material-symbols-outlined">send</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
+                    <h2 class="text-xl font-bold text-white">Entregar Portfólio</h2>
                 </div>
 
                 <div class="p-6 flex-grow relative">
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link da Solução (Figma
-                                ou PR)</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Case
+                                (Behance/Notion/Medium)</label>
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
                                 <input type="url" required placeholder="https://..."
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-ux-purple focus:ring-1 focus:ring-ux-purple transition-all text-sm placeholder-gray-600">
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-ux-pink focus:ring-1 focus:ring-ux-pink transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Figma
                                 (Opcional)</label>
-                            <textarea rows="3" placeholder="Algum comentário sobre o desafio?"
-                                class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-ux-purple focus:ring-1 focus:ring-ux-purple transition-all text-sm resize-none placeholder-gray-600"></textarea>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">palette</span>
+                                <input type="url" placeholder="https://figma.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-ux-pink focus:ring-1 focus:ring-ux-pink transition-all text-sm placeholder-gray-600">
+                            </div>
                         </div>
 
                         <button type="submit" id="btn-submit"
-                            class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg">
-                            <span>Confirmar Envio</span>
+                            class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <span>Finalizar Trilha</span>
                             <span class="material-symbols-outlined">rocket_launch</span>
                         </button>
                     </form>
@@ -239,9 +265,9 @@
                     <div id="loading-overlay"
                         class="absolute inset-0 bg-space-blue/90 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl">
                         <div
-                            class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
+                            class="w-10 h-10 border-4 border-white/10 border-t-ux-purple rounded-full animate-spin mb-4">
                         </div>
-                        <p class="text-sm font-bold text-white">Processando dados...</p>
+                        <p class="text-sm font-bold text-white">Analisando envio...</p>
                     </div>
                 </div>
             </div>
@@ -250,67 +276,150 @@
     </main>
 
     <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-lg"></div>
+        <div id="modal-overlay"
+            class="absolute inset-0 bg-[#05070A]/95 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
 
-        <div
-            class="relative z-10 bg-space-blue border border-eject-yellow/30 rounded-3xl p-8 max-w-sm w-full text-center modal-enter shadow-[0_0_50px_rgba(255,204,0,0.15)] overflow-hidden">
+        <div id="modal-card"
+            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-ux-purple/30 bg-[#0B0E14] shadow-[0_0_60px_rgba(189,0,255,0.3)] transition-all duration-500 scale-95 opacity-0">
 
             <div
-                class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-eject-yellow/5 to-transparent pointer-events-none">
+                class="h-1.5 w-full bg-gradient-to-r from-ux-purple via-ux-pink to-ux-purple shadow-[0_0_15px_#BD00FF] animate-pulse">
             </div>
 
-            <div class="mb-6 relative inline-block insignia-glow">
-                <div
-                    class="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-600 flex items-center justify-center shadow-lg border-4 border-space-blue relative z-10">
-                    <span class="material-symbols-outlined text-6xl text-white drop-shadow-md">military_tech</span>
+            <div class="relative p-8 text-center">
+                <div class="absolute inset-0 opacity-20"
+                    style="background-image: radial-gradient(#BD00FF 1px, transparent 1px); background-size: 20px 20px;">
                 </div>
-            </div>
 
-            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Missão Cumprida!</h3>
-            <h2 class="text-2xl font-black text-white mb-2">VOCÊ DESBLOQUEOU:</h2>
+                <div class="relative mb-6">
+                    <span
+                        class="inline-flex items-center gap-2 rounded-full border border-ux-purple/50 bg-ux-purple/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-ux-light shadow-neon-purple">
+                        <span class="material-symbols-outlined text-sm">trophy</span>
+                        Trilha Concluída
+                    </span>
+                </div>
 
-            <div class="py-3 px-6 bg-white/5 border border-eject-yellow/20 rounded-xl mb-6 inline-block">
-                <span
-                    class="text-3xl font-black text-transparent bg-clip-text bg-gold-gradient tracking-wider drop-shadow-sm">
-                    EJECTER
-                </span>
-            </div>
+                <div class="relative mx-auto mb-6 h-48 w-48 group flex items-center justify-center">
+                    <div class="absolute w-2/3 h-2/3 rounded-full bg-ux-purple blur-[50px] opacity-60 animate-pulse">
+                    </div>
+                    <div
+                        class="absolute -inset-4 rounded-full border border-dashed border-white/20 animate-[spin_20s_linear_infinite]">
+                    </div>
+                    <div class="relative z-10 h-full w-full animate-float">
+                        <img src="../../../img/ux_master.png" alt="Insígnia UX Master"
+                            class="h-full w-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                    </div>
+                </div>
 
-            <p class="text-gray-400 text-sm mb-8 leading-relaxed">
-                Parabéns, astronauta! Seus dados foram enviados para o comando. Você subiu de nível na hierarquia.
-            </p>
+                <h2 class="text-3xl font-black text-white mb-2 uppercase italic tracking-wide">
+                    Especialista
+                </h2>
+                <div class="mb-6 inline-block rounded border border-ux-purple/30 bg-ux-purple/5 px-4 py-1">
+                    <h3 class="font-mono text-sm font-bold text-ux-light tracking-widest">UX/UI DESIGNER</h3>
+                </div>
 
-            <div class="flex flex-col gap-3 relative z-20">
-                <a href="nivelamento.html"
-                    class="w-full py-3 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors shadow-lg hover:shadow-xl hover:scale-[1.02] transform transition-all duration-200">
-                    Resgatar Recompensa
-                </a>
+                <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
+                    Você dominou a empatia e a estética. Você está pronto para criar experiências que mudam o mundo.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="redeemBadge()"
+                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-ux-purple to-ux-pink text-white py-4 font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg cursor-pointer">
+                        <span class="material-symbols-outlined text-lg">workspace_premium</span>
+                        <span>Resgatar Certificação</span>
+                        <div
+                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
+                        </div>
+                    </button>
+
+                    <button onclick="closeModal()"
+                        class="text-xs relative font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
+                        Fechar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
         function submitMission(e) {
             e.preventDefault();
             const loading = document.getElementById('loading-overlay');
-            const modal = document.getElementById('success-modal');
             const btn = document.getElementById('btn-submit');
 
-            // 1. Mostrar Loading
             loading.classList.remove('hidden');
             loading.classList.add('flex');
-            btn.disabled = true; // Evita duplo clique
+            btn.disabled = true;
 
-            // 2. Simular Envio (2.5 segundos de suspense)
             setTimeout(() => {
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-
-                // 3. Mostrar Sucesso (Insígnia)
-                modal.classList.remove('hidden');
-
-                // Opcional: Efeito de confete simples poderia ser chamado aqui
+                openModal();
             }, 2500);
+        }
+
+        function openModal() {
+            const modal = document.getElementById('success-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const card = document.getElementById('modal-card');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                card.classList.remove('opacity-0', 'scale-95');
+                card.classList.add('modal-enter-active');
+            }, 50);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('success-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const card = document.getElementById('modal-card');
+
+            overlay.classList.add('opacity-0');
+            card.classList.remove('modal-enter-active');
+            card.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('btn-submit').disabled = false;
+            }, 500);
+        }
+
+        // --- LÓGICA DE RESGATE FINAL ---
+        function redeemBadge() {
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert("Você precisa estar logado.");
+                return;
+            }
+
+            const updates = {};
+
+            // 1. Salva a Insígnia Final
+            updates['users/' + user.uid + '/badges/uxui_avancado'] = {
+                id: 'uxui_avancado',
+                name: 'Especialista UX/UI',
+                image: '../../../img/ux_master.png',
+                date: Date.now()
+            };
+
+            // 2. Marca a trilha como COMPLETA
+            updates['users/' + user.uid + '/progress/uxui/completed'] = true;
+
+            db.ref().update(updates)
+                .then(() => {
+                    alert("Parabéns! Trilha UX/UI concluída com sucesso.");
+                    // Volta para o mapa da trilha UX/UI
+                    window.location.href = '../trilha_uxui.html';
+                })
+                .catch((error) => {
+                    console.error("Erro ao salvar:", error);
+                    alert("Erro ao salvar progresso: " + error.message);
+                });
         }
     </script>
 

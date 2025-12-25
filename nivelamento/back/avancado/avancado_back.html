@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Nível 1: Lógica Backend</title>
+    <title>EJECT | Nível 3: Galáxia Backend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
@@ -44,18 +44,19 @@
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                     colors: {
-                        'space-dark': '#0B0E14',
-                        'space-blue': '#151925',
-                        'back-green': '#10B981', /* Cor Principal Backend */
-                        'back-light': '#6EE7B7',
+                        'space-dark': '#05070A',
+                        'space-light': '#151925',
+                        'back-green': '#10B981',
+                        'cloud-purple': '#8B5CF6', /* Roxo para Cloud/Arch */
+                        'docker-blue': '#0DB7ED',
                         'eject-yellow': '#FFCC00',
-                        'success': '#00FF94',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #064E3B 0%, #0B0E14 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1e1b4b 0%, #05070A 100%)', /* Roxo escuro */
                     },
                     boxShadow: {
-                        'neon-green': '0 0 20px rgba(16, 185, 129, 0.3)',
+                        'neon-green': '0 0 20px rgba(16, 185, 129, 0.2)',
+                        'neon-purple': '0 0 25px rgba(139, 92, 246, 0.3)',
                         'neon-gold': '0 0 30px rgba(255, 204, 0, 0.4)',
                     }
                 }
@@ -64,7 +65,7 @@
     </script>
     <style>
         body {
-            background-color: #0B0E14;
+            background-color: #05070A;
             color: white;
             scroll-behavior: smooth;
         }
@@ -81,15 +82,15 @@
             background-size: 550px 550px;
         }
 
-        /* Glass Panel */
+        /* Glass Panel Advanced */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            background: rgba(13, 12, 20, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+            /* Borda Roxa sutil */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
 
-        /* Checkbox Button Logic */
         input:checked+label .btn-content-unchecked {
             display: none;
         }
@@ -99,9 +100,9 @@
         }
 
         input:checked+label {
-            background-color: rgba(16, 185, 129, 0.1);
-            border-color: #10B981;
-            color: #10B981;
+            background-color: rgba(139, 92, 246, 0.1);
+            border-color: #8B5CF6;
+            color: #8B5CF6;
         }
 
         /* Scrollbar */
@@ -110,7 +111,7 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: #0B0E14;
+            background: #05070A;
         }
 
         ::-webkit-scrollbar-thumb {
@@ -119,12 +120,12 @@
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #10B981;
+            background: #8B5CF6;
         }
     </style>
 </head>
 
-<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-back-green selection:text-white">
+<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-cloud-purple selection:text-white">
 
     <div class="stars"></div>
 
@@ -166,23 +167,23 @@
 
         <section class="max-w-4xl mx-auto mb-12 text-center">
             <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-back-green/10 border border-back-green/30 text-back-light text-xs font-bold uppercase tracking-widest mb-4">
-                <span class="material-symbols-outlined text-sm">terminal</span>
-                Módulo Inicial
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cloud-purple/10 border border-cloud-purple/30 text-cloud-purple text-xs font-bold uppercase tracking-widest mb-4">
+                <span class="material-symbols-outlined text-sm">cloud_queue</span>
+                Módulo Avançado
             </div>
             <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
-                Lógica & <br> <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-back-green to-teal-400">Algoritmos</span>
+                Arquitetura & <br> <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-cloud-purple to-docker-blue">Escalabilidade</span>
             </h1>
             <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-                Antes de servidores e bancos de dados, você precisa pensar como uma máquina. Domine a arte de resolver
-                problemas.
+                Escrever código é fácil. O desafio é criar sistemas seguros, escaláveis e prontos para a nuvem.
+                Bem-vindo à engenharia de software real.
             </p>
 
             <div class="w-full max-w-lg mx-auto opacity-50">
                 <div class="h-1 bg-gray-800 rounded-full overflow-hidden border border-white/10">
                     <div id="hero-progress-bar"
-                        class="h-full bg-gradient-to-r from-back-green to-teal-400 w-0 transition-all duration-700">
+                        class="h-full bg-gradient-to-r from-cloud-purple to-docker-blue w-0 transition-all duration-700">
                     </div>
                 </div>
             </div>
@@ -191,27 +192,27 @@
         <div class="max-w-4xl mx-auto space-y-24 relative">
 
             <div
-                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-back-green via-teal-500 to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
+                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-cloud-purple via-docker-blue to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
             </div>
 
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-back-green flex items-center justify-center text-back-green font-bold text-xs shadow-neon-green">
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-cloud-purple flex items-center justify-center text-cloud-purple font-bold text-xs shadow-neon-purple">
                         01</div>
                 </div>
 
                 <div
-                    class="glass-panel rounded-3xl overflow-hidden hover:border-back-green/30 transition-all duration-500">
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-cloud-purple/50 transition-all duration-500">
 
                     <div
-                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-back-green/10 to-transparent">
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-cloud-purple/10 to-transparent">
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1">Pensamento Computacional</h2>
+                            <h2 class="text-2xl font-bold text-white mb-1">Clean Architecture & SOLID</h2>
                             <p class="text-sm text-gray-400 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span> 25 min
+                                <span class="material-symbols-outlined text-sm">schedule</span> 50 min
                                 <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
-                                <span class="text-back-green font-bold">Fundamentos</span>
+                                <span class="text-cloud-purple font-bold">Design Patterns</span>
                             </p>
                         </div>
                         <span
@@ -220,12 +221,12 @@
 
                     <div class="p-6 md:p-8">
                         <div
-                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-green transition-all duration-500">
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-purple transition-all duration-500">
                             <div
-                                class="absolute -inset-1 bg-back-green/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                class="absolute -inset-1 bg-cloud-purple/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                             </div>
-                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/8mei6uVttho"
-                                title="Lógica de Programação" frameborder="0"
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/k5kIMl5_x6k"
+                                title="SOLID Principles" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
@@ -233,8 +234,8 @@
                         <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
                             <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
                                 <strong class="text-white block mb-1">Briefing:</strong>
-                                Entenda como computadores tomam decisões. Aprenda sobre variáveis, tipos de dados e
-                                tabelas verdade.
+                                Código espaguete não escala. Entenda os princípios SOLID e como organizar suas pastas
+                                para desacoplar a lógica de negócios da infraestrutura.
                             </div>
 
                             <div class="w-full md:w-auto">
@@ -248,9 +249,9 @@
                                         <span class="font-bold text-sm tracking-wide">MARCAR COMO VISTO</span>
                                     </div>
                                     <div
-                                        class="btn-content-checked hidden items-center justify-center gap-3 px-6 py-4 bg-green-500/10 border border-green-500 rounded-xl transition-all animate-pulse">
-                                        <span class="material-symbols-outlined text-green-400">check_circle</span>
-                                        <span class="font-bold text-sm tracking-wide text-green-400">MÓDULO
+                                        class="btn-content-checked hidden items-center justify-center gap-3 px-6 py-4 bg-purple-500/10 border border-purple-500 rounded-xl transition-all animate-pulse">
+                                        <span class="material-symbols-outlined text-purple-400">check_circle</span>
+                                        <span class="font-bold text-sm tracking-wide text-purple-400">MÓDULO
                                             CONCLUÍDO</span>
                                     </div>
                                 </label>
@@ -263,21 +264,21 @@
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-teal-500 flex items-center justify-center text-teal-500 font-bold text-xs shadow-[0_0_15px_rgba(20,184,166,0.5)]">
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-back-green flex items-center justify-center text-back-green font-bold text-xs shadow-neon-green">
                         02</div>
                 </div>
 
                 <div
-                    class="glass-panel rounded-3xl overflow-hidden hover:border-teal-500/30 transition-all duration-500">
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-back-green/30 transition-all duration-500">
 
                     <div
-                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-teal-500/10 to-transparent">
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-back-green/10 to-transparent">
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1">Controle de Fluxo</h2>
+                            <h2 class="text-2xl font-bold text-white mb-1">Segurança & Auth</h2>
                             <p class="text-sm text-gray-400 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span> 30 min
+                                <span class="material-symbols-outlined text-sm">schedule</span> 45 min
                                 <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
-                                <span class="text-teal-500 font-bold">Loops & Condicionais</span>
+                                <span class="text-back-green font-bold">JWT & Encryption</span>
                             </p>
                         </div>
                         <span
@@ -286,12 +287,9 @@
 
                     <div class="p-6 md:p-8">
                         <div
-                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(20,184,166,0.3)] transition-all duration-500">
-                            <div
-                                class="absolute -inset-1 bg-teal-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                            </div>
-                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/_c2p455c1tI"
-                                title="Loops e Arrays" frameborder="0"
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-500">
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/7Q17ubqLfaM"
+                                title="JWT Authentication" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
@@ -299,8 +297,8 @@
                         <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
                             <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
                                 <strong class="text-white block mb-1">Briefing:</strong>
-                                Automação é poder. Aprenda a usar estruturas de repetição (for, while) e arrays para
-                                manipular grandes volumes de dados.
+                                Nunca salve senhas em texto puro. Aprenda sobre Hashing (Bcrypt), Tokens JWT e como
+                                proteger suas rotas de acessos indevidos.
                             </div>
 
                             <div class="w-full md:w-auto">
@@ -329,46 +327,62 @@
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-white/50 flex items-center justify-center text-white font-bold text-xs">
-                        EXTRA</div>
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-docker-blue flex items-center justify-center text-docker-blue font-bold text-xs shadow-[0_0_15px_rgba(13,183,237,0.5)]">
+                        03</div>
                 </div>
 
-                <div class="glass-panel rounded-3xl p-6 md:p-8">
-                    <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-eject-yellow">folder_open</span>
-                        Documentação Técnica
-                    </h3>
+                <div
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-docker-blue/30 transition-all duration-500">
 
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide" target="_blank"
-                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-back-green/50 transition-all group/card">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-back-green uppercase tracking-widest">Manual</span>
-                                <span
-                                    class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
-                            </div>
-                            <h4 class="font-bold text-white mb-1">MDN Web Docs</h4>
-                            <p class="text-xs text-gray-400">A bíblia do JavaScript moderno.</p>
-                        </a>
-
-                        <a href="https://www.hackerrank.com/" target="_blank"
-                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-teal-400/50 transition-all group/card">
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-teal-400 uppercase tracking-widest">Prática</span>
-                                <span
-                                    class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
-                            </div>
-                            <h4 class="font-bold text-white mb-1">HackerRank</h4>
-                            <p class="text-xs text-gray-400">Desafios de algoritmos para treinar.</p>
-                        </a>
+                    <div
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-docker-blue/10 to-transparent">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-1">DevOps & Deploy</h2>
+                            <p class="text-sm text-gray-400 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">schedule</span> 60 min
+                                <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
+                                <span class="text-docker-blue font-bold">Docker & Cloud</span>
+                            </p>
+                        </div>
+                        <span
+                            class="px-3 py-1 rounded bg-black/40 border border-white/10 text-xs font-mono text-gray-300">AULA_03</span>
                     </div>
 
-                    <div class="mt-6 flex items-center gap-3 pt-4 border-t border-white/10">
-                        <input type="checkbox" id="check-03"
-                            class="w-5 h-5 rounded bg-black border-gray-600 checked:bg-eject-yellow checked:border-eject-yellow focus:ring-0 cursor-pointer"
-                            onchange="saveTaskProgress('check-03')">
-                        <label for="check-03" class="text-sm text-gray-400 cursor-pointer hover:text-white">Confirmo que
-                            estudei o material de apoio.</label>
+                    <div class="p-6 md:p-8">
+                        <div
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(13,183,237,0.3)] transition-all duration-500">
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/pTFZFxd4hOI"
+                                title="Docker Tutorial" frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        </div>
+
+                        <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
+                            <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
+                                <strong class="text-white block mb-1">Briefing:</strong>
+                                "Na minha máquina funciona". Acabe com isso usando Containers. Aprenda a criar um
+                                Dockerfile e subir sua aplicação na nuvem (Railway/AWS/Render).
+                            </div>
+
+                            <div class="w-full md:w-auto">
+                                <input type="checkbox" id="check-03" class="hidden"
+                                    onchange="saveTaskProgress('check-03')">
+                                <label for="check-03" class="cursor-pointer group block">
+                                    <div
+                                        class="btn-content-unchecked flex items-center justify-center gap-3 px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl transition-all active:scale-95">
+                                        <div class="w-5 h-5 rounded border-2 border-gray-500 group-hover:border-white">
+                                        </div>
+                                        <span class="font-bold text-sm tracking-wide">MARCAR COMO VISTO</span>
+                                    </div>
+                                    <div
+                                        class="btn-content-checked hidden items-center justify-center gap-3 px-6 py-4 bg-blue-500/10 border border-blue-500 rounded-xl transition-all animate-pulse">
+                                        <span class="material-symbols-outlined text-blue-400">check_circle</span>
+                                        <span class="font-bold text-sm tracking-wide text-blue-400">MÓDULO
+                                            CONCLUÍDO</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -382,11 +396,10 @@
                             class="material-symbols-outlined text-4xl text-gray-500 transition-colors duration-500">lock</span>
                     </div>
 
-                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio: Calculadora Lógica
-                    </h2>
+                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio: Cloud Master</h2>
                     <p class="text-gray-400 mb-8 max-w-lg mx-auto">
-                        Crie um algoritmo capaz de processar operações matemáticas complexas e validar inputs de
-                        usuário.
+                        A missão final. Arquitetura limpa, autenticação segura e deploy automatizado em um ambiente de
+                        produção.
                     </p>
 
                     <button id="btn-challenge" onclick="window.location.href='desafio_final.html'" disabled
@@ -412,7 +425,7 @@
 
     <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md">
         <div
-            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-green/20 border-white/10">
+            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-purple/20 border-white/10">
             <div class="flex flex-col">
                 <span class="text-[10px] text-gray-400 uppercase font-mono tracking-widest">Status da Missão</span>
                 <span id="floating-progress-text" class="text-sm font-bold text-white font-mono">...</span>
@@ -420,11 +433,12 @@
 
             <div class="w-32 h-2 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-4">
                 <div id="floating-progress-bar"
-                    class="h-full bg-gradient-to-r from-back-green to-teal-500 w-0 transition-all duration-700"></div>
+                    class="h-full bg-gradient-to-r from-cloud-purple to-docker-blue w-0 transition-all duration-700">
+                </div>
             </div>
 
             <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                <span class="material-symbols-outlined text-xs text-back-green animate-pulse">terminal</span>
+                <span class="material-symbols-outlined text-xs text-cloud-purple animate-pulse">rocket_launch</span>
             </div>
         </div>
     </div>
@@ -432,16 +446,16 @@
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        // CONFIGURAÇÃO TRILHA BACKEND
+        // CONFIGURAÇÃO DO NÍVEL AVANÇADO BACKEND
         const TRACK_ID = 'backend';
-        const LEVEL_ID = 'level1';
+        const LEVEL_ID = 'level3'; // Salva no nível 3
 
         function saveTaskProgress(taskId) {
             const isChecked = document.getElementById(taskId).checked;
             const user = auth.currentUser;
 
             if (user) {
-                // users/{uid}/progress/backend/level1/tasks/{taskId}
+                // users/{uid}/progress/backend/level3/tasks/{taskId}
                 db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks/${taskId}`).set(isChecked)
                     .then(() => updateVisualProgress())
                     .catch(err => console.error("Erro ao salvar:", err));
@@ -474,7 +488,7 @@
             const total = 3;
             const percentage = Math.round((completed / total) * 100);
 
-            // UI Updates
+            // UI Elements
             const heroBar = document.getElementById('hero-progress-bar');
             const floatText = document.getElementById('floating-progress-text');
             const floatBar = document.getElementById('floating-progress-bar');
@@ -499,7 +513,7 @@
                 btn.disabled = false;
                 btn.classList.remove('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
                 btn.classList.add('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
-                btn.innerText = "INICIAR MISSÃO PRÁTICA";
+                btn.innerText = "INICIAR DESAFIO FINAL";
 
                 icon.innerText = "lock_open";
                 icon.classList.remove('text-gray-500');

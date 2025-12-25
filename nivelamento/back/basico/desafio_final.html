@@ -4,13 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Backend</title>
+    <title>EJECT | Desafio Lógica Backend</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
 
     <script>
         tailwind.config = {
@@ -20,14 +42,28 @@
                     colors: {
                         'space-dark': '#0B0E14',
                         'space-blue': '#151925',
-                        'back-green': '#00FF94', /* Cor Backend */
-                        'back-dark-green': '#008F53',
+                        'back-green': '#10B981', /* Verde Backend */
+                        'back-light': '#6EE7B7',
                         'eject-yellow': '#FFCC00',
                         'success-green': '#00FF94',
+                        'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #022c22 0%, #0B0E14 100%)', /* Fundo Verde Escuro */
-                        'gold-gradient': 'linear-gradient(135deg, #FFCC00 0%, #FF9900 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #064E3B 0%, #0B0E14 100%)',
+                        'matrix-gradient': 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'shimmer': 'shimmer 1.5s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '100%': { transform: 'translateX(100%)' }
+                        }
                     }
                 }
             }
@@ -51,56 +87,9 @@
             background-size: 550px 550px;
         }
 
-        /* Animação Modal */
-        .modal-enter {
-            animation: modal-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes modal-pop {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        /* Efeito de Brilho da Insígnia */
-        .insignia-glow {
-            position: relative;
-        }
-
-        .insignia-glow::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: rgba(0, 255, 148, 0.4);
-            /* Glow verde para Backend */
-            filter: blur(20px);
-            animation: pulse-green 2s infinite;
-            z-index: -1;
-        }
-
-        @keyframes pulse-green {
-            0% {
-                box-shadow: 0 0 0 0 rgba(0, 255, 148, 0.5);
-            }
-
-            70% {
-                box-shadow: 0 0 0 30px rgba(0, 255, 148, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(0, 255, 148, 0);
-            }
+        .modal-enter-active {
+            scale: 1 !important;
+            opacity: 1 !important;
         }
     </style>
 </head>
@@ -109,19 +98,38 @@
 
     <div class="stars"></div>
 
-    <header class="w-full py-4 px-6 border-b border-white/10 bg-black/40 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto flex items-center justify-between">
-            <a href="trilha_backend_basico.html"
-                class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">arrow_back</span>
-                <span class="text-sm font-bold uppercase tracking-wider">Abortar Processo</span>
-            </a>
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-back-green animate-pulse"></span>
-                <span class="text-xs font-bold text-back-green uppercase tracking-widest font-mono">System.Status:
-                    Waiting_Input</span>
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <button onclick="window.history.back()"
+                        class="text-gray-800 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">
+                        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                    </button>
+                    <span class="text-2xl font-bold text-sky-700">
+                        <a href="../../../index.html">HUB DE CONHECIMENTOS</a>
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ <a
+                            href="../../index.html">Astronauta vai à
+                            Lua</a></span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                    <a href="../../../SIGAV/sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../../../SIGAV/perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
             </div>
-        </div>
+        </nav>
     </header>
 
     <main class="flex-grow pb-24">
@@ -129,16 +137,16 @@
         <section class="max-w-5xl mx-auto px-4 py-10">
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-green text-xs font-bold uppercase">
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-light text-xs font-bold uppercase">
                     <span class="material-symbols-outlined text-sm">terminal</span>
-                    Desafio de Lógica
+                    Missão Prática
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                    Protocolo Final: Gerenciador CLI
+                    DESAFIO FINAL: BÁSICO - BACKEND
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Desenvolva um script Python que rode no terminal para gerenciar tarefas (CRUD Básico). A lógica deve
-                    ser impecável.
+                    Prove que você domina a lógica. Crie um algoritmo eficiente para resolver um problema real usando
+                    código limpo e estruturado.
                 </p>
             </div>
         </section>
@@ -148,47 +156,49 @@
             <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">data_object</span>
+                        <span class="material-symbols-outlined text-white">code</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Especificações do Sistema</h2>
+                    <h2 class="text-xl font-bold text-white">Repositório de Lógica</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
-                    <div class="space-y-4 text-gray-300 text-sm font-mono">
-                        <p class="font-sans mb-4">Acesse o repositório "Backend-Challenges" e siga o fluxo:</p>
+                    <div class="space-y-4 text-gray-300 text-sm">
+                        <p>O desafio está no GitHub da EJECT. Siga os passos:</p>
 
-                        <div class="flex gap-4 items-start border-l-2 border-back-green/30 pl-4">
-                            <span class="text-back-green font-bold">01.</span>
+                        <div class="flex gap-4 items-start">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block">Clone & Setup</strong>
-                                <p class="text-gray-500">Clone o repo e crie seu ambiente virtual (`venv`).</p>
+                                <strong class="text-white block mb-1">Clone o Repo</strong>
+                                <p class="text-gray-400">Projeto "EJECT-Logic-Basics".</p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 items-start border-l-2 border-back-green/30 pl-4">
-                            <span class="text-back-green font-bold">02.</span>
+                        <div class="flex gap-4 items-start">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block">Implement Logic</strong>
-                                <p class="text-gray-500">Resolva a Issue #1: Criar funções de Adicionar, Listar e
-                                    Remover itens de uma lista.</p>
+                                <strong class="text-white block mb-1">Desafio: CLI Manager</strong>
+                                <p class="text-gray-400">Crie um gerenciador de tarefas via linha de comando (CRUD em
+                                    memória).</p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 items-start border-l-2 border-back-green/30 pl-4">
-                            <span class="text-back-green font-bold">03.</span>
+                        <div class="flex gap-4 items-start">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong class="text-white block">Commit Standard</strong>
-                                <p class="text-gray-500">Use commits semânticos (ex: `feat: add remove task function`).
-                                </p>
+                                <strong class="text-white block mb-1">Pull Request</strong>
+                                <p class="text-gray-400">Envie sua solução para revisão.</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="mt-auto pt-4">
                         <a href="https://github.com" target="_blank"
-                            class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group font-mono text-sm">
-                            git clone github.com/eject/challenges
-                            <span class="material-symbols-outlined text-base">content_copy</span>
+                            class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
+                            <span class="material-symbols-outlined">open_in_new</span>
+                            Acessar GitHub
                         </a>
                     </div>
                 </div>
@@ -198,60 +208,44 @@
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div
                         class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
-                        <span class="material-symbols-outlined">upload_file</span>
+                        <span class="material-symbols-outlined">send</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Commit Final</h2>
+                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
                 </div>
 
                 <div class="p-6 flex-grow relative">
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">URL do Repositório
-                                (GitHub/GitLab)</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR
+                                (GitHub)</label>
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
-                                <input type="url" required placeholder="https://github.com/dev/task-manager"
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600 font-mono">
+                                <input type="url" required placeholder="https://github.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Print do Terminal ou
-                                Link do Replit</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">image</span>
-                                <input type="url" placeholder="https://imgur.com/... ou https://replit.com/..."
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600 font-mono">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Logs de Execução
-                                (Opcional)</label>
-                            <textarea rows="2" placeholder="Alguma observação sobre a lógica usada?"
-                                class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm resize-none placeholder-gray-600 font-mono"></textarea>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Linguagem Usada</label>
+                            <input type="text" placeholder="Ex: JavaScript, Python, Java..."
+                                class="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
                         </div>
 
                         <button type="submit" id="btn-submit"
-                            class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg">
-                            <span>Executar Deploy</span>
-                            <span class="material-symbols-outlined">settings_power</span>
+                            class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <span>Confirmar Envio</span>
+                            <span class="material-symbols-outlined">rocket_launch</span>
                         </button>
                     </form>
 
                     <div id="loading-overlay"
-                        class="absolute inset-0 bg-black/95 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl font-mono">
-                        <div class="text-back-green text-sm mb-2">
-                            > python3 verify_submission.py<span class="animate-pulse">_</span>
+                        class="absolute inset-0 bg-space-blue/90 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl">
+                        <div
+                            class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
                         </div>
-                        <div class="w-1/2 bg-gray-800 h-1 rounded overflow-hidden">
-                            <div class="h-full bg-back-green animate-[width_2s_ease-in-out_infinite]"
-                                style="width: 50%"></div>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">Executando Testes Unitários...</p>
+                        <p class="text-sm font-bold text-white">Compilando envio...</p>
                     </div>
                 </div>
             </div>
@@ -260,67 +254,154 @@
     </main>
 
     <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-lg"></div>
+        <div id="modal-overlay"
+            class="absolute inset-0 bg-[#05070A]/90 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
 
-        <div
-            class="relative z-10 bg-space-blue border border-back-green/30 rounded-3xl p-8 max-w-sm w-full text-center modal-enter shadow-[0_0_50px_rgba(0,255,148,0.2)] overflow-hidden">
+        <div id="modal-card"
+            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 scale-95 opacity-0">
 
             <div
-                class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-back-green/5 to-transparent pointer-events-none">
+                class="h-1.5 w-full bg-gradient-to-r from-back-green via-green-400 to-back-green shadow-[0_0_10px_#10B981]">
             </div>
 
-            <div class="mb-6 relative inline-block insignia-glow">
-                <div
-                    class="w-24 h-24 rounded-full bg-gradient-to-br from-gray-800 to-black flex items-center justify-center shadow-lg border-2 border-back-green relative z-10">
-                    <span
-                        class="material-symbols-outlined text-5xl text-back-green drop-shadow-[0_0_10px_rgba(0,255,148,0.8)]">memory</span>
+            <div class="relative p-8 text-center">
+                <div class="absolute inset-0 opacity-10"
+                    style="background-image: radial-gradient(#4f4f4f 1px, transparent 1px); background-size: 20px 20px;">
                 </div>
-            </div>
 
-            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1 font-mono">Compilação: SUCESSO
-            </h3>
-            <h2 class="text-2xl font-black text-white mb-2">VOCÊ DESBLOQUEOU:</h2>
+                <div class="relative mb-6">
+                    <span
+                        class="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">
+                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Compilação Sucesso
+                    </span>
+                </div>
 
-            <div class="py-3 px-6 bg-white/5 border border-back-green/20 rounded-xl mb-6 inline-block">
-                <span
-                    class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-back-green to-white tracking-wider drop-shadow-sm font-mono">
-                    LOGIC_MASTER
-                </span>
-            </div>
+                <div class="relative mx-auto mb-6 h-40 w-40 group flex items-center justify-center">
+                    <div class="absolute w-2/3 h-2/3 rounded-full bg-back-green blur-3xl opacity-50 animate-pulse">
+                    </div>
+                    <div
+                        class="absolute -inset-2 rounded-full border border-dashed border-white/10 animate-[spin_10s_linear_infinite]">
+                    </div>
+                    <div class="relative z-10 h-full w-full animate-float">
+                        <img src="../../../img/insignias/basico_back.svg" alt="Insígnia Backend Básico"
+                            class="h-full w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    </div>
+                </div>
 
-            <p class="text-gray-400 text-sm mb-8 leading-relaxed">
-                Código recebido. Nossa equipe técnica fará o Code Review em breve. O sistema está operacional.
-            </p>
+                <h2 class="text-2xl font-black text-white mb-1 uppercase italic tracking-wide">
+                    Desbloqueado
+                </h2>
 
-            <div class="flex flex-col gap-3 relative z-20">
-                <a href="nivelamento.html"
-                    class="w-full py-3 bg-back-green text-black font-bold rounded-xl hover:bg-white transition-colors shadow-[0_0_15px_rgba(0,255,148,0.4)] hover:scale-[1.02] transform transition-all duration-200">
-                    Retornar à Base
-                </a>
+                <div class="mb-6 inline-block rounded border border-back-green/30 bg-back-green/5 px-4 py-1">
+                    <h3 class="font-mono text-sm font-bold text-back-light tracking-widest">
+                        INSIGNIA: BACKEND_BÁSICO
+                    </h3>
+                </div>
+
+                <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
+                    Lógica validada. Você está pronto para conectar bancos de dados e criar APIs.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <button onclick="redeemBadge()"
+                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-white text-black py-4 font-bold uppercase tracking-wider transition-all hover:bg-eject-yellow hover:scale-[1.02] shadow-lg cursor-pointer">
+                        <span
+                            class="material-symbols-outlined text-lg transition-transform group-hover:-translate-y-1">military_tech</span>
+                        <span>Resgatar Insígnia</span>
+                        <div
+                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
+                        </div>
+                    </button>
+
+                    <button onclick="closeModal()"
+                        class="text-xs relative font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
+                        Fechar Janela
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+
+    <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
         function submitMission(e) {
             e.preventDefault();
             const loading = document.getElementById('loading-overlay');
-            const modal = document.getElementById('success-modal');
             const btn = document.getElementById('btn-submit');
 
-            // 1. Mostrar Loading
             loading.classList.remove('hidden');
             loading.classList.add('flex');
             btn.disabled = true;
 
-            // 2. Simular Processamento (Tempo para ler a animação de terminal)
             setTimeout(() => {
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
+                openModal();
+            }, 2000);
+        }
 
-                // 3. Mostrar Sucesso
-                modal.classList.remove('hidden');
-            }, 3000);
+        function openModal() {
+            const modal = document.getElementById('success-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const card = document.getElementById('modal-card');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                card.classList.remove('opacity-0', 'scale-95');
+                card.classList.add('modal-enter-active');
+            }, 50);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('success-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const card = document.getElementById('modal-card');
+
+            overlay.classList.add('opacity-0');
+            card.classList.remove('modal-enter-active');
+            card.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('btn-submit').disabled = false;
+            }, 500);
+        }
+
+        // --- LÓGICA DE RESGATE ---
+        function redeemBadge() {
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert("Você precisa estar logado para salvar seu progresso.");
+                return;
+            }
+
+            const updates = {};
+
+            // 1. Salva a Insígnia (Badge)
+            updates['users/' + user.uid + '/badges/backend_basico'] = {
+                id: 'backend_basico',
+                name: 'Lógica Backend',
+                image: '../img/insignias/basico_back.svg', // Verifique o caminho da imagem
+                date: Date.now()
+            };
+
+            // 2. Desbloqueia o Nível 2 na trilha Backend
+            updates['users/' + user.uid + '/progress/backend/level2_unlocked'] = true;
+
+            db.ref().update(updates)
+                .then(() => {
+                    alert("Insígnia resgatada e Nível 2 desbloqueado!");
+                    // Redireciona para o mapa da trilha Backend
+                    window.location.href = '../trilha_back.html';
+                })
+                .catch((error) => {
+                    console.error("Erro ao salvar:", error);
+                    alert("Erro ao salvar progresso: " + error.message);
+                });
         }
     </script>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Nível 1: Lógica Backend</title>
+    <title>EJECT | Nível 2: Núcleo Backend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
@@ -46,16 +46,17 @@
                     colors: {
                         'space-dark': '#0B0E14',
                         'space-blue': '#151925',
-                        'back-green': '#10B981', /* Cor Principal Backend */
-                        'back-light': '#6EE7B7',
+                        'back-green': '#10B981',
+                        'db-blue': '#3B82F6', /* Azul para Banco de Dados */
                         'eject-yellow': '#FFCC00',
                         'success': '#00FF94',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #064E3B 0%, #0B0E14 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #0f172a 0%, #0B0E14 100%)',
                     },
                     boxShadow: {
                         'neon-green': '0 0 20px rgba(16, 185, 129, 0.3)',
+                        'neon-blue': '0 0 20px rgba(59, 130, 246, 0.3)',
                         'neon-gold': '0 0 30px rgba(255, 204, 0, 0.4)',
                     }
                 }
@@ -99,9 +100,9 @@
         }
 
         input:checked+label {
-            background-color: rgba(16, 185, 129, 0.1);
-            border-color: #10B981;
-            color: #10B981;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-color: #3B82F6;
+            color: #3B82F6;
         }
 
         /* Scrollbar */
@@ -119,12 +120,12 @@
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #10B981;
+            background: #3B82F6;
         }
     </style>
 </head>
 
-<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-back-green selection:text-white">
+<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-db-blue selection:text-white">
 
     <div class="stars"></div>
 
@@ -166,23 +167,23 @@
 
         <section class="max-w-4xl mx-auto mb-12 text-center">
             <div
-                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-back-green/10 border border-back-green/30 text-back-light text-xs font-bold uppercase tracking-widest mb-4">
-                <span class="material-symbols-outlined text-sm">terminal</span>
-                Módulo Inicial
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-db-blue/10 border border-db-blue/30 text-db-blue text-xs font-bold uppercase tracking-widest mb-4">
+                <span class="material-symbols-outlined text-sm">database</span>
+                Módulo Intermediário
             </div>
             <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
-                Lógica & <br> <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-back-green to-teal-400">Algoritmos</span>
+                Dados & <br> <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-db-blue to-back-green">Conectividade</span>
             </h1>
             <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-                Antes de servidores e bancos de dados, você precisa pensar como uma máquina. Domine a arte de resolver
-                problemas.
+                O código precisa de memória. Aprenda a persistir informações em Bancos de Dados e a expô-las através de
+                APIs robustas.
             </p>
 
             <div class="w-full max-w-lg mx-auto opacity-50">
                 <div class="h-1 bg-gray-800 rounded-full overflow-hidden border border-white/10">
                     <div id="hero-progress-bar"
-                        class="h-full bg-gradient-to-r from-back-green to-teal-400 w-0 transition-all duration-700">
+                        class="h-full bg-gradient-to-r from-db-blue to-back-green w-0 transition-all duration-700">
                     </div>
                 </div>
             </div>
@@ -191,27 +192,27 @@
         <div class="max-w-4xl mx-auto space-y-24 relative">
 
             <div
-                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-back-green via-teal-500 to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
+                class="absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-db-blue via-back-green to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px]">
             </div>
 
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-back-green flex items-center justify-center text-back-green font-bold text-xs shadow-neon-green">
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-db-blue flex items-center justify-center text-db-blue font-bold text-xs shadow-neon-blue">
                         01</div>
                 </div>
 
                 <div
-                    class="glass-panel rounded-3xl overflow-hidden hover:border-back-green/30 transition-all duration-500">
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-db-blue/30 transition-all duration-500">
 
                     <div
-                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-back-green/10 to-transparent">
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-db-blue/10 to-transparent">
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1">Pensamento Computacional</h2>
+                            <h2 class="text-2xl font-bold text-white mb-1">Persistência de Dados</h2>
                             <p class="text-sm text-gray-400 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span> 25 min
+                                <span class="material-symbols-outlined text-sm">schedule</span> 40 min
                                 <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
-                                <span class="text-back-green font-bold">Fundamentos</span>
+                                <span class="text-db-blue font-bold">SQL & NoSQL</span>
                             </p>
                         </div>
                         <span
@@ -220,12 +221,12 @@
 
                     <div class="p-6 md:p-8">
                         <div
-                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-green transition-all duration-500">
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-neon-blue transition-all duration-500">
                             <div
-                                class="absolute -inset-1 bg-back-green/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                class="absolute -inset-1 bg-db-blue/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                             </div>
-                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/8mei6uVttho"
-                                title="Lógica de Programação" frameborder="0"
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/Ofktiyn-3hk"
+                                title="Database Design" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
@@ -233,8 +234,8 @@
                         <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
                             <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
                                 <strong class="text-white block mb-1">Briefing:</strong>
-                                Entenda como computadores tomam decisões. Aprenda sobre variáveis, tipos de dados e
-                                tabelas verdade.
+                                Dados são o novo petróleo. Entenda a diferença entre bancos Relacionais (MySQL,
+                                Postgres) e Não-Relacionais (MongoDB) e como modelar suas tabelas.
                             </div>
 
                             <div class="w-full md:w-auto">
@@ -263,21 +264,21 @@
             <div class="relative group">
                 <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
                     <div
-                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-teal-500 flex items-center justify-center text-teal-500 font-bold text-xs shadow-[0_0_15px_rgba(20,184,166,0.5)]">
+                        class="w-8 h-8 rounded-full bg-space-dark border-2 border-back-green flex items-center justify-center text-back-green font-bold text-xs shadow-neon-green">
                         02</div>
                 </div>
 
                 <div
-                    class="glass-panel rounded-3xl overflow-hidden hover:border-teal-500/30 transition-all duration-500">
+                    class="glass-panel rounded-3xl overflow-hidden hover:border-back-green/30 transition-all duration-500">
 
                     <div
-                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-teal-500/10 to-transparent">
+                        class="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-back-green/10 to-transparent">
                         <div>
-                            <h2 class="text-2xl font-bold text-white mb-1">Controle de Fluxo</h2>
+                            <h2 class="text-2xl font-bold text-white mb-1">Arquitetura REST</h2>
                             <p class="text-sm text-gray-400 flex items-center gap-2">
-                                <span class="material-symbols-outlined text-sm">schedule</span> 30 min
+                                <span class="material-symbols-outlined text-sm">schedule</span> 45 min
                                 <span class="w-1 h-1 bg-gray-600 rounded-full"></span>
-                                <span class="text-teal-500 font-bold">Loops & Condicionais</span>
+                                <span class="text-back-green font-bold">Back-end Web</span>
                             </p>
                         </div>
                         <span
@@ -286,12 +287,12 @@
 
                     <div class="p-6 md:p-8">
                         <div
-                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(20,184,166,0.3)] transition-all duration-500">
+                            class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-all duration-500">
                             <div
-                                class="absolute -inset-1 bg-teal-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                class="absolute -inset-1 bg-back-green/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                             </div>
-                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/_c2p455c1tI"
-                                title="Loops e Arrays" frameborder="0"
+                            <iframe class="relative z-10 w-full h-full" src="https://www.youtube.com/embed/lsMQRaeKNDk"
+                                title="REST API Tutorial" frameborder="0"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                 allowfullscreen></iframe>
                         </div>
@@ -299,8 +300,8 @@
                         <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
                             <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
                                 <strong class="text-white block mb-1">Briefing:</strong>
-                                Automação é poder. Aprenda a usar estruturas de repetição (for, while) e arrays para
-                                manipular grandes volumes de dados.
+                                Como o Front fala com o Back? Através de APIs. Aprenda Verbos HTTP (GET, POST), Status
+                                Codes (200, 404, 500) e JSON.
                             </div>
 
                             <div class="w-full md:w-auto">
@@ -336,30 +337,32 @@
                 <div class="glass-panel rounded-3xl p-6 md:p-8">
                     <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
                         <span class="material-symbols-outlined text-eject-yellow">folder_open</span>
-                        Documentação Técnica
+                        Ferramentas Essenciais
                     </h3>
 
                     <div class="grid md:grid-cols-2 gap-4">
-                        <a href="https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide" target="_blank"
-                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-back-green/50 transition-all group/card">
+                        <a href="https://sqlbolt.com/" target="_blank"
+                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-db-blue/50 transition-all group/card">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-back-green uppercase tracking-widest">Manual</span>
+                                <span class="text-xs font-bold text-db-blue uppercase tracking-widest">Interactive
+                                    SQL</span>
                                 <span
                                     class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
                             </div>
-                            <h4 class="font-bold text-white mb-1">MDN Web Docs</h4>
-                            <p class="text-xs text-gray-400">A bíblia do JavaScript moderno.</p>
+                            <h4 class="font-bold text-white mb-1">SQLBolt</h4>
+                            <p class="text-xs text-gray-400">Aprenda SQL com exercícios práticos no navegador.</p>
                         </a>
 
-                        <a href="https://www.hackerrank.com/" target="_blank"
-                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-teal-400/50 transition-all group/card">
+                        <a href="https://www.postman.com/" target="_blank"
+                            class="block p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-back-green/50 transition-all group/card">
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold text-teal-400 uppercase tracking-widest">Prática</span>
+                                <span
+                                    class="text-xs font-bold text-back-green uppercase tracking-widest">Software</span>
                                 <span
                                     class="material-symbols-outlined text-gray-500 group-hover/card:text-white text-sm">open_in_new</span>
                             </div>
-                            <h4 class="font-bold text-white mb-1">HackerRank</h4>
-                            <p class="text-xs text-gray-400">Desafios de algoritmos para treinar.</p>
+                            <h4 class="font-bold text-white mb-1">Postman</h4>
+                            <p class="text-xs text-gray-400">A ferramenta padrão para testar suas APIs.</p>
                         </a>
                     </div>
 
@@ -368,7 +371,7 @@
                             class="w-5 h-5 rounded bg-black border-gray-600 checked:bg-eject-yellow checked:border-eject-yellow focus:ring-0 cursor-pointer"
                             onchange="saveTaskProgress('check-03')">
                         <label for="check-03" class="text-sm text-gray-400 cursor-pointer hover:text-white">Confirmo que
-                            estudei o material de apoio.</label>
+                            configurei meu ambiente de dados.</label>
                     </div>
                 </div>
             </div>
@@ -382,11 +385,10 @@
                             class="material-symbols-outlined text-4xl text-gray-500 transition-colors duration-500">lock</span>
                     </div>
 
-                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio: Calculadora Lógica
-                    </h2>
+                    <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio: API CRUD</h2>
                     <p class="text-gray-400 mb-8 max-w-lg mx-auto">
-                        Crie um algoritmo capaz de processar operações matemáticas complexas e validar inputs de
-                        usuário.
+                        Construa uma API completa para gerenciamento de Usuários (Create, Read, Update, Delete)
+                        conectada a um banco de dados real.
                     </p>
 
                     <button id="btn-challenge" onclick="window.location.href='desafio_final.html'" disabled
@@ -412,7 +414,7 @@
 
     <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 w-[90%] max-w-md">
         <div
-            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-green/20 border-white/10">
+            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-blue/20 border-white/10">
             <div class="flex flex-col">
                 <span class="text-[10px] text-gray-400 uppercase font-mono tracking-widest">Status da Missão</span>
                 <span id="floating-progress-text" class="text-sm font-bold text-white font-mono">...</span>
@@ -420,11 +422,11 @@
 
             <div class="w-32 h-2 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-4">
                 <div id="floating-progress-bar"
-                    class="h-full bg-gradient-to-r from-back-green to-teal-500 w-0 transition-all duration-700"></div>
+                    class="h-full bg-gradient-to-r from-db-blue to-back-green w-0 transition-all duration-700"></div>
             </div>
 
             <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                <span class="material-symbols-outlined text-xs text-back-green animate-pulse">terminal</span>
+                <span class="material-symbols-outlined text-xs text-db-blue animate-pulse">dns</span>
             </div>
         </div>
     </div>
@@ -432,16 +434,16 @@
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        // CONFIGURAÇÃO TRILHA BACKEND
+        // CONFIGURAÇÃO DO NÍVEL INTERMEDIÁRIO BACKEND
         const TRACK_ID = 'backend';
-        const LEVEL_ID = 'level1';
+        const LEVEL_ID = 'level2'; // Salva no nível 2
 
         function saveTaskProgress(taskId) {
             const isChecked = document.getElementById(taskId).checked;
             const user = auth.currentUser;
 
             if (user) {
-                // users/{uid}/progress/backend/level1/tasks/{taskId}
+                // users/{uid}/progress/backend/level2/tasks/{taskId}
                 db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks/${taskId}`).set(isChecked)
                     .then(() => updateVisualProgress())
                     .catch(err => console.error("Erro ao salvar:", err));
@@ -474,7 +476,7 @@
             const total = 3;
             const percentage = Math.round((completed / total) * 100);
 
-            // UI Updates
+            // UI Elements
             const heroBar = document.getElementById('hero-progress-bar');
             const floatText = document.getElementById('floating-progress-text');
             const floatBar = document.getElementById('floating-progress-bar');
@@ -499,7 +501,7 @@
                 btn.disabled = false;
                 btn.classList.remove('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
                 btn.classList.add('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
-                btn.innerText = "INICIAR MISSÃO PRÁTICA";
+                btn.innerText = "INICIAR DESAFIO API";
 
                 icon.innerText = "lock_open";
                 icon.classList.remove('text-gray-500');
