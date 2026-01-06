@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Studio de Conteúdos</title>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        .input-modern {
+            transition: all 0.2s;
+            border: 1px solid #E2E8F0;
+        }
+
+        .input-modern:focus {
+            border-color: #F97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+            outline: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Destaque quando estiver editando */
+        .editing-mode {
+            border: 2px solid #F97316;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.1);
+        }
+    </style>
+</head>
+
+<body class="text-slate-800">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Gerenciador de
+                        Conteúdos</span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+
+                    <span id="userNameDisplay"
+                        class="text-sm font-medium text-gray-700 hidden sm:block">Carregando...</span>
+
+                    <a href="../sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <button id="logoutBtn" title="Sair / Trocar Usuário"
+                        class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
+                        <i data-lucide="log-out" class="h-6 w-6"></i>
+                    </button>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 grid lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-4 space-y-6">
+            <div id="formCard"
+                class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden sticky top-24 transition-all duration-300">
+                <div class="bg-slate-50 border-b border-slate-100 p-5 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-700 flex items-center gap-2" id="formTitle">
+                        <div class="p-1.5 bg-orange-100 text-orange-600 rounded-lg"><i data-lucide="plus"
+                                class="w-4 h-4"></i></div> Novo Material
+                    </h2>
+                    <button id="btnCancelEdit" onclick="cancelEdit()"
+                        class="hidden text-xs font-bold text-red-500 hover:bg-red-50 px-2 py-1 rounded">Cancelar</button>
+                </div>
+
+                <div class="p-5 max-h-[calc(100vh-12rem)] overflow-y-auto custom-scrollbar">
+                    <form id="contentForm" onsubmit="handleFormSubmit(event)" class="space-y-5">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Trilha</label>
+                                <select id="selTrack" class="input-modern w-full p-2.5 rounded-lg bg-slate-50 text-sm"
+                                    onchange="loadContents()">
+                                    <option value="uxui">UX/UI Design</option>
+                                    <option value="frontend">Frontend</option>
+                                    <option value="backend">Backend</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-bold text-slate-500 uppercase">Nível</label>
+                                <select id="selLevel" class="input-modern w-full p-2.5 rounded-lg bg-slate-50 text-sm"
+                                    onchange="loadContents()">
+                                    <option value="level1">Básico (Nível 1)</option>
+                                    <option value="level2">Intermediário (Nível 2)</option>
+                                    <option value="level3">Avançado (Nível 3)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-500 uppercase">Tipo</label>
+                            <select id="selCategory"
+                                class="input-modern w-full p-3 rounded-lg bg-white text-sm font-medium">
+                                <option value="videos">Vídeo Aula (YouTube)</option>
+                                <option value="links">Link / Ferramenta</option>
+                                <option value="artigos">Artigo / Leitura</option>
+                                <option value="cursos">Curso Externo</option>
+                            </select>
+                        </div>
+
+                        <input type="text" id="inpTitle" placeholder="Título do Material"
+                            class="input-modern w-full p-3 rounded-lg text-sm" required>
+                        <input type="url" id="inpUrl" placeholder="Link de Acesso (URL)"
+                            class="input-modern w-full p-3 rounded-lg text-sm" required>
+                        <textarea id="inpDesc" placeholder="Descrição (Opcional)"
+                            class="input-modern w-full p-3 rounded-lg text-sm h-20 resize-none"></textarea>
+
+                        <div class="bg-orange-50/50 rounded-xl border border-orange-100 p-4" id="quizContainer">
+                            <div class="flex items-center justify-between mb-3">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="hasQuiz" onchange="toggleQuizFields()"
+                                        class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                                    <span class="text-sm font-bold text-slate-700">Ativar Quiz de Validação</span>
+                                </label>
+                            </div>
+
+                            <div id="quizFields" class="hidden space-y-4 pt-2 border-t border-orange-100/50">
+                                <div id="questionsList" class="space-y-4">
+                                </div>
+
+                                <button type="button" onclick="addQuestionBlock()"
+                                    class="w-full py-2 border-2 border-dashed border-orange-200 text-orange-600 rounded-lg text-xs font-bold hover:bg-orange-50 hover:border-orange-400 transition-colors flex items-center justify-center gap-2">
+                                    <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Pergunta
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnSave"
+                            class="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                            <span>Publicar Conteúdo</span> <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8 space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 min-h-[500px]">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <h2 class="font-bold text-slate-700 text-lg">Biblioteca</h2>
+                        <div
+                            class="hidden md:flex items-center gap-2 text-sm text-slate-500 font-medium bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                            <i data-lucide="folder-open" class="w-4 h-4"></i>
+                            <span id="headerPath">Selecione uma trilha...</span>
+                        </div>
+                    </div>
+                    <button onclick="loadContents()" class="p-2 hover:bg-slate-100 rounded-lg text-slate-400"><i
+                            data-lucide="refresh-cw" class="w-4 h-4"></i></button>
+                </div>
+                <div id="contentList" class="p-6 space-y-8"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong
+                class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../firebase-config.js"></script>
+    <script>
+        lucide.createIcons();
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        let isSaving = false;
+        let currentLoadedData = null;
+
+        // Variáveis de Estado de Edição
+        let isEditing = false;
+        let editId = null;
+        let editCategory = null;
+
+        // --- GERENCIAMENTO DE PERGUNTAS ---
+        function toggleQuizFields() {
+            const isChecked = document.getElementById('hasQuiz').checked;
+            const fields = document.getElementById('quizFields');
+            const list = document.getElementById('questionsList');
+
+            if (isChecked) {
+                fields.classList.remove('hidden');
+                if (list.children.length === 0) addQuestionBlock();
+            } else {
+                fields.classList.add('hidden');
+                list.innerHTML = '';
+            }
+        }
+
+        function addQuestionBlock(data = null) {
+            const list = document.getElementById('questionsList');
+            const count = list.children.length + 1;
+
+            const div = document.createElement('div');
+            div.className = "quiz-question-card bg-white p-3 rounded-lg border border-orange-200 shadow-sm relative fade-in";
+
+            const qTitle = data ? data.question : '';
+            const opt0 = data ? data.options[0] : '';
+            const opt1 = data ? data.options[1] : '';
+            const opt2 = data ? data.options[2] : '';
+            const correctVal = data ? data.correctIndex : 0;
+
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] font-bold uppercase text-orange-500 bg-orange-50 px-2 py-0.5 rounded">Pergunta ${count}</span>
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-slate-400 hover:text-red-500"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+                <input type="text" class="q-title input-modern w-full p-2 mb-2 rounded text-sm font-medium" placeholder="Digite a pergunta aqui..." value="${qTitle}" required>
+                
+                <div class="space-y-2 pl-2 border-l-2 border-slate-100 mb-2">
+                    <input type="text" class="q-opt0 input-modern w-full p-1.5 rounded text-xs" placeholder="Opção A" value="${opt0}" required>
+                    <input type="text" class="q-opt1 input-modern w-full p-1.5 rounded text-xs" placeholder="Opção B" value="${opt1}" required>
+                    <input type="text" class="q-opt2 input-modern w-full p-1.5 rounded text-xs" placeholder="Opção C" value="${opt2}" required>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Correta:</label>
+                    <select class="q-correct input-modern p-1 rounded text-xs bg-slate-50 flex-grow">
+                        <option value="0" ${correctVal === 0 ? 'selected' : ''}>Opção A</option>
+                        <option value="1" ${correctVal === 1 ? 'selected' : ''}>Opção B</option>
+                        <option value="2" ${correctVal === 2 ? 'selected' : ''}>Opção C</option>
+                    </select>
+                </div>
+            `;
+            list.appendChild(div);
+            lucide.createIcons();
+        }
+
+        // --- SUBMIT (CREATE OR UPDATE) ---
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            if (isSaving) return;
+
+            const btn = document.getElementById('btnSave');
+            const originalText = btn.innerHTML;
+            isSaving = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Salvando...`;
+            btn.classList.add('opacity-75');
+
+            // VALORES ATUALIZADOS: Agora usa level1, level2, level3
+            const track = document.getElementById('selTrack').value;
+            const level = document.getElementById('selLevel').value;
+
+            const cat = isEditing ? editCategory : document.getElementById('selCategory').value;
+
+            const newItem = {
+                title: document.getElementById('inpTitle').value,
+                url: document.getElementById('inpUrl').value,
+                description: document.getElementById('inpDesc').value,
+                createdAt: isEditing ? firebase.database.ServerValue.TIMESTAMP : firebase.database.ServerValue.TIMESTAMP
+            };
+
+            if (isEditing) newItem.updatedAt = firebase.database.ServerValue.TIMESTAMP;
+
+            if (document.getElementById('hasQuiz').checked) {
+                const qElements = document.querySelectorAll('.quiz-question-card');
+                const quizData = [];
+
+                qElements.forEach(el => {
+                    const qText = el.querySelector('.q-title').value;
+                    const opt0 = el.querySelector('.q-opt0').value;
+                    const opt1 = el.querySelector('.q-opt1').value;
+                    const opt2 = el.querySelector('.q-opt2').value;
+                    const correct = el.querySelector('.q-correct').value;
+
+                    if (qText && opt0 && opt1 && opt2) {
+                        quizData.push({
+                            question: qText,
+                            options: [opt0, opt1, opt2],
+                            correctIndex: parseInt(correct)
+                        });
+                    }
+                });
+
+                if (quizData.length === 0) {
+                    showToast("Adicione pelo menos uma pergunta ao Quiz!", "error");
+                    isSaving = false;
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('opacity-75');
+                    return;
+                }
+                newItem.quiz = quizData;
+            } else {
+                newItem.quiz = null;
+            }
+
+            let dbRef;
+            if (isEditing) {
+                dbRef = db.ref(`contents/${track}/${level}/${cat}/${editId}`).update(newItem);
+            } else {
+                dbRef = db.ref(`contents/${track}/${level}/${cat}`).push(newItem);
+            }
+
+            dbRef.then(() => {
+                showToast(isEditing ? "Conteúdo atualizado!" : "Conteúdo publicado!");
+                if (!isEditing) {
+                    e.target.reset();
+                    document.getElementById('questionsList').innerHTML = '';
+                    document.getElementById('quizFields').classList.add('hidden');
+                } else {
+                    cancelEdit();
+                }
+            })
+                .catch(err => showToast("Erro: " + err.message, "error"))
+                .finally(() => {
+                    isSaving = false;
+                    btn.innerHTML = isEditing ? '<span>Atualizar Conteúdo</span> <i data-lucide="check" class="w-4 h-4"></i>' : '<span>Publicar Conteúdo</span> <i data-lucide="send" class="w-4 h-4"></i>';
+                    btn.classList.remove('opacity-75');
+                });
+        }
+
+        // --- LÓGICA DE EDIÇÃO ---
+
+        function editContent(category, id) {
+            if (!currentLoadedData || !currentLoadedData[category] || !currentLoadedData[category][id]) {
+                showToast("Erro ao carregar dados.", "error");
+                return;
+            }
+
+            const item = currentLoadedData[category][id];
+
+            isEditing = true;
+            editId = id;
+            editCategory = category;
+
+            document.getElementById('selCategory').value = category;
+            document.getElementById('selCategory').disabled = true;
+            document.getElementById('selTrack').disabled = true;
+            document.getElementById('selLevel').disabled = true;
+
+            document.getElementById('inpTitle').value = item.title;
+            document.getElementById('inpUrl').value = item.url;
+            document.getElementById('inpDesc').value = item.description || '';
+
+            const quizCheckbox = document.getElementById('hasQuiz');
+            const questionsList = document.getElementById('questionsList');
+            questionsList.innerHTML = '';
+
+            if (item.quiz) {
+                quizCheckbox.checked = true;
+                toggleQuizFields();
+
+                const quizzes = Array.isArray(item.quiz) ? item.quiz : [item.quiz];
+
+                quizzes.forEach(qData => {
+                    addQuestionBlock(qData);
+                });
+            } else {
+                quizCheckbox.checked = false;
+                toggleQuizFields();
+            }
+
+            document.getElementById('formCard').classList.add('editing-mode');
+            document.getElementById('formTitle').innerHTML = `<div class="p-1.5 bg-orange-100 text-orange-600 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></div> Editando Item`;
+
+            const btn = document.getElementById('btnSave');
+            btn.innerHTML = `<span>Atualizar Conteúdo</span> <i data-lucide="check" class="w-4 h-4"></i>`;
+            btn.classList.replace('bg-slate-900', 'bg-orange-600');
+            btn.classList.replace('hover:bg-slate-800', 'hover:bg-orange-700');
+
+            document.getElementById('btnCancelEdit').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            lucide.createIcons();
+        }
+
+        function cancelEdit() {
+            isEditing = false;
+            editId = null;
+            editCategory = null;
+
+            document.getElementById('formCard').classList.remove('editing-mode');
+            document.getElementById('formTitle').innerHTML = `<div class="p-1.5 bg-orange-100 text-orange-600 rounded-lg"><i data-lucide="plus" class="w-4 h-4"></i></div> Novo Material`;
+
+            const btn = document.getElementById('btnSave');
+            btn.innerHTML = `<span>Publicar Conteúdo</span> <i data-lucide="send" class="w-4 h-4"></i>`;
+            btn.classList.replace('bg-orange-600', 'bg-slate-900');
+            btn.classList.replace('hover:bg-orange-700', 'hover:bg-slate-800');
+
+            document.getElementById('btnCancelEdit').classList.add('hidden');
+
+            document.getElementById('selCategory').disabled = false;
+            document.getElementById('selTrack').disabled = false;
+            document.getElementById('selLevel').disabled = false;
+
+            document.getElementById('contentForm').reset();
+            document.getElementById('questionsList').innerHTML = '';
+            document.getElementById('quizFields').classList.add('hidden');
+
+            lucide.createIcons();
+        }
+
+        // --- LOAD & RENDER ---
+        auth.onAuthStateChanged(user => { if (user) loadContents(); else window.location.href = 'login.html'; });
+
+        function loadContents() {
+            const track = document.getElementById('selTrack').value;
+            const level = document.getElementById('selLevel').value;
+            const listEl = document.getElementById('contentList');
+
+            const trackName = document.getElementById('selTrack').options[document.getElementById('selTrack').selectedIndex].text;
+            const levelName = document.getElementById('selLevel').options[document.getElementById('selLevel').selectedIndex].text;
+            document.getElementById('headerPath').textContent = `${trackName} > ${levelName}`;
+
+            if (isEditing) cancelEdit();
+
+            listEl.innerHTML = '<div class="text-center py-10 text-slate-400">Carregando...</div>';
+
+            db.ref(`contents/${track}/${level}`).on('value', snapshot => {
+                const data = snapshot.val();
+                currentLoadedData = data;
+                renderList(data);
+            });
+        }
+
+        function renderList(data) {
+            const listEl = document.getElementById('contentList');
+            listEl.innerHTML = '';
+            if (!data) { listEl.innerHTML = '<p class="text-center text-slate-400">Nenhum conteúdo nesta categoria.</p>'; return; }
+
+            const categories = { 'videos': 'video', 'links': 'link', 'artigos': 'book-open', 'cursos': 'graduation-cap' };
+
+            Object.keys(categories).forEach(cat => {
+                if (data[cat]) {
+                    listEl.innerHTML += `<h3 class="font-bold text-slate-700 mt-4 mb-2 capitalize flex gap-2 items-center"><i data-lucide="${categories[cat]}" class="w-4 h-4"></i> ${cat}</h3>`;
+                    Object.entries(data[cat]).forEach(([id, item]) => {
+                        const quizCount = item.quiz ? (Array.isArray(item.quiz) ? item.quiz.length : 1) : 0;
+                        listEl.innerHTML += `
+                            <div class="bg-slate-50 p-3 rounded border border-slate-100 mb-2 flex justify-between items-center group hover:bg-white hover:shadow-sm transition">
+                                <div class="flex-1">
+                                    <span class="font-bold text-slate-700 text-sm block">${item.title}</span>
+                                    <div class="flex gap-2 text-xs text-slate-400 items-center">
+                                        <a href="${item.url}" target="_blank" class="hover:text-blue-500 truncate max-w-[200px]">${item.url}</a>
+                                        ${quizCount > 0 ? `<span class="text-orange-600 bg-orange-100 px-1.5 rounded font-bold border border-orange-200">${quizCount} Perguntas</span>` : ''}
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <button onclick="editContent('${cat}', '${id}')" class="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors" title="Editar">
+                                        <i data-lucide="pencil" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="deleteContent('${cat}', '${id}')" class="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors" title="Excluir">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            });
+            lucide.createIcons();
+        }
+
+        function deleteContent(cat, id) {
+            if (confirm("Excluir permanentemente?")) {
+                const t = document.getElementById('selTrack').value;
+                const l = document.getElementById('selLevel').value;
+                db.ref(`contents/${t}/${l}/${cat}/${id}`).remove();
+            }
+        }
+
+        function showToast(msg, type) {
+            const el = document.createElement('div');
+            el.className = `p-3 rounded-lg shadow-lg text-white text-sm font-bold fade-in ${type === 'error' ? 'bg-red-500' : 'bg-slate-800'}`;
+            el.innerText = msg;
+            document.getElementById('toast-container').appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+
+        async function showDashboard(user) {
+            const loadingScreen = document.getElementById('loadingScreen');
+
+            try {
+                // 1. Busque o conteúdo do banco PRIMEIRO (Para contar quantos itens existem)
+                const contentSnap = await db.ref('contents').once('value');
+                const allContent = contentSnap.val() || {};
+
+                // 2. Dados do Usuário
+                const userRef = db.ref(`users/${user.uid}`);
+                const userSnapshot = await userRef.once('value');
+                const userData = userSnapshot.val() || {};
+                const userName = userData.name || user.displayName || user.email.split('@')[0];
+
+                // Atualiza textos
+                const nameDisplay = document.getElementById('userNameDisplay');
+                if (nameDisplay) nameDisplay.textContent = userName;
+
+                const welcomeMsg = document.getElementById('welcomeMessage');
+                if (welcomeMsg) welcomeMsg.textContent = `Olá, ${userName.split(' ')[0]}!`;
+
+                // 3. Carrega os cards passando o allContent
+                await loadDashboardData(user.uid, allContent);
+
+            } catch (error) {
+                console.error("Erro no dashboard:", error);
+            } finally {
+                // Esconde loading
+                if (loadingScreen) {
+                    loadingScreen.classList.add('loader-hidden');
+                    setTimeout(() => {
+                        loadingScreen.remove();
+                    }, 500);
+                }
+            }
+        }
+
+        // --- AUTH ---
+        function handleLogout() {
+            auth.signOut().then(() => window.location.href = 'login.html');
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                showDashboard(user);
+                document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            } else {
+                window.location.href = '../login.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

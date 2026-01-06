@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Intermediário UX/UI</title>
+    <title>EJECT | Desafio Lógica Backend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -41,15 +42,15 @@
                     colors: {
                         'space-dark': '#0B0E14',
                         'space-blue': '#151925',
-                        'ux-purple': '#BD00FF', /* Cor Principal UX */
-                        'ux-light': '#E080FF',
+                        'ux-purple': '#BD00FF',
+                        'ux-light': '#D676F8',
                         'eject-yellow': '#FFCC00',
                         'success-green': '#00FF94',
                         'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #2e1065 0%, #0B0E14 100%)',
-                        'ux-gradient': 'linear-gradient(135deg, #BD00FF 0%, #EC4899 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #2E003E 0%, #0B0E14 100%)',
+                        'matrix-gradient': 'linear-gradient(135deg, #BD00FF 0%, #D676F8 100%)',
                     },
                     animation: {
                         'float': 'float 4s ease-in-out infinite',
@@ -137,15 +138,15 @@
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
                     class="inline-flex items-center gap-2 px-3 py-1 rounded bg-ux-purple/20 border border-ux-purple/30 text-ux-light text-xs font-bold uppercase">
-                    <span class="material-symbols-outlined text-sm">palette</span>
+                    <span class="material-symbols-outlined text-sm">terminal</span>
                     Missão Prática
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
                     DESAFIO FINAL: INTERMEDIÁRIO - UX/UI
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Chegou a hora de criar alta fidelidade. Utilize Auto Layout, Componentes e Variantes para construir
-                    um protótipo funcional.
+                    Neste desafio, você irá integrar os principais conhecimentos da trilha para desenvolver uma solução
+                    completa, enfrentando problemas reais e demonstrando domínio técnico e visão prática.
                 </p>
             </div>
         </section>
@@ -155,21 +156,24 @@
             <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">view_quilt</span>
+                        <span class="material-symbols-outlined text-white">code</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Instruções do Figma</h2>
+                    <h2 class="text-xl font-bold text-white">Script para resolução</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
                     <div class="space-y-4 text-gray-300 text-sm">
-                        <p>Acesse o arquivo de template na comunidade Figma:</p>
+                        <p>O desafio está no GitHub da EJECT. Siga os passos:</p>
 
                         <div class="flex gap-4 items-start">
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-ux-purple text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block mb-1">Duplicar Arquivo</strong>
-                                <p class="text-gray-400">Busque por "EJECT High-Fidelity Kit" e duplique.</p>
+                                <strong class="text-white block mb-1">Acesse um dos repositorios abaixo:</strong>
+                                <p class="text-gray-400"><a class="text-purple-400 hover:underline" href="">Ejects
+                                        LABS</a></p>
+                                <p class="text-gray-400"><a class="text-purple-400 hover:underline" href="">Banco de
+                                        Componentes</a></p>
                             </div>
                         </div>
 
@@ -177,8 +181,12 @@
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-ux-purple text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block mb-1">Tarefa: Delivery App</strong>
-                                <p class="text-gray-400">Crie 3 telas (Home, Detalhes, Carrinho) usando componentes.</p>
+                                <strong class="text-white block mb-1">Escolha qualquer issue com a seguinte
+                                    nomeclatura:</strong>
+                                <!-- adicionando tag -->
+                                <p class="text-gray-400"><span
+                                        class="inline-flex items-center gap-2 px-3 py-1 rounded bg-ux-purple/20 border border-ux-purple/30 text-ux-light text-xs font-bold uppercase">[DESAFIO]
+                                        - INTERMEDIARIO UX/UI</span></p>
                             </div>
                         </div>
 
@@ -186,18 +194,11 @@
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-ux-purple text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong class="text-white block mb-1">Prototipagem</strong>
-                                <p class="text-gray-400">Conecte as telas e garanta que o fluxo esteja navegável.</p>
+                                <strong class="text-white block mb-1">Figma</strong>
+                                <p class="text-gray-400">Desenvolva a sua solução, gere o link do projeto e cole no
+                                    campo ao lado</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-auto pt-4">
-                        <a href="https://www.figma.com" target="_blank"
-                            class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
-                            <span class="material-symbols-outlined">open_in_new</span>
-                            Abrir Figma
-                        </a>
                     </div>
                 </div>
             </div>
@@ -208,27 +209,32 @@
                         class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
                         <span class="material-symbols-outlined">send</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Enviar Protótipo</h2>
+                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
                 </div>
 
                 <div class="p-6 flex-grow relative">
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Figma
-                                (Compartilhar)</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Projeto
+                                (Figma)</label>
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
-                                <input type="url" required placeholder="https://www.figma.com/file/..."
+                                <input type="url" id="inpRepo" required placeholder="https://figma.com/..."
                                     class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-ux-purple focus:ring-1 focus:ring-ux-purple transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Comentários</label>
-                            <textarea rows="3" placeholder="Teve dificuldades com Auto Layout?"
-                                class="w-full bg-black/20 border border-white/10 rounded-xl p-4 text-white focus:outline-none focus:border-ux-purple focus:ring-1 focus:ring-ux-purple transition-all text-sm resize-none placeholder-gray-600"></textarea>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações</label>
+                            <input type="text" id="inpNotes" placeholder="Comentários adicionais (opcional)"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-ux-purple focus:ring-1 focus:ring-ux-purple transition-all text-sm placeholder-gray-600">
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-xs text-gray-400">Após o envio, sua solução será avaliada pela equipe EJECT.
+                                Você será notificado sobre a aprovação ou feedbacks para melhorias.</p>
                         </div>
 
                         <button type="submit" id="btn-submit"
@@ -243,7 +249,7 @@
                         <div
                             class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
                         </div>
-                        <p class="text-sm font-bold text-white">Verificando link...</p>
+                        <p class="text-sm font-bold text-white">Compilando envio...</p>
                     </div>
                 </div>
             </div>
@@ -251,88 +257,78 @@
         </section>
     </main>
 
-    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div id="modal-overlay"
-            class="absolute inset-0 bg-[#05070A]/90 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
-
-        <div id="modal-card"
-            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_50px_rgba(189,0,255,0.2)] transition-all duration-500 scale-95 opacity-0">
-
-            <div
-                class="h-1.5 w-full bg-gradient-to-r from-ux-purple via-pink-500 to-ux-purple shadow-[0_0_10px_#BD00FF]">
-            </div>
-
-            <div class="relative p-8 text-center">
-                <div class="absolute inset-0 opacity-10"
-                    style="background-image: radial-gradient(#4f4f4f 1px, transparent 1px); background-size: 20px 20px;">
-                </div>
-
-                <div class="relative mb-6">
-                    <span
-                        class="inline-flex items-center gap-2 rounded-full border border-pink-500/30 bg-pink-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-pink-400">
-                        <span class="h-1.5 w-1.5 rounded-full bg-pink-500 animate-pulse"></span>
-                        Design System Aprovado
-                    </span>
-                </div>
-
-                <div class="relative mx-auto mb-6 h-40 w-40 group flex items-center justify-center">
-                    <div class="absolute w-2/3 h-2/3 rounded-full bg-ux-purple blur-3xl opacity-50 animate-pulse"></div>
-                    <div
-                        class="absolute -inset-2 rounded-full border border-dashed border-white/10 animate-[spin_10s_linear_infinite]">
-                    </div>
-                    <div class="relative z-10 h-full w-full animate-float">
-                        <img src="../../../img/ux_prototype.png" alt="Insígnia UX Intermediário"
-                            class="h-full w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    </div>
-                </div>
-
-                <h2 class="text-2xl font-black text-white mb-1 uppercase italic tracking-wide">Desbloqueado</h2>
-                <div class="mb-6 inline-block rounded border border-ux-purple/30 bg-ux-purple/5 px-4 py-1">
-                    <h3 class="font-mono text-sm font-bold text-ux-purple tracking-widest">INSIGNIA: UX_INTERMEDIÁRIO
-                    </h3>
-                </div>
-
-                <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
-                    Seu protótipo está incrível. Você agora tem acesso ao Nível Avançado: Design Thinking & Pesquisa.
-                </p>
-
-                <div class="flex flex-col gap-3">
-                    <button onclick="redeemBadge()"
-                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-white text-black py-4 font-bold uppercase tracking-wider transition-all hover:bg-eject-yellow hover:scale-[1.02] shadow-lg cursor-pointer">
-                        <span
-                            class="material-symbols-outlined text-lg transition-transform group-hover:-translate-y-1">military_tech</span>
-                        <span>Resgatar e Avançar</span>
-                        <div
-                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
-                        </div>
-                    </button>
-
-                    <button onclick="closeModal()"
-                        class="text-xs relative font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
-                        Fechar Janela
-                    </button>
-                </div>
-            </div>
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                reservados.
+            </p>
+            <p class="text-xs text-gray-400">
+                <a href="termos_de_uso.html"
+                    class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                    Termos de Uso
+                </a>
+            </p>
         </div>
-    </div>
+    </footer>
 
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        function submitMission(e) {
+        async function submitMission(e) {
             e.preventDefault();
-            const loading = document.getElementById('loading-overlay');
-            const btn = document.getElementById('btn-submit');
 
+            const user = auth.currentUser;
+            if (!user) { alert('Faça login primeiro'); return; }
+
+            const repoInput = document.getElementById('inpRepo');
+            const langInput = document.getElementById('inpNotes');
+
+            const repoLink = repoInput.value;
+            const notes = langInput.value;
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading-overlay');
+
+            // Mostra loading
             loading.classList.remove('hidden');
             loading.classList.add('flex');
             btn.disabled = true;
 
-            setTimeout(() => {
+            try {
+                // Busca nome do user para facilitar pro admin
+                const userSnap = await db.ref(`users/${user.uid}/name`).once('value');
+                const userName = userSnap.val() || user.email;
+
+                // CRIA A SUBMISSÃO NO BANCO
+                const newSubRef = db.ref('submissions').push();
+                await newSubRef.set({
+                    userId: user.uid,
+                    userName: userName,
+                    track: 'uxui',       // <--- MUDE ISSO CONFORME A PÁGINA
+                    level: 'level2',  // <--- MUDE ISSO CONFORME A PÁGINA
+                    repoLink: repoLink,
+                    notes: notes,
+                    status: 'pending',       // Importante: status 'pending'
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // SUCESSO!
+                // Agora sim, abre o modal de "Enviado / Aguardando"
+                // (Nota: Você deve alterar o texto do modal para dizer "Aguardando Avaliação" em vez de "Desbloqueado", pois agora depende do admin)
+
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-                openModal();
-            }, 2000);
+
+                // Aqui você pode mostrar um alerta simples ou adaptar o modal existente
+                alert("Desafio enviado para análise! Você será notificado quando for aprovado.");
+                window.location.href = "../trilha_uxui.html"; // Volta para a trilha
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao enviar: " + error.message);
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
         }
 
         function openModal() {
@@ -361,40 +357,6 @@
                 modal.classList.add('hidden');
                 document.getElementById('btn-submit').disabled = false;
             }, 500);
-        }
-
-        // --- LÓGICA DE RESGATE ---
-        function redeemBadge() {
-            const user = auth.currentUser;
-
-            if (!user) {
-                alert("Você precisa estar logado.");
-                return;
-            }
-
-            const updates = {};
-
-            // 1. Salva a Insígnia Intermediária
-            updates['users/' + user.uid + '/badges/uxui_intermediario'] = {
-                id: 'uxui_intermediario',
-                name: 'UX/UI Intermediário',
-                image: '../../../img/ux_prototype.png', // Ajuste o caminho se necessário
-                date: Date.now()
-            };
-
-            // 2. Desbloqueia o Nível 3 (Avançado) na trilha UX/UI
-            updates['users/' + user.uid + '/progress/uxui/level3_unlocked'] = true;
-
-            db.ref().update(updates)
-                .then(() => {
-                    alert("Parabéns! Nível Avançado desbloqueado.");
-                    // Volta para o mapa da trilha UX/UI
-                    window.location.href = '../trilha_uxui.html';
-                })
-                .catch((error) => {
-                    console.error("Erro ao salvar:", error);
-                    alert("Erro ao salvar progresso: " + error.message);
-                });
         }
     </script>
 

@@ -145,8 +145,8 @@
                     DESAFIO FINAL: BÁSICO - BACKEND
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Prove que você domina a lógica. Crie um algoritmo eficiente para resolver um problema real usando
-                    código limpo e estruturado.
+                    Neste desafio, você irá integrar os principais conhecimentos da trilha para desenvolver uma solução
+                    completa, enfrentando problemas reais e demonstrando domínio técnico e visão prática.
                 </p>
             </div>
         </section>
@@ -158,7 +158,7 @@
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
                         <span class="material-symbols-outlined text-white">code</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Repositório de Lógica</h2>
+                    <h2 class="text-xl font-bold text-white">Script para resolução</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
@@ -169,8 +169,11 @@
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block mb-1">Clone o Repo</strong>
-                                <p class="text-gray-400">Projeto "EJECT-Logic-Basics".</p>
+                                <strong class="text-white block mb-1">Acesse um dos repositorios abaixo:</strong>
+                                <p class="text-gray-400"><a class="text-green-400 hover:underline" href="">Ejects
+                                        LABS</a></p>
+                                <p class="text-gray-400"><a class="text-green-400 hover:underline" href="">Banco de
+                                        Componentes</a></p>
                             </div>
                         </div>
 
@@ -178,9 +181,12 @@
                             <span
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block mb-1">Desafio: CLI Manager</strong>
-                                <p class="text-gray-400">Crie um gerenciador de tarefas via linha de comando (CRUD em
-                                    memória).</p>
+                                <strong class="text-white block mb-1">Escolha qualquer issue com a seguinte
+                                    nomeclatura:</strong>
+                                <!-- adicionando tag -->
+                                <p class="text-gray-400"><span
+                                        class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-light text-xs font-bold uppercase">[DESAFIO]
+                                        - BASICO BACKEND</span></p>
                             </div>
                         </div>
 
@@ -189,17 +195,10 @@
                                 class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
                                 <strong class="text-white block mb-1">Pull Request</strong>
-                                <p class="text-gray-400">Envie sua solução para revisão.</p>
+                                <p class="text-gray-400">Envie sua solução para revisão, obtenha o link da PR e cole no
+                                    campo ao lado</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-auto pt-4">
-                        <a href="https://github.com" target="_blank"
-                            class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
-                            <span class="material-symbols-outlined">open_in_new</span>
-                            Acessar GitHub
-                        </a>
                     </div>
                 </div>
             </div>
@@ -222,15 +221,20 @@
                             <div class="relative">
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
-                                <input type="url" required placeholder="https://github.com/..."
+                                <input type="url" id="inpRepo" required placeholder="https://github.com/..."
                                     class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Linguagem Usada</label>
-                            <input type="text" placeholder="Ex: JavaScript, Python, Java..."
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações</label>
+                            <input type="text" id="inpNotes" placeholder="Comentários adicionais (opcional)"
                                 class="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-xs text-gray-400">Após o envio, sua solução será avaliada pela equipe EJECT.
+                                Você será notificado sobre a aprovação ou feedbacks para melhorias.</p>
                         </div>
 
                         <button type="submit" id="btn-submit"
@@ -253,93 +257,78 @@
         </section>
     </main>
 
-    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div id="modal-overlay"
-            class="absolute inset-0 bg-[#05070A]/90 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
-
-        <div id="modal-card"
-            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 scale-95 opacity-0">
-
-            <div
-                class="h-1.5 w-full bg-gradient-to-r from-back-green via-green-400 to-back-green shadow-[0_0_10px_#10B981]">
-            </div>
-
-            <div class="relative p-8 text-center">
-                <div class="absolute inset-0 opacity-10"
-                    style="background-image: radial-gradient(#4f4f4f 1px, transparent 1px); background-size: 20px 20px;">
-                </div>
-
-                <div class="relative mb-6">
-                    <span
-                        class="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-green-400">
-                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                        Compilação Sucesso
-                    </span>
-                </div>
-
-                <div class="relative mx-auto mb-6 h-40 w-40 group flex items-center justify-center">
-                    <div class="absolute w-2/3 h-2/3 rounded-full bg-back-green blur-3xl opacity-50 animate-pulse">
-                    </div>
-                    <div
-                        class="absolute -inset-2 rounded-full border border-dashed border-white/10 animate-[spin_10s_linear_infinite]">
-                    </div>
-                    <div class="relative z-10 h-full w-full animate-float">
-                        <img src="../../../img/insignias/basico_back.svg" alt="Insígnia Backend Básico"
-                            class="h-full w-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    </div>
-                </div>
-
-                <h2 class="text-2xl font-black text-white mb-1 uppercase italic tracking-wide">
-                    Desbloqueado
-                </h2>
-
-                <div class="mb-6 inline-block rounded border border-back-green/30 bg-back-green/5 px-4 py-1">
-                    <h3 class="font-mono text-sm font-bold text-back-light tracking-widest">
-                        INSIGNIA: BACKEND_BÁSICO
-                    </h3>
-                </div>
-
-                <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
-                    Lógica validada. Você está pronto para conectar bancos de dados e criar APIs.
-                </p>
-
-                <div class="flex flex-col gap-3">
-                    <button onclick="redeemBadge()"
-                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-white text-black py-4 font-bold uppercase tracking-wider transition-all hover:bg-eject-yellow hover:scale-[1.02] shadow-lg cursor-pointer">
-                        <span
-                            class="material-symbols-outlined text-lg transition-transform group-hover:-translate-y-1">military_tech</span>
-                        <span>Resgatar Insígnia</span>
-                        <div
-                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
-                        </div>
-                    </button>
-
-                    <button onclick="closeModal()"
-                        class="text-xs relative font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
-                        Fechar Janela
-                    </button>
-                </div>
-            </div>
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                reservados.
+            </p>
+            <p class="text-xs text-gray-400">
+                <a href="termos_de_uso.html"
+                    class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                    Termos de Uso
+                </a>
+            </p>
         </div>
-    </div>
+    </footer>
 
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        function submitMission(e) {
+        async function submitMission(e) {
             e.preventDefault();
-            const loading = document.getElementById('loading-overlay');
-            const btn = document.getElementById('btn-submit');
 
+            const user = auth.currentUser;
+            if (!user) { alert('Faça login primeiro'); return; }
+
+            const repoInput = document.getElementById('inpRepo');
+            const langInput = document.getElementById('inpNotes');
+
+            const repoLink = repoInput.value;
+            const notes = langInput.value;
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading-overlay');
+
+            // Mostra loading
             loading.classList.remove('hidden');
             loading.classList.add('flex');
             btn.disabled = true;
 
-            setTimeout(() => {
+            try {
+                // Busca nome do user para facilitar pro admin
+                const userSnap = await db.ref(`users/${user.uid}/name`).once('value');
+                const userName = userSnap.val() || user.email;
+
+                // CRIA A SUBMISSÃO NO BANCO
+                const newSubRef = db.ref('submissions').push();
+                await newSubRef.set({
+                    userId: user.uid,
+                    userName: userName,
+                    track: 'backend',       // <--- MUDE ISSO CONFORME A PÁGINA
+                    level: 'level1',  // <--- MUDE ISSO CONFORME A PÁGINA
+                    repoLink: repoLink,
+                    notes: notes,
+                    status: 'pending',       // Importante: status 'pending'
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // SUCESSO!
+                // Agora sim, abre o modal de "Enviado / Aguardando"
+                // (Nota: Você deve alterar o texto do modal para dizer "Aguardando Avaliação" em vez de "Desbloqueado", pois agora depende do admin)
+
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-                openModal();
-            }, 2000);
+
+                // Aqui você pode mostrar um alerta simples ou adaptar o modal existente
+                alert("Desafio enviado para análise! Você será notificado quando for aprovado.");
+                window.location.href = "../trilha_back.html"; // Volta para a trilha
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao enviar: " + error.message);
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
         }
 
         function openModal() {
@@ -368,40 +357,6 @@
                 modal.classList.add('hidden');
                 document.getElementById('btn-submit').disabled = false;
             }, 500);
-        }
-
-        // --- LÓGICA DE RESGATE ---
-        function redeemBadge() {
-            const user = auth.currentUser;
-
-            if (!user) {
-                alert("Você precisa estar logado para salvar seu progresso.");
-                return;
-            }
-
-            const updates = {};
-
-            // 1. Salva a Insígnia (Badge)
-            updates['users/' + user.uid + '/badges/backend_basico'] = {
-                id: 'backend_basico',
-                name: 'Lógica Backend',
-                image: '../img/insignias/basico_back.svg', // Verifique o caminho da imagem
-                date: Date.now()
-            };
-
-            // 2. Desbloqueia o Nível 2 na trilha Backend
-            updates['users/' + user.uid + '/progress/backend/level2_unlocked'] = true;
-
-            db.ref().update(updates)
-                .then(() => {
-                    alert("Insígnia resgatada e Nível 2 desbloqueado!");
-                    // Redireciona para o mapa da trilha Backend
-                    window.location.href = '../trilha_back.html';
-                })
-                .catch((error) => {
-                    console.error("Erro ao salvar:", error);
-                    alert("Erro ao salvar progresso: " + error.message);
-                });
         }
     </script>
 

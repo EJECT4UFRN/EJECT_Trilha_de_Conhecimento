@@ -34,6 +34,12 @@
             transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(2, 132, 199, 0.2);
         }
+
+        .loader-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
     </style>
 </head>
 
@@ -58,21 +64,6 @@
                         <i data-lucide="home" class="h-6 w-6"></i>
                     </a>
 
-                    <a id="manageAdminsBtn" href="gerenciar-admins.html" title="Gerenciar Admins"
-                        class="p-2 rounded-full text-purple-600 bg-purple-100 hover:bg-purple-200 hidden">
-                        <i data-lucide="user-cog" class="h-6 w-6"></i>
-                    </a>
-
-                    <a id="manageUsersBtn" href="gerenciar-usuarios.html" title="Gerenciar Usuários"
-                        class="p-2 rounded-full text-cyan-600 bg-cyan-100 hover:bg-cyan-200 hidden">
-                        <i data-lucide="users" class="h-6 w-6"></i>
-                    </a>
-
-                    <a id="adminPanelBtn" href="Painel de Administração.html" title="Painel de Administração"
-                        class="p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors hidden">
-                        <i data-lucide="shield" class="h-6 w-6"></i>
-                    </a>
-
                     <a href="./perfil.html" title="Meu Perfil"
                         class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
                         <i data-lucide="user-circle-2" class="h-6 w-6"></i>
@@ -91,11 +82,9 @@
         </nav>
     </header>
 
-    <div id="loadingScreen" class="flex items-center justify-center min-h-screen">
-        <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mx-auto mb-4"></div>
-            <p class="text-gray-600">Carregando dashboard...</p>
-        </div>
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mb-4"></div>
+        <p class="text-gray-600 font-medium animate-pulse">Carregando dashboard...</p>
     </div>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
@@ -106,10 +95,6 @@
         </div>
 
         <div id="heroTrackContainer" class="space-y-8">
-            <div class="bg-white rounded-2xl shadow-lg border border-sky-100 p-8 text-center animate-pulse">
-                <div class="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
-                <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
-            </div>
         </div>
 
         <section>
@@ -141,6 +126,41 @@
                 class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
 
+    <div id="newBadgeModal"
+        class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-black/90 backdrop-blur-xl px-4">
+        <div
+            class="relative w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_100px_rgba(255,204,0,0.3)] transition-all animate-[bounce-in_0.5s_ease-out]">
+
+            <div class="absolute inset-0 bg-gradient-to-b from-sky-500/20 to-transparent opacity-50"></div>
+
+            <div class="relative p-8 text-center">
+                <h2 class="text-3xl font-black text-white mb-2 uppercase italic tracking-wide drop-shadow-lg">Nova
+                    Conquista!</h2>
+                <p class="text-sky-300 text-sm font-bold tracking-widest uppercase mb-8">Missão Aprovada pelo
+                    Comando</p>
+
+                <div class="relative mx-auto mb-8 h-48 w-48 group flex items-center justify-center">
+                    <div class="absolute w-full h-full rounded-full bg-sky-500 blur-3xl opacity-40 animate-pulse">
+                    </div>
+                    <div
+                        class="absolute -inset-4 rounded-full border border-dashed border-white/20 animate-[spin_12s_linear_infinite]">
+                    </div>
+                    <img id="newBadgeImage" src="" alt="Nova Insígnia"
+                        class="relative z-10 h-full w-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] animate-float">
+                </div>
+
+                <h3 id="newBadgeName" class="text-2xl font-bold text-white mb-2">Nome da Insígnia</h3>
+                <p class="text-gray-400 text-sm mb-8">Seu código foi validado e aprovado. Você subiu de nível!</p>
+
+                <button onclick="claimBadge()"
+                    class="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-sky-900/50 uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i data-lucide="award" class="w-5 h-5"></i>
+                    Coletar Recompensa
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="./firebase-config.js"></script>
 
     <script>
@@ -151,6 +171,7 @@
         // --- CONFIGURAÇÃO: DEFINIÇÃO DAS TRILHAS ESPECIAIS (HERO) ---
         const SPECIALIZATIONS = {
             'uxui': {
+                id: 'uxui',
                 title: 'O Astronauta vai à Lua (UX/UI)',
                 subtitle: 'Especialização em Design de Interfaces.',
                 colorHex: '#BD00FF',
@@ -159,6 +180,7 @@
                 link: '../nivelamento/uxui/trilha_uxui.html'
             },
             'frontend': {
+                id: 'frontend',
                 title: 'O Astronauta vai à Lua (Frontend)',
                 subtitle: 'Especialização em Desenvolvimento Web.',
                 colorHex: '#3B82F6',
@@ -167,6 +189,7 @@
                 link: '../nivelamento/front/trilha_front.html'
             },
             'backend': {
+                id: 'backend',
                 title: 'O Astronauta vai à Lua (Backend)',
                 subtitle: 'Especialização em Arquitetura e Dados.',
                 colorHex: '#10B981',
@@ -200,46 +223,55 @@
 
         // 1. CONTROLADOR PRINCIPAL
         async function showDashboard(user) {
-            // 1. Pegamos a referência do loader logo no início
-            // Nota: Se você usou o código anterior, o ID pode ser 'globalLoader' em vez de 'loadingScreen'
-            const loadingScreen = document.getElementById('globalLoader') || document.getElementById('loadingScreen');
+            const loadingScreen = document.getElementById('loadingScreen');
 
             try {
-                const userRef = db.ref(`users/${user.uid}`);
+                // 1. Busque o conteúdo do banco (Para contar quantos itens existem)
+                const contentSnap = await db.ref('contents').once('value');
+                const allContent = contentSnap.val() || {};
 
-                // Buscamos os dados do usuário
+                // 2. Busca dados do Usuário (Nome)
+                const userRef = db.ref(`users/${user.uid}`);
                 const userSnapshot = await userRef.once('value');
                 const userData = userSnapshot.val() || {};
                 const userName = userData.name || user.displayName || user.email.split('@')[0];
 
-                // Atualizamos os textos de boas-vindas
+                // 3. NOVO: Busca as Submissões do usuário (Para status "Em Análise")
+                const subSnap = await db.ref('submissions').orderByChild('userId').equalTo(user.uid).once('value');
+                const submissionsObj = subSnap.val() || {};
+                // Transforma o objeto do Firebase em um Array simples
+                const userSubmissions = Object.values(submissionsObj);
+
+                // 4. Verifica se tem insígnias novas para explodir o modal (Confete)
+                await checkNewBadges(user.uid);
+
+                // Atualiza textos na tela
                 const nameDisplay = document.getElementById('userNameDisplay');
                 if (nameDisplay) nameDisplay.textContent = userName;
 
                 const welcomeMsg = document.getElementById('welcomeMessage');
                 if (welcomeMsg) welcomeMsg.textContent = `Olá, ${userName.split(' ')[0]}!`;
 
-                // 2. O PULO DO GATO: Adicionamos 'await' aqui
-                // O código vai PAUSAR nesta linha até os dados terminarem de carregar
-                await loadDashboardData(user.uid);
+                // 5. Carrega os cards passando: UID, Conteúdos e Submissões
+                // ATENÇÃO: Adicionei 'userSubmissions' como 3º parâmetro
+                await loadDashboardData(user.uid, allContent, userSubmissions);
 
             } catch (error) {
                 console.error("Erro no dashboard:", error);
             } finally {
-                // 3. Escondemos o loading aqui
-                // O 'finally' roda SEMPRE, dando certo ou dando erro
+                // Esconde loading
                 if (loadingScreen) {
-                    // Se você estiver usando o CSS de fade-out que passamos antes:
                     loadingScreen.classList.add('loader-hidden');
                     setTimeout(() => {
-                        loadingScreen.remove(); // Ou loadingScreen.classList.add('hidden');
+                        loadingScreen.remove();
                     }, 500);
                 }
             }
         }
 
         // 2. LÓGICA DE DADOS DO DASHBOARD
-        async function loadDashboardData(uid) {
+        async function loadDashboardData(uid, allContent, userSubmissions = []) {
+            // Busca o progresso do usuário
             const progressRef = db.ref(`users/${uid}/progress`);
             const snapshot = await progressRef.once('value');
             const allProgress = snapshot.val() || {};
@@ -253,12 +285,14 @@
 
             const userTrailIds = Object.keys(allProgress);
 
-            // A. FILTRA E RENDERIZA TODAS AS ESPECIALIZAÇÕES (HERO)
+            // A. FILTRA E RENDERIZA AS ESPECIALIZAÇÕES (HERO)
+            // Filtra quais especializações o usuário iniciou
             const activeSpecializations = userTrailIds.filter(id => SPECIALIZATIONS[id]);
 
             if (activeSpecializations.length > 0) {
                 activeSpecializations.forEach(specId => {
-                    const heroHTML = getHeroCardHTML(specId, allProgress[specId]);
+                    // Passamos allContent para a função calcular
+                    const heroHTML = getHeroCardHTML(specId, allProgress[specId], allContent, userSubmissions);
                     heroContainer.innerHTML += heroHTML;
                 });
             } else {
@@ -278,10 +312,10 @@
                 `;
             }
 
-            // B. RENDERIZA APENAS TRILHAS QUE NÃO SÃO ESPECIALIZAÇÕES
+            // B. RENDERIZA TRILHAS PARALELAS
             let parallelCount = 0;
             userTrailIds.forEach(trailId => {
-                if (SPECIALIZATIONS[trailId]) return;
+                if (SPECIALIZATIONS[trailId]) return; // Pula se for hero
 
                 const trailInfo = ALL_TRAILS.find(t => t.id === trailId);
 
@@ -300,41 +334,89 @@
         }
 
         // ============================================================
-        // GERADOR DE HTML DO HERO (ATUALIZADO COM NÍVEL 3)
+        // GERADOR DE HTML DO HERO (CARD PRINCIPAL)
         // ============================================================
-        function getHeroCardHTML(specId, progressData) {
-            const spec = SPECIALIZATIONS[specId];
+        function getHeroCardHTML(specId, progressData, allContent = {}, userSubmissions = []) {
 
-            // 1. Cálculo Nível 1
-            let lvl1Pct = 0;
-            if (progressData.level1 && progressData.level1.tasks) {
-                const tasks = progressData.level1.tasks;
-                const done = Object.values(tasks).filter(v => v === true).length;
-                lvl1Pct = Math.round((done / 3) * 100);
-                if (lvl1Pct > 100) lvl1Pct = 100;
+            // 1. Configuração da Trilha (Cores, Ícones, Títulos)
+            const spec = SPECIALIZATIONS[specId];
+            if (!spec) return ''; // Se não achar a config, não renderiza nada
+
+            // 2. Helper interno para contar itens reais do banco
+            function countTotalItems(levelId) {
+                const levelData = allContent[specId]?.[levelId];
+                if (!levelData) return 0;
+
+                let total = 0;
+                if (levelData.videos) total += Object.keys(levelData.videos).length;
+                if (levelData.artigos) total += Object.keys(levelData.artigos).length;
+                if (levelData.links) total += Object.keys(levelData.links).length;
+                if (levelData.cursos) total += Object.keys(levelData.cursos).length;
+                return total;
             }
 
-            // 2. Cálculo Nível 2
+            // 3. Helper para buscar o STATUS DO DESAFIO (Correção do "Chumbado")
+            function getSubmissionStatus(friendlyLevelName) {
+                if (!userSubmissions || userSubmissions.length === 0) return null;
+
+                // Mapeamento: O dashboard usa nomes amigáveis, mas o banco pode ter 'level1'
+                let dbLevelName = friendlyLevelName;
+                if (friendlyLevelName === 'basico') dbLevelName = 'level1';
+                if (friendlyLevelName === 'intermediario') dbLevelName = 'level2';
+                if (friendlyLevelName === 'avancado') dbLevelName = 'level3';
+
+                // Filtra as submissões dessa trilha e desse nível (aceita os dois nomes)
+                const sub = userSubmissions
+                    .filter(s => s.track === specId && (s.level === dbLevelName || s.level === friendlyLevelName))
+                    .sort((a, b) => b.timestamp - a.timestamp)[0]; // Pega a mais recente
+
+                console.log(`Submissão para ${specId} - ${friendlyLevelName}:`, sub);
+
+                return sub ? sub.status : null; // retorna 'pending', 'approved', 'rejected' ou null
+            }
+
+            // --- CÁLCULO NÍVEL 1 (Básico) ---
+            const total1 = countTotalItems('level1');
+            let lvl1Pct = 0;
+            if (progressData.level1 && progressData.level1.tasks) {
+                const done = Object.values(progressData.level1.tasks).filter(v => v === true).length;
+                lvl1Pct = total1 > 0 ? Math.round((done / total1) * 100) : 0;
+            }
+            if (lvl1Pct > 100) lvl1Pct = 100;
+
+            // Busca status (mapeia 'basico' -> 'level1')
+            const status1 = getSubmissionStatus('basico');
+
+
+            // --- CÁLCULO NÍVEL 2 (Intermediário) ---
+            const total2 = countTotalItems('level2');
             let lvl2Unlocked = progressData.level2_unlocked === true;
             let lvl2Pct = 0;
             if (progressData.level2 && progressData.level2.tasks) {
-                const tasks2 = progressData.level2.tasks;
-                const done2 = Object.values(tasks2).filter(v => v === true).length;
-                lvl2Pct = Math.round((done2 / 3) * 100);
-                if (lvl2Pct > 100) lvl2Pct = 100;
+                const done = Object.values(progressData.level2.tasks).filter(v => v === true).length;
+                lvl2Pct = total2 > 0 ? Math.round((done / total2) * 100) : 0;
             }
+            if (lvl2Pct > 100) lvl2Pct = 100;
 
-            // 3. Cálculo Nível 3 (NOVA LÓGICA)
+            const status2 = getSubmissionStatus('intermediario');
+
+
+            // --- CÁLCULO NÍVEL 3 (Avançado) ---
+            const total3 = countTotalItems('level3');
             let lvl3Unlocked = progressData.level3_unlocked === true;
             let lvl3Pct = 0;
             if (progressData.level3 && progressData.level3.tasks) {
-                const tasks3 = progressData.level3.tasks;
-                const done3 = Object.values(tasks3).filter(v => v === true).length;
-                lvl3Pct = Math.round((done3 / 3) * 100); // Assumindo 3 tarefas para o avançado também
-                if (lvl3Pct > 100) lvl3Pct = 100;
+                const done = Object.values(progressData.level3.tasks).filter(v => v === true).length;
+                lvl3Pct = total3 > 0 ? Math.round((done / total3) * 100) : 0;
             }
+            if (lvl3Pct > 100) lvl3Pct = 100;
 
-            // HTML do Card
+            const status3 = getSubmissionStatus('avancado');
+
+            // Média Geral
+            const overallPct = Math.round((lvl1Pct + lvl2Pct + lvl3Pct) / 3);
+
+            // --- RETORNO DO HTML COMPLETO ---
             return `
                 <section class="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden relative transition-all hover:shadow-xl mb-8">
                     <div class="bg-gradient-to-r from-[#0B0E14] to-${spec.colorTailwind}-900 p-6 sm:p-8 text-white relative overflow-hidden" style="background: linear-gradient(90deg, #0B0E14 0%, ${spec.colorHex} 100%);">
@@ -346,8 +428,17 @@
                                 <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                                 Especialização Ativa
                             </div>
-                            <h2 class="text-2xl sm:text-3xl font-black mb-2">${spec.title}</h2>
-                            <p class="text-white/80 text-sm max-w-xl">${spec.subtitle}</p>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <h2 class="text-2xl sm:text-3xl font-black mb-2">${spec.title}</h2>
+                                    <p class="text-white/80 text-sm max-w-xl">${spec.subtitle}</p>
+                                </div>
+                                <div class="text-right hidden sm:block">
+                                    <span class="text-4xl font-black">${overallPct}%</span>
+                                    <span class="block text-xs uppercase opacity-70">Concluído</span>
+                                </div>
+                            </div>
+                            
                             <div class="mt-6">
                                 <a href="${spec.link}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-${spec.colorTailwind}-600 font-bold rounded-lg transition-all shadow-lg hover:bg-gray-100" style="color: ${spec.colorHex}">
                                     Continuar Missão
@@ -358,57 +449,162 @@
                     </div>
 
                     <div class="p-6 grid md:grid-cols-3 gap-6 bg-white">
-                        ${renderLevelCard(1, 'Básico', lvl1Pct, false, spec.colorHex)}
-                        ${renderLevelCard(2, 'Intermediário', lvl2Pct, lvl2Unlocked, spec.colorHex)}
-                        ${renderLevelCard(3, 'Avançado', lvl3Pct, lvl3Unlocked, spec.colorHex)}
+                        ${renderLevelCard(1, 'Básico', lvl1Pct, false, spec.colorHex, total1, status1)}
+                        ${renderLevelCard(2, 'Intermediário', lvl2Pct, lvl2Unlocked, spec.colorHex, total2, status2)}
+                        ${renderLevelCard(3, 'Avançado', lvl3Pct, lvl3Unlocked, spec.colorHex, total3, status3)}
                     </div>
                 </section>
             `;
         }
 
-        // Helper Visual
-        function renderLevelCard(level, title, pct, unlocked, colorHex) {
-            const isCompleted = pct === 100;
+        function renderLevelCard(level, title, pct, unlocked, colorHex, totalItems, submissionStatus) {
+
+            console.log(`Renderizando Nível ${level}: ${title} - ${pct}% - Desbloqueado: ${unlocked} - Status Submissão: ${submissionStatus}`);
+
+            // 1. LIMPEZA DE DADOS (CRUCIAL)
+            // Se o progresso é 0%, garantimos que não existe status de envio.
+            if (pct === 0) submissionStatus = null;
+
+            // 2. FLAGS BOOLEANAS (A Lógica que você pediu)
+            const tasksFinished = pct === 100;                 // Terminou de assistir tudo?
+            const hasSubmission = (submissionStatus !== null && submissionStatus !== undefined && submissionStatus !== ''); // Já enviou o desafio?
+
+            // Status específicos
+            const isApproved = submissionStatus === 'approved';
+            const isPending = submissionStatus === 'pending';
+            const isRejected = submissionStatus === 'rejected';
+
+            // 3. MÁQUINA DE ESTADOS
+            // Define qual o cenário atual (apenas um por vez)
+            let currentState = 'LOCKED';
+
+            if (isPending) {
+                // Prioridade 1: Enviou e está esperando (independente de %)
+                currentState = 'WAITING_REVIEW';
+
+            } else if (isApproved && tasksFinished) {
+                // Prioridade 2: Aprovado E terminou aulas -> GANHA A INSÍGNIA
+                currentState = 'COMPLETED';
+
+            } else if (isRejected) {
+                // Prioridade 3: Foi rejeitado (precisa ver o feedback)
+                currentState = 'REJECTED';
+
+            } else if (tasksFinished && !hasSubmission) {
+                // Prioridade 4: Terminou as aulas (100%), mas NÃO enviou o desafio ainda.
+                // É AQUI QUE CORRIGIMOS O BUG. Ele cai aqui em vez de 'COMPLETED'.
+                currentState = 'READY_TO_SEND';
+
+            } else if (pct > 0 || unlocked || level === 1) {
+                // Prioridade 5: Está fazendo as aulas
+                currentState = 'IN_PROGRESS';
+            }
+
+            // 4. CONFIGURAÇÃO VISUAL
             let statusText = "Bloqueado";
             let statusClass = "text-gray-400";
             let barColor = "bg-gray-200";
             let icon = "lock";
             let iconBg = "bg-gray-100 text-gray-400";
+            let statusBadge = "";
 
-            if (isCompleted) {
-                statusText = "Concluído";
-                statusClass = "text-green-600";
-                barColor = "bg-green-500";
-                icon = "check-circle";
-                iconBg = "bg-green-100 text-green-600";
-            } else if (pct > 0 || unlocked || level === 1) {
-                statusText = pct > 0 ? "Em andamento" : (level === 1 ? "Disponível" : "Desbloqueado");
-                statusClass = `text-[${colorHex}]`;
-                barColor = `bg-[${colorHex}]`;
-                icon = "play-circle";
-                iconBg = `bg-gray-100 text-[${colorHex}]`;
+            // Helpers para cor dinâmica
+            const dynamicText = `color: ${colorHex}`;
+            const dynamicBg = `background-color: ${colorHex}`;
+            let inlineTextStyle = '';
+            let inlineBarStyle = '';
+
+            console.log(`Nível ${level} - Estado Atual: ${currentState}`);
+
+            switch (currentState) {
+                case 'WAITING_REVIEW':
+                    statusText = "Em Análise";
+                    statusClass = "text-amber-500 font-extrabold";
+                    barColor = "bg-amber-400 animate-pulse";
+                    icon = "hourglass";
+                    iconBg = "bg-amber-100 text-amber-600";
+                    statusBadge = `
+                <div class="mt-2 flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-2 py-1 rounded text-[10px] text-amber-700 font-bold uppercase tracking-wide">
+                    <i data-lucide="clock" class="w-3 h-3"></i> Aguardando Validação
+                </div>`;
+                    break;
+
+                case 'COMPLETED':
+                    statusText = "Validado";
+                    statusClass = "text-green-600";
+                    barColor = "bg-green-500";
+                    icon = "check-circle-2";
+                    iconBg = "bg-green-100 text-green-600";
+                    statusBadge = `
+                <div class="mt-2 flex items-center gap-1.5 bg-green-50 border border-green-200 px-2 py-1 rounded text-[10px] text-green-700 font-bold uppercase tracking-wide">
+                    <i data-lucide="medal" class="w-3 h-3"></i> Insígnia Conquistada
+                </div>`;
+                    break;
+
+                case 'REJECTED':
+                    statusText = "Revisão Necessária";
+                    statusClass = `text-[${colorHex}]`;
+                    inlineTextStyle = dynamicText;
+                    barColor = `bg-[${colorHex}]`;
+                    inlineBarStyle = dynamicBg;
+                    icon = "alert-circle";
+                    iconBg = "bg-red-100 text-red-600";
+                    statusBadge = `
+                <div class="mt-2 flex items-center gap-1.5 bg-red-50 border border-red-200 px-2 py-1 rounded text-[10px] text-red-700 font-bold uppercase tracking-wide">
+                    <i data-lucide="alert-circle" class="w-3 h-3"></i> Verifique o Feedback no Github
+                </div>`;
+                    break;
+
+                case 'READY_TO_SEND':
+                    statusText = "Pronto para o Desafio";
+                    // Usa as cores do nível, NÃO usa verde de validado
+                    statusClass = `text-[${colorHex}]`;
+                    inlineTextStyle = dynamicText;
+                    barColor = `bg-[${colorHex}]`;
+                    inlineBarStyle = dynamicBg;
+                    icon = "send"; // Ícone de envio para incentivar a ação
+                    iconBg = `bg-gray-100 text-[${colorHex}]`;
+                    break;
+
+                case 'IN_PROGRESS':
+                    statusText = pct > 0 ? "Em andamento" : (level === 1 ? "Disponível" : "Desbloqueado");
+                    statusClass = `text-[${colorHex}]`;
+                    inlineTextStyle = dynamicText;
+                    barColor = `bg-[${colorHex}]`;
+                    inlineBarStyle = dynamicBg;
+                    icon = "play-circle";
+                    iconBg = `bg-gray-100 text-[${colorHex}]`;
+                    break;
             }
 
-            const inlineTextStyle = (!isCompleted && (pct > 0 || unlocked || level === 1)) ? `color: ${colorHex}` : '';
-            const inlineBarStyle = (!isCompleted && (pct > 0 || unlocked || level === 1)) ? `background-color: ${colorHex}` : '';
+            const itemsText = totalItems > 0 ? `${totalItems} atividades` : 'Em breve';
 
             return `
-                <div class="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-colors">
+                <div class="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-colors flex flex-col h-full relative overflow-hidden">
                     <div class="flex justify-between items-start mb-3">
                         <div>
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Nível 0${level}</span>
-                            <h3 class="font-bold text-gray-800">${title}</h3>
+                            <h3 class="font-bold text-gray-800 text-sm md:text-base">${title}</h3>
                         </div>
-                        <div class="h-8 w-8 rounded-full flex items-center justify-center ${iconBg}" style="${inlineTextStyle}">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}" style="${inlineTextStyle}">
                             <i data-lucide="${icon}" class="w-4 h-4"></i>
                         </div>
                     </div>
-                    <div class="flex items-end justify-between mb-1">
-                        <span class="text-2xl font-black text-gray-800">${pct}%</span>
-                        <span class="text-xs font-bold mb-1 uppercase tracking-wide ${statusClass}" style="${inlineTextStyle}">${statusText}</span>
-                    </div>
-                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                        <div class="h-2 rounded-full w-0 progress-fill ${barColor}" style="width: ${pct}%; ${inlineBarStyle}"></div>
+                    
+                    <div class="mt-auto">
+                        <div class="flex items-end justify-between mb-1">
+                            <div>
+                                <span class="text-2xl font-black text-gray-800">${pct}%</span>
+                                <span class="text-[10px] text-gray-400 ml-1">${itemsText}</span>
+                            </div>
+                            <span class="text-xs font-bold mb-1 uppercase tracking-wide ${statusClass}" style="${inlineTextStyle}">${statusText}</span>
+                        </div>
+                        
+                        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 rounded-full w-0 progress-fill ${barColor}" style="width: ${pct}%; ${inlineBarStyle}"></div>
+                        </div>
+
+                        ${statusBadge}
                     </div>
                 </div>
             `;
@@ -462,6 +658,103 @@
                 window.location.href = 'login.html';
             }
         });
+
+
+        // --- LÓGICA DE BADGES NOVAS ---
+        // Variável para guardar o ID da badge que está sendo mostrada
+        let pendingBadgeId = null;
+
+        async function checkNewBadges(uid) {
+            try {
+                const badgesRef = db.ref(`users/${uid}/badges`);
+                const snapshot = await badgesRef.once('value');
+                const badges = snapshot.val();
+
+                // Log para Debug: Verifique no console (F12) o que aparece aqui
+                console.log("Minhas Badges:", badges);
+
+                if (!badges) return;
+
+                // Procura a primeira badge que tem isNew: true
+                const newBadgeEntry = Object.entries(badges).find(([key, badge]) => badge.isNew === true);
+
+                if (newBadgeEntry) {
+                    const [key, badge] = newBadgeEntry;
+                    console.log("Nova conquista encontrada:", badge);
+
+                    pendingBadgeId = key; // Guarda o ID para remover o flag depois
+
+                    // Elementos do DOM
+                    const imgEl = document.getElementById('newBadgeImage');
+                    const nameEl = document.getElementById('newBadgeName');
+                    const modalEl = document.getElementById('newBadgeModal');
+
+                    if (imgEl && nameEl && modalEl) {
+                        // Preenche o Modal
+                        imgEl.src = badge.image || 'ai dento';
+                        nameEl.innerText = badge.name;
+
+                        // Abre o Modal
+                        modalEl.classList.remove('hidden');
+                        modalEl.classList.add('flex');
+
+                        // Chama o confete (se a função existir)
+                        if (typeof createConfetti === 'function') createConfetti();
+                    } else {
+                        console.error("Erro: Elementos do Modal de Badge não encontrados no HTML.");
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao verificar badges:", error);
+            }
+        }
+
+        async function claimBadge() {
+            if (!pendingBadgeId) return;
+
+            const uid = auth.currentUser.uid;
+
+            // Remove a flag isNew para não mostrar de novo
+            await db.ref(`users/${uid}/badges/${pendingBadgeId}/isNew`).remove();
+
+            // Fecha modal
+            const modal = document.getElementById('newBadgeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Recarrega dashboard para atualizar barras de progresso
+            location.reload();
+        }
+
+        // Função utilitária simples para confete (CSS/DOM)
+        function createConfetti() {
+            const colors = ['#38BDF8', '#FFCC00', '#F472B6', '#ffffff'];
+            for (let i = 0; i < 50; i++) {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-10px';
+                conf.style.width = '10px';
+                conf.style.height = '10px';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.zIndex = '200';
+                conf.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000);
+            }
+
+            // Adicione o keyframe dinamicamente se não existir
+            if (!document.getElementById('confetti-style')) {
+                const style = document.createElement('style');
+                style.id = 'confetti-style';
+                style.innerHTML = `
+            @keyframes fall {
+                to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+                document.head.appendChild(style);
+            }
+        }
 
     </script>
 </body>

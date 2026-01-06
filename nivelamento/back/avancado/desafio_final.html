@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Backend Architect</title>
+    <title>EJECT | Desafio Lógica Backend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
@@ -40,21 +40,21 @@
                 extend: {
                     fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
                     colors: {
-                        'space-dark': '#05070A',
-                        'space-light': '#151925',
-                        'cloud-purple': '#8B5CF6',
-                        'docker-blue': '#0DB7ED',
+                        'space-dark': '#0B0E14',
+                        'space-blue': '#151925',
+                        'back-green': '#10B981', /* Verde Backend */
+                        'back-light': '#6EE7B7',
                         'eject-yellow': '#FFCC00',
+                        'success-green': '#00FF94',
                         'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #2e1065 0%, #05070A 100%)', // Roxo profundo
-                        'arch-gradient': 'linear-gradient(135deg, #8B5CF6 0%, #0DB7ED 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #064E3B 0%, #0B0E14 100%)',
+                        'matrix-gradient': 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
                     },
                     animation: {
                         'float': 'float 4s ease-in-out infinite',
                         'shimmer': 'shimmer 1.5s infinite',
-                        'pulse-glow': 'pulse-glow 3s infinite',
                     },
                     keyframes: {
                         float: {
@@ -63,10 +63,6 @@
                         },
                         shimmer: {
                             '100%': { transform: 'translateX(100%)' }
-                        },
-                        'pulse-glow': {
-                            '0%, 100%': { boxShadow: '0 0 20px rgba(139, 92, 246, 0.2)' },
-                            '50%': { boxShadow: '0 0 40px rgba(139, 92, 246, 0.5)' },
                         }
                     }
                 }
@@ -75,7 +71,7 @@
     </script>
     <style>
         body {
-            background-color: #05070A;
+            background-color: #0B0E14;
             color: white;
         }
 
@@ -89,12 +85,6 @@
             z-index: -1;
             background-image: radial-gradient(white, rgba(255, 255, 255, .2) 1px, transparent 2px);
             background-size: 550px 550px;
-        }
-
-        .glass-card {
-            background: rgba(13, 12, 20, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(139, 92, 246, 0.2);
         }
 
         .modal-enter-active {
@@ -142,146 +132,124 @@
         </nav>
     </header>
 
-    <main class="flex-grow pb-24 relative">
+    <main class="flex-grow pb-24">
 
         <section class="max-w-5xl mx-auto px-4 py-10">
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-cloud-purple/20 border border-cloud-purple/30 text-cloud-purple text-xs font-bold uppercase shadow-neon-purple animate-pulse-glow">
-                    <span class="material-symbols-outlined text-sm">rocket_launch</span>
-                    Missão Final
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-light text-xs font-bold uppercase">
+                    <span class="material-symbols-outlined text-sm">terminal</span>
+                    Missão Prática
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                    BACKEND ARCHITECT
+                    DESAFIO FINAL: AVANÇADO - BACKEND
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Este é o teste final. Desenvolva, Dockerize e faça o Deploy de uma aplicação escalável. Prove que
-                    seu código sobrevive fora do `localhost`.
+                    Neste desafio, você irá integrar os principais conhecimentos da trilha para desenvolver uma solução
+                    completa, enfrentando problemas reais e demonstrando domínio técnico e visão prática.
                 </p>
             </div>
         </section>
 
         <section class="max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-8">
 
-            <div class="glass-card rounded-2xl overflow-hidden flex flex-col">
-                <div
-                    class="p-6 border-b border-white/10 flex items-center gap-3 bg-gradient-to-r from-cloud-purple/20 to-transparent">
-                    <div
-                        class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
-                        <span class="material-symbols-outlined text-docker-blue">deployed_code</span>
+            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white">code</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Requisitos de Produção</h2>
+                    <h2 class="text-xl font-bold text-white">Script para resolução</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
-                    <div class="space-y-5 text-gray-300 text-sm">
-                        <p>Para conquistar a insígnia de Arquiteto, sua entrega deve conter:</p>
+                    <div class="space-y-4 text-gray-300 text-sm">
+                        <p>O desafio está no GitHub da EJECT. Siga os passos:</p>
 
-                        <div class="flex gap-4 items-start group">
+                        <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-cloud-purple flex items-center justify-center font-bold text-xs mt-0.5 group-hover:bg-cloud-purple group-hover:text-white transition-colors">01</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong
-                                    class="text-white block mb-1 group-hover:text-cloud-purple transition-colors">Containerização</strong>
-                                <p class="text-gray-400">O projeto DEVE ter um `Dockerfile` funcional. Bônus para
-                                    `docker-compose`.</p>
+                                <strong class="text-white block mb-1">Acesse um dos repositorios abaixo:</strong>
+                                <p class="text-gray-400"><a class="text-green-400 hover:underline" href="">Ejects
+                                        LABS</a></p>
+                                <p class="text-gray-400"><a class="text-green-400 hover:underline" href="">Banco de
+                                        Componentes</a></p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 items-start group">
+                        <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-cloud-purple flex items-center justify-center font-bold text-xs mt-0.5 group-hover:bg-cloud-purple group-hover:text-white transition-colors">02</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong
-                                    class="text-white block mb-1 group-hover:text-cloud-purple transition-colors">Cloud
-                                    Deploy</strong>
-                                <p class="text-gray-400">A API deve estar acessível publicamente (Render, Railway, AWS,
-                                    etc).</p>
+                                <strong class="text-white block mb-1">Escolha qualquer issue com a seguinte
+                                    nomeclatura:</strong>
+                                <!-- adicionando tag -->
+                                <p class="text-gray-400"><span
+                                        class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-light text-xs font-bold uppercase">[DESAFIO]
+                                        - AVANÇADO BACKEND</span></p>
                             </div>
                         </div>
 
-                        <div class="flex gap-4 items-start group">
+                        <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-cloud-purple flex items-center justify-center font-bold text-xs mt-0.5 group-hover:bg-cloud-purple group-hover:text-white transition-colors">03</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong
-                                    class="text-white block mb-1 group-hover:text-cloud-purple transition-colors">Documentação</strong>
-                                <p class="text-gray-400">README robusto ou Swagger documentando os endpoints.</p>
+                                <strong class="text-white block mb-1">Pull Request</strong>
+                                <p class="text-gray-400">Envie sua solução para revisão, obtenha o link da PR e cole no
+                                    campo ao lado</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-auto pt-4 flex gap-3">
-                        <a href="https://github.com" target="_blank"
-                            class="flex-1 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
-                            <span
-                                class="material-symbols-outlined text-gray-400 group-hover:text-white">folder_zip</span>
-                            Repo Base
-                        </a>
-                        <a href="https://railway.app/" target="_blank"
-                            class="flex-1 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
-                            <span
-                                class="material-symbols-outlined text-gray-400 group-hover:text-white">cloud_upload</span>
-                            Railway
-                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card rounded-2xl overflow-hidden flex flex-col relative">
-                <div
-                    class="absolute top-0 right-0 w-64 h-64 bg-cloud-purple/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none">
-                </div>
-
-                <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/40">
+            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div
                         class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
-                        <span class="material-symbols-outlined">publish</span>
+                        <span class="material-symbols-outlined">send</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Entrega Final</h2>
+                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
                 </div>
 
-                <div class="p-6 flex-grow relative z-10">
+                <div class="p-6 flex-grow relative">
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Repositório
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR
                                 (GitHub)</label>
-                            <div class="relative group">
+                            <div class="relative">
                                 <span
-                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500 group-focus-within:text-cloud-purple transition-colors">code</span>
-                                <input type="url" required placeholder="https://github.com/seu-usuario/projeto-final"
-                                    class="w-full bg-black/30 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-cloud-purple focus:ring-1 focus:ring-cloud-purple transition-all text-sm placeholder-gray-600">
+                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
+                                <input type="url" id="inpRepo" required placeholder="https://github.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">URL de Produção
-                                (Deploy)</label>
-                            <div class="relative group">
-                                <span
-                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500 group-focus-within:text-docker-blue transition-colors">public</span>
-                                <input type="url" required placeholder="https://meu-app.railway.app"
-                                    class="w-full bg-black/30 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-docker-blue focus:ring-1 focus:ring-docker-blue transition-all text-sm placeholder-gray-600">
-                            </div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações</label>
+                            <input type="text" id="inpNotes" placeholder="Comentários adicionais (opcional)"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
                         </div>
 
-                        <div class="pt-2">
-                            <button type="submit" id="btn-submit"
-                                class="w-full py-4 bg-gradient-to-r from-cloud-purple to-docker-blue text-white font-bold rounded-xl hover:opacity-90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 shadow-neon-purple cursor-pointer">
-                                <span>VALIDAR ARQUITETURA</span>
-                                <span class="material-symbols-outlined">rocket</span>
-                            </button>
+                        <div class="mb-4">
+                            <p class="text-xs text-gray-400">Após o envio, sua solução será avaliada pela equipe EJECT.
+                                Você será notificado sobre a aprovação ou feedbacks para melhorias.</p>
                         </div>
+
+                        <button type="submit" id="btn-submit"
+                            class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <span>Confirmar Envio</span>
+                            <span class="material-symbols-outlined">rocket_launch</span>
+                        </button>
                     </form>
 
                     <div id="loading-overlay"
-                        class="absolute inset-0 bg-[#05070A]/90 backdrop-blur-sm hidden flex-col items-center justify-center z-20 rounded-xl">
+                        class="absolute inset-0 bg-space-blue/90 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl">
                         <div
-                            class="w-12 h-12 border-4 border-white/10 border-t-cloud-purple rounded-full animate-spin mb-4">
+                            class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
                         </div>
-                        <p class="text-sm font-bold text-white animate-pulse">Testando conexões...</p>
-                        <p class="text-xs text-gray-500 mt-2">Verificando Dockerfile...</p>
+                        <p class="text-sm font-bold text-white">Compilando envio...</p>
                     </div>
                 </div>
             </div>
@@ -289,90 +257,78 @@
         </section>
     </main>
 
-    <div id="success-modal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
-        <div id="modal-overlay"
-            class="absolute inset-0 bg-[#05070A]/95 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
-
-        <div id="modal-card"
-            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-cloud-purple/30 bg-[#0B0E14] shadow-[0_0_60px_rgba(139,92,246,0.2)] transition-all duration-500 scale-95 opacity-0">
-
-            <div class="absolute inset-0 overflow-hidden pointer-events-none">
-                <div
-                    class="absolute w-2 h-2 bg-eject-yellow rounded-full top-0 left-1/4 animate-[float_3s_ease-in_infinite]">
-                </div>
-                <div
-                    class="absolute w-2 h-2 bg-docker-blue rounded-full top-0 left-3/4 animate-[float_4s_ease-in_infinite_0.5s]">
-                </div>
-                <div
-                    class="absolute w-2 h-2 bg-cloud-purple rounded-full top-0 left-1/2 animate-[float_2.5s_ease-in_infinite_1s]">
-                </div>
-            </div>
-
-            <div class="h-2 w-full bg-gradient-to-r from-cloud-purple via-white to-docker-blue"></div>
-
-            <div class="relative p-8 text-center">
-
-                <div class="relative mx-auto mb-8 h-48 w-48 group flex items-center justify-center">
-                    <div class="absolute w-full h-full rounded-full bg-cloud-purple/20 blur-3xl animate-pulse"></div>
-                    <div
-                        class="absolute -inset-4 rounded-full border border-dashed border-white/10 animate-[spin_20s_linear_infinite]">
-                    </div>
-                    <div class="relative z-10 h-full w-full animate-float">
-                        <img src="../../../img/insignias/avancado_back.svg" alt="Insígnia Backend Master"
-                            class="h-full w-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                    </div>
-                </div>
-
-                <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Trilha Concluída!</h2>
-                <div class="mb-6 inline-block rounded-full border border-eject-yellow/30 bg-eject-yellow/5 px-4 py-1">
-                    <h3 class="font-mono text-sm font-bold text-eject-yellow tracking-widest flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">military_tech</span>
-                        BACKEND ARCHITECT
-                    </h3>
-                </div>
-
-                <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
-                    Você dominou a lógica, os dados e a nuvem. Você agora possui as habilidades de um desenvolvedor
-                    Backend completo.
-                </p>
-
-                <div class="flex flex-col gap-3">
-                    <button onclick="redeemBadge()"
-                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-eject-yellow to-yellow-600 text-black py-4 font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-neon-gold cursor-pointer">
-                        <span class="material-symbols-outlined text-lg">workspace_premium</span>
-                        <span>Resgatar Certificado</span>
-                        <div
-                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
-                        </div>
-                    </button>
-
-                    <button onclick="closeModal()"
-                        class="text-xs relative font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
-                        Fechar
-                    </button>
-                </div>
-            </div>
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                reservados.
+            </p>
+            <p class="text-xs text-gray-400">
+                <a href="termos_de_uso.html"
+                    class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                    Termos de Uso
+                </a>
+            </p>
         </div>
-    </div>
+    </footer>
 
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        function submitMission(e) {
+        async function submitMission(e) {
             e.preventDefault();
-            const loading = document.getElementById('loading-overlay');
-            const btn = document.getElementById('btn-submit');
 
+            const user = auth.currentUser;
+            if (!user) { alert('Faça login primeiro'); return; }
+
+            const repoInput = document.getElementById('inpRepo');
+            const langInput = document.getElementById('inpNotes');
+
+            const repoLink = repoInput.value;
+            const notes = langInput.value;
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading-overlay');
+
+            // Mostra loading
             loading.classList.remove('hidden');
             loading.classList.add('flex');
             btn.disabled = true;
 
-            // Simula verificação de deploy
-            setTimeout(() => {
+            try {
+                // Busca nome do user para facilitar pro admin
+                const userSnap = await db.ref(`users/${user.uid}/name`).once('value');
+                const userName = userSnap.val() || user.email;
+
+                // CRIA A SUBMISSÃO NO BANCO
+                const newSubRef = db.ref('submissions').push();
+                await newSubRef.set({
+                    userId: user.uid,
+                    userName: userName,
+                    track: 'backend',       // <--- MUDE ISSO CONFORME A PÁGINA
+                    level: 'level3',  // <--- MUDE ISSO CONFORME A PÁGINA
+                    repoLink: repoLink,
+                    notes: notes,
+                    status: 'pending',       // Importante: status 'pending'
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // SUCESSO!
+                // Agora sim, abre o modal de "Enviado / Aguardando"
+                // (Nota: Você deve alterar o texto do modal para dizer "Aguardando Avaliação" em vez de "Desbloqueado", pois agora depende do admin)
+
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-                openModal();
-            }, 3000);
+
+                // Aqui você pode mostrar um alerta simples ou adaptar o modal existente
+                alert("Desafio enviado para análise! Você será notificado quando for aprovado.");
+                window.location.href = "../trilha_back.html"; // Volta para a trilha
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao enviar: " + error.message);
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
         }
 
         function openModal() {
@@ -401,41 +357,6 @@
                 modal.classList.add('hidden');
                 document.getElementById('btn-submit').disabled = false;
             }, 500);
-        }
-
-        // --- LÓGICA DE RESGATE FINAL ---
-        function redeemBadge() {
-            const user = auth.currentUser;
-
-            if (!user) {
-                alert("Você precisa estar logado.");
-                return;
-            }
-
-            const updates = {};
-
-            // 1. Salva a Insígnia Master/Avançada
-            updates['users/' + user.uid + '/badges/backend_avancado'] = {
-                id: 'backend_avancado',
-                name: 'Backend Architect',
-                image: '../img/insignias/avancado_back.svg',
-                description: 'Dominou Arquitetura, Docker e Cloud.',
-                date: Date.now()
-            };
-
-            // 2. Marca a trilha Backend como COMPLETA
-            updates['users/' + user.uid + '/progress/backend/completed'] = true;
-
-            db.ref().update(updates)
-                .then(() => {
-                    alert("Parabéns! Trilha Backend Finalizada com Sucesso.");
-                    // Volta para o mapa geral ou dashboard
-                    window.location.href = '../../../SIGAV/dashboard.html';
-                })
-                .catch((error) => {
-                    console.error("Erro ao salvar:", error);
-                    alert("Erro ao salvar progresso: " + error.message);
-                });
         }
     </script>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EJECT | Desafio Final React</title>
+    <title>EJECT | Desafio Lógica Backend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -39,23 +40,21 @@
                 extend: {
                     fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
                     colors: {
-                        'space-dark': '#05070A',
+                        'space-dark': '#0B0E14',
                         'space-blue': '#151925',
-                        'front-blue': '#3B82F6',
-                        'react-cyan': '#61DAFB', /* Cor Principal do React */
-                        'react-dark': '#20232A',
+                        'front-blue': '#3B82F6', /* Cor Principal Frontend */
+                        'front-light': '#60A5FA',
                         'eject-yellow': '#FFCC00',
                         'success-green': '#00FF94',
                         'eject-text-primary': '#1A1A1A',
                     },
                     backgroundImage: {
-                        'deep-space': 'radial-gradient(circle at 50% 0%, #0f172a 0%, #05070A 100%)',
-                        'react-gradient': 'linear-gradient(135deg, #61DAFB 0%, #2563EB 100%)',
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1E3A8A 0%, #0F172A 45%, #05070A 100%)',
+                        'matrix-gradient': 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
                     },
                     animation: {
                         'float': 'float 4s ease-in-out infinite',
                         'shimmer': 'shimmer 1.5s infinite',
-                        'spin-slow': 'spin 15s linear infinite',
                     },
                     keyframes: {
                         float: {
@@ -72,7 +71,7 @@
     </script>
     <style>
         body {
-            background-color: #05070A;
+            background-color: #0B0E14;
             color: white;
         }
 
@@ -133,95 +132,73 @@
         </nav>
     </header>
 
-    <main class="flex-grow pb-24 relative overflow-hidden">
-
-        <div class="absolute -right-20 top-20 opacity-5 pointer-events-none">
-            <svg width="400" height="400" viewBox="-10.5 -9.45 21 18.9" fill="none" xmlns="http://www.w3.org/2000/svg"
-                class="text-react-cyan animate-spin-slow">
-                <circle cx="0" cy="0" r="2" fill="currentColor"></circle>
-                <g stroke="currentColor" stroke-width="1" fill="none">
-                    <ellipse rx="10" ry="4.5"></ellipse>
-                    <ellipse rx="10" ry="4.5" transform="rotate(60)"></ellipse>
-                    <ellipse rx="10" ry="4.5" transform="rotate(120)"></ellipse>
-                </g>
-            </svg>
-        </div>
+    <main class="flex-grow pb-24">
 
         <section class="max-w-5xl mx-auto px-4 py-10">
             <div class="flex flex-col items-start gap-4 mb-8">
                 <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-react-cyan/20 border border-react-cyan/30 text-react-cyan text-xs font-bold uppercase shadow-[0_0_15px_rgba(97,218,251,0.2)]">
-                    <span class="material-symbols-outlined text-sm">science</span>
-                    Missão de Graduação
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-front-blue/20 border border-front-blue/30 text-front-light text-xs font-bold uppercase">
+                    <span class="material-symbols-outlined text-sm">terminal</span>
+                    Missão Prática
                 </div>
                 <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
-                    DESAFIO FINAL: AVANÇADO - REACT
+                    DESAFIO FINAL: AVANÇADO - FRONTEND
                 </h1>
                 <p class="text-gray-400 max-w-2xl">
-                    Este é o teste final. Desenvolva uma aplicação completa (SPA), consumindo APIs, gerenciando rotas e
-                    estado global.
+                    Neste desafio, você irá integrar os principais conhecimentos da trilha para desenvolver uma solução
+                    completa, enfrentando problemas reais e demonstrando domínio técnico e visão prática.
                 </p>
             </div>
         </section>
 
         <section class="max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-8">
 
-            <div
-                class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col relative group">
-                <div
-                    class="absolute inset-0 bg-react-cyan/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                </div>
-
+            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
                 <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white">integration_instructions</span>
+                        <span class="material-symbols-outlined text-white">code</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Briefing Técnico</h2>
+                    <h2 class="text-xl font-bold text-white">Script para resolução</h2>
                 </div>
 
                 <div class="p-6 flex-grow flex flex-col gap-6">
                     <div class="space-y-4 text-gray-300 text-sm">
-                        <p>Acesse o GitHub da EJECT para o projeto final:</p>
+                        <p>O desafio está no GitHub da EJECT. Siga os passos:</p>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-react-cyan text-black flex items-center justify-center font-bold text-xs mt-0.5">1</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
                             <div>
-                                <strong class="text-white block mb-1">E-commerce SPA</strong>
-                                <p class="text-gray-400">Clone o repo <span
-                                        class="text-react-cyan font-mono">EJECT-React-Store</span>.</p>
+                                <strong class="text-white block mb-1">Acesse um dos repositorios abaixo:</strong>
+                                <p class="text-gray-400"><a class="text-blue-400 hover:underline" href="">Ejects
+                                        LABS</a></p>
+                                <p class="text-gray-400"><a class="text-blue-400 hover:underline" href="">Banco de
+                                        Componentes</a></p>
                             </div>
                         </div>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-react-cyan text-black flex items-center justify-center font-bold text-xs mt-0.5">2</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
                             <div>
-                                <strong class="text-white block mb-1">Requisitos</strong>
-                                <ul class="list-disc list-inside text-gray-500 mt-1">
-                                    <li>Consumo de API (FakeStoreAPI)</li>
-                                    <li>Carrinho de Compras (Context API)</li>
-                                    <li>React Router DOM</li>
-                                </ul>
+                                <strong class="text-white block mb-1">Escolha qualquer issue com a seguinte
+                                    nomeclatura:</strong>
+                                <!-- adicionando tag -->
+                                <p class="text-gray-400"><span
+                                        class="inline-flex items-center gap-2 px-3 py-1 rounded bg-front-blue/20 border border-front-blue/30 text-front-light text-xs font-bold uppercase">[DESAFIO]
+                                        - AVANÇADO FRONTEND</span></p>
                             </div>
                         </div>
 
                         <div class="flex gap-4 items-start">
                             <span
-                                class="flex-shrink-0 w-6 h-6 rounded-full bg-react-cyan text-black flex items-center justify-center font-bold text-xs mt-0.5">3</span>
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-front-blue text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
                             <div>
-                                <strong class="text-white block mb-1">Deploy</strong>
-                                <p class="text-gray-400">Suba na Vercel ou Netlify e envie o link junto com o PR.</p>
+                                <strong class="text-white block mb-1">Pull Request</strong>
+                                <p class="text-gray-400">Envie sua solução para revisão, obtenha o link da PR e cole no
+                                    campo ao lado</p>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="mt-auto pt-4">
-                        <a href="https://github.com" target="_blank"
-                            class="w-full py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-colors flex items-center justify-center gap-2 group">
-                            <span class="material-symbols-outlined">open_in_new</span>
-                            Repositório Oficial
-                        </a>
                     </div>
                 </div>
             </div>
@@ -232,37 +209,37 @@
                         class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
                         <span class="material-symbols-outlined">send</span>
                     </div>
-                    <h2 class="text-xl font-bold text-white">Entregar Projeto</h2>
+                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
                 </div>
 
                 <div class="p-6 flex-grow relative">
                     <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Repositório /
-                                PR</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR
+                                (GitHub)</label>
                             <div class="relative">
                                 <span
-                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">code</span>
-                                <input type="url" required placeholder="https://github.com/..."
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-react-cyan focus:ring-1 focus:ring-react-cyan transition-all text-sm placeholder-gray-600">
+                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
+                                <input type="url" id="inpRepo" required placeholder="https://github.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-front-blue focus:ring-1 focus:ring-front-blue transition-all text-sm placeholder-gray-600">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do Deploy
-                                (Opcional)</label>
-                            <div class="relative">
-                                <span
-                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">public</span>
-                                <input type="url" placeholder="https://minha-loja.vercel.app"
-                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-react-cyan focus:ring-1 focus:ring-react-cyan transition-all text-sm placeholder-gray-600">
-                            </div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações</label>
+                            <input type="text" id="inpNotes" placeholder="Comentários adicionais (opcional)"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-front-blue focus:ring-1 focus:ring-front-blue transition-all text-sm placeholder-gray-600">
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-xs text-gray-400">Após o envio, sua solução será avaliada pela equipe EJECT.
+                                Você será notificado sobre a aprovação ou feedbacks para melhorias.</p>
                         </div>
 
                         <button type="submit" id="btn-submit"
                             class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer">
-                            <span>Finalizar Trilha</span>
+                            <span>Confirmar Envio</span>
                             <span class="material-symbols-outlined">rocket_launch</span>
                         </button>
                     </form>
@@ -270,9 +247,9 @@
                     <div id="loading-overlay"
                         class="absolute inset-0 bg-space-blue/90 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl">
                         <div
-                            class="w-10 h-10 border-4 border-white/10 border-t-react-cyan rounded-full animate-spin mb-4">
+                            class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
                         </div>
-                        <p class="text-sm font-bold text-white">Validando projeto...</p>
+                        <p class="text-sm font-bold text-white">Compilando envio...</p>
                     </div>
                 </div>
             </div>
@@ -280,89 +257,78 @@
         </section>
     </main>
 
-    <div id="success-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
-        <div id="modal-overlay"
-            class="absolute inset-0 bg-[#05070A]/95 backdrop-blur-xl transition-opacity duration-500 opacity-0"></div>
-
-        <div id="modal-card"
-            class="relative z-10 w-full max-w-md transform overflow-hidden rounded-3xl border border-react-cyan/30 bg-[#0B0E14] shadow-[0_0_60px_rgba(97,218,251,0.3)] transition-all duration-500 scale-95 opacity-0">
-
-            <div
-                class="h-1.5 w-full bg-gradient-to-r from-react-cyan via-blue-500 to-react-cyan shadow-[0_0_15px_#61DAFB] animate-pulse">
-            </div>
-
-            <div class="relative p-8 text-center">
-                <div class="absolute inset-0 opacity-20"
-                    style="background-image: radial-gradient(#61DAFB 1px, transparent 1px); background-size: 20px 20px;">
-                </div>
-
-                <div class="relative mb-6">
-                    <span
-                        class="inline-flex items-center gap-2 rounded-full border border-react-cyan/50 bg-react-cyan/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-react-cyan shadow-neon-react">
-                        <span class="material-symbols-outlined text-sm">trophy</span>
-                        Trilha Concluída
-                    </span>
-                </div>
-
-                <div class="relative mx-auto mb-6 h-48 w-48 group flex items-center justify-center">
-                    <div class="absolute w-2/3 h-2/3 rounded-full bg-react-cyan blur-[50px] opacity-60 animate-pulse">
-                    </div>
-                    <div
-                        class="absolute -inset-4 rounded-full border border-dashed border-white/20 animate-[spin_20s_linear_infinite]">
-                    </div>
-                    <div class="relative z-10 h-full w-full animate-float">
-                        <img src="../../../img/react_master.png" alt="Insígnia React Master"
-                            class="h-full w-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">
-                    </div>
-                </div>
-
-                <h2 class="text-3xl font-black text-white mb-2 uppercase italic tracking-wide">
-                    Especialista
-                </h2>
-                <div class="mb-6 inline-block rounded border border-react-cyan/30 bg-react-cyan/5 px-4 py-1">
-                    <h3 class="font-mono text-sm font-bold text-react-cyan tracking-widest">FRONTEND DEVELOPER</h3>
-                </div>
-
-                <p class="text-sm text-gray-400 leading-relaxed mb-8 px-2">
-                    Você completou todos os desafios. O universo do desenvolvimento web está em suas mãos.
-                </p>
-
-                <div class="flex flex-col gap-3">
-                    <button onclick="redeemBadge()"
-                        class="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-gradient-to-r from-react-cyan to-blue-600 text-black py-4 font-bold uppercase tracking-wider transition-all hover:scale-[1.02] shadow-lg cursor-pointer">
-                        <span class="material-symbols-outlined text-lg">workspace_premium</span>
-                        <span>Resgatar Certificação</span>
-                        <div
-                            class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover:animate-shimmer">
-                        </div>
-                    </button>
-
-                    <button onclick="closeModal()"
-                        class="text-xs relative font-bold text-gray-600 uppercase hover:text-white transition-colors py-2 cursor-pointer">
-                        Fechar
-                    </button>
-                </div>
-            </div>
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                reservados.
+            </p>
+            <p class="text-xs text-gray-400">
+                <a href="termos_de_uso.html"
+                    class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                    Termos de Uso
+                </a>
+            </p>
         </div>
-    </div>
+    </footer>
 
     <script src="../../../SIGAV/firebase-config.js"></script>
 
     <script>
-        function submitMission(e) {
+        async function submitMission(e) {
             e.preventDefault();
-            const loading = document.getElementById('loading-overlay');
-            const btn = document.getElementById('btn-submit');
 
+            const user = auth.currentUser;
+            if (!user) { alert('Faça login primeiro'); return; }
+
+            const repoInput = document.getElementById('inpRepo');
+            const langInput = document.getElementById('inpNotes');
+
+            const repoLink = repoInput.value;
+            const notes = langInput.value;
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading-overlay');
+
+            // Mostra loading
             loading.classList.remove('hidden');
             loading.classList.add('flex');
             btn.disabled = true;
 
-            setTimeout(() => {
+            try {
+                // Busca nome do user para facilitar pro admin
+                const userSnap = await db.ref(`users/${user.uid}/name`).once('value');
+                const userName = userSnap.val() || user.email;
+
+                // CRIA A SUBMISSÃO NO BANCO
+                const newSubRef = db.ref('submissions').push();
+                await newSubRef.set({
+                    userId: user.uid,
+                    userName: userName,
+                    track: 'frontend',       // <--- MUDE ISSO CONFORME A PÁGINA
+                    level: 'level3',  // <--- MUDE ISSO CONFORME A PÁGINA
+                    repoLink: repoLink,
+                    notes: notes,
+                    status: 'pending',       // Importante: status 'pending'
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // SUCESSO!
+                // Agora sim, abre o modal de "Enviado / Aguardando"
+                // (Nota: Você deve alterar o texto do modal para dizer "Aguardando Avaliação" em vez de "Desbloqueado", pois agora depende do admin)
+
                 loading.classList.add('hidden');
                 loading.classList.remove('flex');
-                openModal();
-            }, 2500);
+
+                // Aqui você pode mostrar um alerta simples ou adaptar o modal existente
+                alert("Desafio enviado para análise! Você será notificado quando for aprovado.");
+                window.location.href = "../trilha_front.html"; // Volta para a trilha
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao enviar: " + error.message);
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
         }
 
         function openModal() {
@@ -391,40 +357,6 @@
                 modal.classList.add('hidden');
                 document.getElementById('btn-submit').disabled = false;
             }, 500);
-        }
-
-        // --- LÓGICA DE RESGATE FINAL ---
-        function redeemBadge() {
-            const user = auth.currentUser;
-
-            if (!user) {
-                alert("Você precisa estar logado.");
-                return;
-            }
-
-            const updates = {};
-
-            // 1. Salva a Insígnia Final
-            updates['users/' + user.uid + '/badges/frontend_avancado'] = {
-                id: 'frontend_avancado',
-                name: 'Especialista Frontend',
-                image: '../../../img/react_master.png',
-                date: Date.now()
-            };
-
-            // 2. Marca a trilha completa como CONCLUÍDA
-            updates['users/' + user.uid + '/progress/frontend/completed'] = true;
-
-            db.ref().update(updates)
-                .then(() => {
-                    alert("Parabéns! Trilha Frontend concluída com sucesso.");
-                    // Volta para o mapa da trilha Frontend (que agora deve mostrar tudo completo)
-                    window.location.href = '../trilha_front.html';
-                })
-                .catch((error) => {
-                    console.error("Erro ao salvar:", error);
-                    alert("Erro ao salvar progresso: " + error.message);
-                });
         }
     </script>
 

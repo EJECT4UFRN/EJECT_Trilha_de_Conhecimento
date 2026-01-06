@@ -394,17 +394,50 @@
             }).catch(err => showMessage('savePasswordMessage', "Senha atual incorreta.", true));
         }
 
-        function resetProgress() {
-            if (!confirm("Confirma o reset? Isso apagará todas as suas conquistas.")) return;
+        async function resetProgress() {
+            if (!confirm("Confirma o reset? Isso apagará TODAS as conquistas, progresso e envios de desafios. Essa ação é irreversível.")) return;
 
             const user = auth.currentUser;
-            const p1 = db.ref(`users/${user.uid}/progress`).remove();
-            const p2 = db.ref(`users/${user.uid}/badges`).remove();
+            if (!user) return;
 
-            Promise.all([p1, p2]).then(() => {
-                showMessage('resetProgressMessage', "Progresso resetado.");
-                loadUserBadges(user); // Atualiza a grid para vazio
-            }).catch(err => showMessage('resetProgressMessage', "Erro ao resetar.", true));
+            const btn = document.getElementById('btnReset'); // Se tiver um botão com id btnReset
+            if (btn) btn.disabled = true;
+
+            try {
+                // 1. Prepara o objeto de atualização (Deleção Atômica)
+                const updates = {};
+
+                // Apaga Progresso e Badges do perfil do usuário
+                updates[`users/${user.uid}/progress`] = null;
+                updates[`users/${user.uid}/badges`] = null;
+
+                // 2. Busca as submissões feitas por esse usuário para apagar também
+                const submissionsRef = db.ref('submissions');
+                const snapshot = await submissionsRef.orderByChild('userId').equalTo(user.uid).once('value');
+                const userSubmissions = snapshot.val();
+
+                // Se existirem submissões, marca elas para deletar (null)
+                if (userSubmissions) {
+                    Object.keys(userSubmissions).forEach(submissionId => {
+                        updates[`submissions/${submissionId}`] = null;
+                    });
+                }
+
+                // 3. Executa todas as exclusões de uma vez
+                await db.ref().update(updates);
+
+                showMessage('resetProgressMessage', "Progresso e histórico apagados com sucesso.");
+
+                // 4. Recarrega a página para limpar variáveis de memória (cache)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+            } catch (error) {
+                console.error("Erro ao resetar:", error);
+                showMessage('resetProgressMessage', "Erro ao resetar: " + error.message, true);
+                if (btn) btn.disabled = false;
+            }
         }
 
         function deleteAccount() {
