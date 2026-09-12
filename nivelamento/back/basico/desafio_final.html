@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Desafio Lógica Backend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
+                    colors: {
+                        'space-dark': '#0B0E14',
+                        'space-blue': '#151925',
+                        'back-green': '#10B981', /* Verde Backend */
+                        'back-light': '#6EE7B7',
+                        'eject-yellow': '#FFCC00',
+                        'success-green': '#00FF94',
+                        'eject-text-primary': '#1A1A1A',
+                    },
+                    backgroundImage: {
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #064E3B 0%, #0B0E14 100%)',
+                        'matrix-gradient': 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'shimmer': 'shimmer 1.5s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        shimmer: {
+                            '100%': { transform: 'translateX(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0B0E14;
+            color: white;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image: radial-gradient(white, rgba(255, 255, 255, .2) 1px, transparent 2px);
+            background-size: 550px 550px;
+        }
+
+        .modal-enter-active {
+            scale: 1 !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+
+<body class="bg-deep-space min-h-screen flex flex-col font-sans">
+
+    <div class="stars"></div>
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <button onclick="window.history.back()"
+                        class="text-gray-800 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">
+                        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                    </button>
+                    <span class="text-2xl font-bold text-sky-700">
+                        <a href="../../../index.html">HUB DE CONHECIMENTOS</a>
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ <a
+                            href="../../index.html">Astronauta vai à
+                            Lua</a></span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                    <a href="../../../SIGAV/sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../../../SIGAV/perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow pb-24">
+
+        <section class="max-w-5xl mx-auto px-4 py-10">
+            <div class="flex flex-col items-start gap-4 mb-8">
+                <div
+                    class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-light text-xs font-bold uppercase">
+                    <span class="material-symbols-outlined text-sm">terminal</span>
+                    Missão Prática
+                </div>
+                <h1 class="text-3xl md:text-4xl font-black mb-2 flex items-center gap-3">
+                    DESAFIO FINAL: BÁSICO - BACKEND
+                </h1>
+                <p class="text-gray-400 max-w-2xl">
+                    Neste desafio, você irá integrar os principais conhecimentos da trilha para desenvolver uma solução
+                    completa, enfrentando problemas reais e demonstrando domínio técnico e visão prática.
+                </p>
+            </div>
+        </section>
+
+        <section class="max-w-5xl mx-auto px-4 grid md:grid-cols-2 gap-8">
+
+            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
+                    <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-white">code</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Script para resolução</h2>
+                </div>
+
+                <div class="p-6 flex-grow flex flex-col gap-6">
+                    <div class="space-y-4 text-gray-300 text-sm">
+                        <p>O desafio está no GitHub da EJECT. Siga os passos:</p>
+
+                        <div class="flex gap-4 items-start">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">1</span>
+                            <div>
+                                <strong class="text-white block mb-1">Acesse um dos repositorios abaixo:</strong>
+                                <p class="text-gray-400"><a class="text-green-400 hover:underline" href="">Ejects
+                                        LABS</a></p>
+                                <p class="text-gray-400"><a class="text-green-400 hover:underline" href="">Banco de
+                                        Componentes</a></p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">2</span>
+                            <div>
+                                <strong class="text-white block mb-1">Escolha qualquer issue com a seguinte
+                                    nomeclatura:</strong>
+                                <!-- adicionando tag -->
+                                <p class="text-gray-400"><span
+                                        class="inline-flex items-center gap-2 px-3 py-1 rounded bg-back-green/20 border border-back-green/30 text-back-light text-xs font-bold uppercase">[DESAFIO]
+                                        - BASICO BACKEND</span></p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 items-start">
+                            <span
+                                class="flex-shrink-0 w-6 h-6 rounded-full bg-back-green text-white flex items-center justify-center font-bold text-xs mt-0.5">3</span>
+                            <div>
+                                <strong class="text-white block mb-1">Pull Request</strong>
+                                <p class="text-gray-400">Envie sua solução para revisão, obtenha o link da PR e cole no
+                                    campo ao lado</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-space-blue/50 border border-white/10 rounded-2xl overflow-hidden flex flex-col">
+                <div class="p-6 border-b border-white/10 flex items-center gap-3 bg-black/20">
+                    <div
+                        class="w-10 h-10 rounded-full bg-eject-yellow/10 flex items-center justify-center text-eject-yellow border border-eject-yellow/20">
+                        <span class="material-symbols-outlined">send</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white">Enviar Solução</h2>
+                </div>
+
+                <div class="p-6 flex-grow relative">
+                    <form id="submission-form" onsubmit="submitMission(event)" class="space-y-6">
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Link do PR
+                                (GitHub)</label>
+                            <div class="relative">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-3.5 text-gray-500">link</span>
+                                <input type="url" id="inpRepo" required placeholder="https://github.com/..."
+                                    class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Observações</label>
+                            <input type="text" id="inpNotes" placeholder="Comentários adicionais (opcional)"
+                                class="w-full bg-black/20 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-back-green focus:ring-1 focus:ring-back-green transition-all text-sm placeholder-gray-600">
+                        </div>
+
+                        <div class="mb-4">
+                            <p class="text-xs text-gray-400">Após o envio, sua solução será avaliada pela equipe EJECT.
+                                Você será notificado sobre a aprovação ou feedbacks para melhorias.</p>
+                        </div>
+
+                        <button type="submit" id="btn-submit"
+                            class="w-full py-4 bg-eject-yellow text-black font-bold rounded-xl hover:bg-white transition-colors flex items-center justify-center gap-2 shadow-lg cursor-pointer">
+                            <span>Confirmar Envio</span>
+                            <span class="material-symbols-outlined">rocket_launch</span>
+                        </button>
+                    </form>
+
+                    <div id="loading-overlay"
+                        class="absolute inset-0 bg-space-blue/90 backdrop-blur-sm hidden flex-col items-center justify-center z-10 rounded-xl">
+                        <div
+                            class="w-10 h-10 border-4 border-white/10 border-t-eject-yellow rounded-full animate-spin mb-4">
+                        </div>
+                        <p class="text-sm font-bold text-white">Compilando envio...</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                reservados.
+            </p>
+            <p class="text-xs text-gray-400">
+                <a href="termos_de_uso.html"
+                    class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                    Termos de Uso
+                </a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="../../../SIGAV/firebase-config.js"></script>
+
+    <script>
+        async function submitMission(e) {
+            e.preventDefault();
+
+            const user = auth.currentUser;
+            if (!user) { alert('Faça login primeiro'); return; }
+
+            const repoInput = document.getElementById('inpRepo');
+            const langInput = document.getElementById('inpNotes');
+
+            const repoLink = repoInput.value;
+            const notes = langInput.value;
+            const btn = document.getElementById('btn-submit');
+            const loading = document.getElementById('loading-overlay');
+
+            // Mostra loading
+            loading.classList.remove('hidden');
+            loading.classList.add('flex');
+            btn.disabled = true;
+
+            try {
+                // Busca nome do user para facilitar pro admin
+                const userSnap = await db.ref(`users/${user.uid}/name`).once('value');
+                const userName = userSnap.val() || user.email;
+
+                // CRIA A SUBMISSÃO NO BANCO
+                const newSubRef = db.ref('submissions').push();
+                await newSubRef.set({
+                    userId: user.uid,
+                    userName: userName,
+                    track: 'backend',       // <--- MUDE ISSO CONFORME A PÁGINA
+                    level: 'level1',  // <--- MUDE ISSO CONFORME A PÁGINA
+                    repoLink: repoLink,
+                    notes: notes,
+                    status: 'pending',       // Importante: status 'pending'
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                // SUCESSO!
+                // Agora sim, abre o modal de "Enviado / Aguardando"
+                // (Nota: Você deve alterar o texto do modal para dizer "Aguardando Avaliação" em vez de "Desbloqueado", pois agora depende do admin)
+
+                loading.classList.add('hidden');
+                loading.classList.remove('flex');
+
+                // Aqui você pode mostrar um alerta simples ou adaptar o modal existente
+                alert("Desafio enviado para análise! Você será notificado quando for aprovado.");
+                window.location.href = "../trilha_back.html"; // Volta para a trilha
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao enviar: " + error.message);
+                loading.classList.add('hidden');
+                btn.disabled = false;
+            }
+        }
+
+        function openModal() {
+            const modal = document.getElementById('success-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const card = document.getElementById('modal-card');
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                card.classList.remove('opacity-0', 'scale-95');
+                card.classList.add('modal-enter-active');
+            }, 50);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('success-modal');
+            const overlay = document.getElementById('modal-overlay');
+            const card = document.getElementById('modal-card');
+
+            overlay.classList.add('opacity-0');
+            card.classList.remove('modal-enter-active');
+            card.classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('btn-submit').disabled = false;
+            }, 500);
+        }
+    </script>
+
+</body>
+
+</html>

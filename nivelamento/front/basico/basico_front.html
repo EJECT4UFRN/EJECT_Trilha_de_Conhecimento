@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Nível 1: Lançamento UX/UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="../../../img/eject_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Exo 2"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    colors: {
+                        'space-dark': '#05070A',
+                        'front-blue': '#3B82F6', /* Cor Principal Frontend */
+                        'front-light': '#60A5FA',
+                        'eject-yellow': '#FFCC00',
+                        'success': '#00FF94',
+                    },
+                    backgroundImage: {
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1E3A8A 0%, #0F172A 45%, #05070A 100%)',
+                    },
+                    boxShadow: {
+                        'neon-blue': '0 0 20px rgba(59, 130, 246, 0.3)',
+                        'neon-gold': '0 0 30px rgba(255, 204, 0, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #05070A;
+            color: white;
+            scroll-behavior: smooth;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image: radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 2px);
+            background-size: 550px 550px;
+        }
+
+        /* Glass Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Checkbox Button Logic */
+        input:checked+label .btn-content-unchecked {
+            display: none;
+        }
+
+        input:checked+label .btn-content-checked {
+            display: flex;
+        }
+
+        input:checked+label {
+            background-color: rgba(0, 255, 148, 0.1);
+            border-color: #00FF94;
+            color: #00FF94;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0B0E14;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body class="bg-deep-space min-h-screen flex flex-col font-sans selection:bg-front-blue selection:text-white">
+
+    <div class="stars"></div>
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <button onclick="window.history.back()"
+                        class="text-gray-800 hover:text-blue-600 p-2 rounded-full hover:bg-gray-100 flex items-center justify-center transition-all">
+                        <span class="material-symbols-outlined text-2xl">arrow_back</span>
+                    </button>
+                    <span class="text-2xl font-bold text-sky-700">
+                        <a href="../../../index.html">HUB DE CONHECIMENTOS</a>
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ <a
+                            href="../../index.html">Astronauta vai à
+                            Lua</a></span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                    <a href="../../../SIGAV/sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../../../SIGAV/perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow pt-32 pb-40 px-4">
+
+        <section class="max-w-4xl mx-auto mb-12 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-front-blue/10 border border-front-blue/30 text-front-light text-xs font-bold uppercase tracking-widest mb-4">
+                <span class="material-symbols-outlined text-sm">rocket_launch</span>
+                Trilha Frontend
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+                NÍVEL BÁSICO<br> <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-front-blue to-white">Explorador
+                    Web</span>
+            </h1>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+                Aprenda os fundamentos da especialidade e dê os primeiros passos na construção de soluções simples,
+                entendendo como os principais conceitos se conectam.
+            </p>
+
+            <div class="w-full max-w-lg mx-auto opacity-50">
+                <div class="h-1 bg-gray-800 rounded-full overflow-hidden border border-white/10">
+                    <div id="hero-progress-bar"
+                        class="h-full bg-gradient-to-r from-front-blue to-white-500 w-0 transition-all duration-700">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div id="dynamic-content-container" class="max-w-5xl mx-auto space-y-16 relative min-h-[300px]">
+            <div id="content-loader" class="text-center py-20 relative z-10">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-front-blue mx-auto mb-4">
+                </div>
+                <p class="text-gray-500 animate-pulse">Carregando conteúdo...</p>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto mt-24 relative z-10">
+            <div id="final-challenge-container"
+                class="glass-panel p-8 md:p-12 rounded-3xl text-center relative overflow-hidden blur-sm grayscale opacity-60 pointer-events-none transition-all duration-700">
+                <div
+                    class="w-20 h-20 mx-auto bg-black/40 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                    <span id="challenge-icon"
+                        class="material-symbols-outlined text-4xl text-gray-500 transition-colors duration-500">lock</span>
+                </div>
+
+                <h2 class="text-3xl font-black text-white mb-2 uppercase tracking-wide">Desafio Prático
+                </h2>
+                <p class="text-gray-400 mb-8 max-w-lg mx-auto">
+                    Aplique na prática os conhecimentos do nível por meio de um desafio baseado em situações reais da
+                    área.
+                </p>
+
+                <button id="btn-challenge" onclick="window.location.href='desafio_final.html'" disabled
+                    class="px-10 py-4 bg-white/5 text-gray-500 font-bold rounded-xl border border-white/10 cursor-not-allowed uppercase tracking-widest text-sm transition-all duration-300">
+                    Acesso Negado
+                </button>
+            </div>
+
+            <div id="lock-overlay"
+                class="absolute inset-0 flex items-center justify-center z-20 transition-opacity duration-500">
+                <div
+                    class="bg-black/80 backdrop-blur-md px-6 py-3 rounded-full border border-white/20 flex items-center gap-3 shadow-2xl">
+                    <span class="material-symbols-outlined text-eject-yellow animate-pulse">warning</span>
+                    <span class="text-sm font-bold text-white uppercase tracking-wider">Complete os módulos acima</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-30 w-[90%] max-w-md">
+        <div
+            class="glass-panel rounded-full p-2 pl-6 pr-2 flex items-center justify-between shadow-neon-blue/20 border-white/10">
+            <div class="flex flex-col">
+                <span class="text-[10px] text-gray-400 uppercase font-mono tracking-widest">Status da Missão</span>
+                <span id="floating-progress-text" class="text-sm font-bold text-white font-mono">0%</span>
+            </div>
+
+            <div class="w-32 h-2 bg-gray-800 rounded-full overflow-hidden border border-white/10 mx-4">
+                <div id="floating-progress-bar"
+                    class="h-full bg-gradient-to-r from-front-blue to-white-500 w-0 transition-all duration-700"></div>
+            </div>
+
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                <span class="material-symbols-outlined text-xs text-front-blue animate-pulse">rocket_launch</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="quizModal"
+        class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-black/90 backdrop-blur-md px-4 transition-opacity duration-300">
+        <div
+            class="glass-panel border border-white/10 p-8 rounded-2xl w-full max-w-md shadow-2xl relative animate-bounce-in overflow-hidden">
+
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-front-blue to-white-500"></div>
+
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Validação de Conhecimento
+                    </h3>
+                    <h2 class="text-xl font-bold text-white">Quiz Rápido</h2>
+                </div>
+                <span id="quizStepText"
+                    class="text-xs font-mono text-front-blue bg-front-blue/10 px-2 py-1 rounded border border-front-blue/20">1/3</span>
+            </div>
+
+            <div class="w-full bg-gray-800 h-1.5 rounded-full mb-8 overflow-hidden">
+                <div id="quizProgressBar"
+                    class="h-full bg-front-blue rounded-full transition-all duration-500 ease-out w-0 shadow-[0_0_10px_#bd00ff]">
+                </div>
+            </div>
+
+            <p id="modalQuestion" class="text-lg text-gray-200 font-medium mb-6 leading-relaxed">Carregando pergunta...
+            </p>
+
+            <div id="modalOptions" class="space-y-3 mb-6"></div>
+
+            <div id="quizFeedback" class="hidden mb-4 p-3 rounded-lg text-sm font-bold text-center animate-pulse"></div>
+
+            <div class="flex gap-3">
+                <button onclick="closeQuizModal()"
+                    class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-white transition-colors border border-transparent hover:border-white/10 rounded-xl uppercase tracking-widest">
+                    Cancelar
+                </button>
+                <button id="modalSubmitBtn"
+                    class="flex-[2] py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-transform active:scale-95 shadow-lg uppercase tracking-widest">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e
+                <strong class="font-semibold">compromisso</strong> pela EJECT© 2024-2025 - Todos os direitos
+                reservados.
+            </p>
+            <p class="text-xs text-gray-400">
+                <a href="termos_de_uso.html"
+                    class="text-blue-400 hover:text-blue-300 underline transition-colors duration-200">
+                    Termos de Uso
+                </a>
+            </p>
+        </div>
+    </footer>
+
+
+    <script src="../../../SIGAV/firebase-config.js"></script>
+    <script>
+        const TRACK_ID = 'frontend';
+        const LEVEL_ID = 'level1';
+
+        // Variáveis de Estado
+        let totalItems = 0;
+        let completedItems = 0;
+        let allContentData = {}; // Guarda todos os dados
+
+        // Estado local de dados para renderização
+        let globalContentData = null;
+        let globalUserProgress = {};
+
+        // Estado do Quiz Atual
+        let activeQuizArray = [];
+        let currentQuizIndex = 0;
+        let activeContentId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    initPage(user);
+                }
+            });
+        });
+
+        async function initPage(user) {
+            const container = document.getElementById('dynamic-content-container');
+            const loader = document.getElementById('content-loader');
+
+            const progressRef = db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks`);
+            const contentRef = db.ref(`contents/${TRACK_ID}/${LEVEL_ID}`);
+
+            // 1. LISTENER DE PROGRESSO (CORREÇÃO: Agora é .on, atualiza em tempo real)
+            progressRef.on('value', snapshot => {
+                globalUserProgress = snapshot.val() || {};
+
+                // Se o conteúdo já foi baixado, apenas re-renderiza para atualizar os checks
+                if (globalContentData) {
+                    renderContent(globalContentData, globalUserProgress);
+                }
+            });
+
+            // 2. LISTENER DE CONTEÚDO
+            contentRef.on('value', snapshot => {
+                loader.style.display = 'none';
+                globalContentData = snapshot.val();
+
+                if (!globalContentData) {
+                    container.innerHTML = '<p class="text-center text-gray-500 pt-10 relative z-10">Nenhum conteúdo disponível ainda.</p>';
+                    return;
+                }
+
+                // Armazena todos os dados para o quiz usar depois
+                allContentData = { ...globalContentData.videos, ...globalContentData.artigos, ...globalContentData.links, ...globalContentData.cursos };
+
+                renderContent(globalContentData, globalUserProgress);
+            });
+        }
+
+        function renderContent(data, userProgress) {
+            const container = document.getElementById('dynamic-content-container');
+            container.innerHTML = '';
+
+            // Linha decorativa
+            const line = document.createElement('div');
+            line.className = "absolute left-8 top-10 bottom-10 w-px bg-gradient-to-b from-front-blue via-white-500 to-transparent opacity-30 md:left-1/2 md:-ml-[0.5px] z-0";
+            container.appendChild(line);
+
+            totalItems = 0;
+            completedItems = 0;
+
+            // 1. VÍDEOS
+            if (data.videos) {
+                let count = 1;
+                Object.entries(data.videos).forEach(([key, item]) => {
+                    const isChecked = userProgress[key] === true;
+                    if (isChecked) completedItems++;
+                    totalItems++;
+
+                    const videoHTML = createVideoCard(key, item, count++, isChecked);
+                    container.insertAdjacentHTML('beforeend', videoHTML);
+                });
+            }
+
+            // 2. RECURSOS EXTRAS
+            if (data.artigos) createResourceGrid(container, 'Leitura Recomendada', 'article', 'text-green-400', 'bg-green-500', data.artigos, userProgress);
+            if (data.cursos) createResourceGrid(container, 'Cursos Externos', 'school', 'text-eject-yellow', 'bg-eject-yellow', data.cursos, userProgress);
+            if (data.links) createResourceGrid(container, 'Links Úteis', 'link', 'text-blue-400', 'bg-blue-500', data.links, userProgress);
+
+            updateVisualProgress();
+        }
+
+        // --- CORRETOR DE URL YOUTUBE ---
+        function getYouTubeEmbedUrl(url) {
+            if (!url) return '';
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                return `https://www.youtube.com/embed/${match[2]}?rel=0&modestbranding=1`;
+            } else {
+                return url;
+            }
+        }
+
+        // --- COMPONENTE: VÍDEO ---
+        function createVideoCard(key, item, index, isChecked) {
+            const embedUrl = getYouTubeEmbedUrl(item.url);
+
+            // Badge de Quiz
+            const quizCount = item.quiz ? (Array.isArray(item.quiz) ? item.quiz.length : 1) : 0;
+            const quizBadge = quizCount > 0
+                ? `<span class="inline-flex items-center gap-1 ml-3 px-2 py-0.5 rounded text-[10px] font-bold bg-front-blue/10 text-front-blue border border-front-blue/30 uppercase tracking-wide"><span class="material-symbols-outlined text-[10px]">quiz</span> Quiz (${quizCount})</span>`
+                : '';
+
+            return `
+            <div class="relative group z-10 mb-16">
+                <div class="absolute left-8 md:left-1/2 -translate-x-1/2 -top-4 z-10">
+                    <div class="w-8 h-8 rounded-full bg-space-dark border-2 border-front-blue flex items-center justify-center text-front-blue font-bold text-xs shadow-neon-blue">${index < 10 ? '0' + index : index}</div>
+                </div>
+
+                <div class="glass-panel rounded-3xl overflow-hidden hover:border-front-blue/30 transition-all duration-500">
+                    <div class="p-6 md:p-8 border-b border-white/5 bg-gradient-to-r from-front-blue/10 to-transparent">
+                        <h2 class="text-2xl font-bold text-white mb-1 flex items-center flex-wrap gap-2">
+                            ${item.title} ${quizBadge}
+                        </h2>
+                        <p class="text-sm text-gray-400 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">play_circle</span> Vídeo Aula
+                        </p>
+                    </div>
+
+                    <div class="p-6 md:p-8">
+                        <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl border border-white/10 bg-black">
+                            <iframe class="w-full h-full" src="${embedUrl}" title="${item.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <div class="mt-8 flex flex-col md:flex-row items-center gap-6 justify-between">
+                            <div class="text-gray-400 text-sm leading-relaxed max-w-lg">
+                                <strong class="text-white block mb-1">Sobre:</strong>
+                                ${item.description || 'Assista a aula completa para avançar.'}
+                            </div>
+
+                            <div class="w-full md:w-auto">
+                                <input type="checkbox" id="${key}" class="hidden" ${isChecked ? 'checked' : ''}>
+                                <label for="${key}" onclick="handleCheckAttempt('${key}', event)" class="cursor-pointer group block">
+                                    <div class="btn-content-unchecked flex items-center justify-center gap-3 px-6 py-4 bg-white/5 hover:bg-white/10 border border-white/20 rounded-xl transition-all active:scale-95">
+                                        <div class="w-5 h-5 rounded border-2 border-gray-500 group-hover:border-white"></div>
+                                        <span class="font-bold text-sm tracking-wide">MARCAR VISTO</span>
+                                    </div>
+                                    <div class="btn-content-checked hidden items-center justify-center gap-3 px-6 py-4 bg-blue-500/10 border border-blue-500 rounded-xl transition-all animate-pulse">
+                                        <span class="material-symbols-outlined text-blue-400">check_circle</span>
+                                        <span class="font-bold text-sm tracking-wide text-blue-400">CONCLUÍDO</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // --- COMPONENTE: GRID DE RECURSOS ---
+        function createResourceGrid(container, title, iconName, textColor, bgColor, items, userProgress) {
+            const section = document.createElement('div');
+            section.className = "relative z-10 mt-12 mb-8";
+
+            section.innerHTML = `
+                <div class="flex items-center gap-3 mb-6 px-2">
+                    <span class="material-symbols-outlined text-2xl ${textColor}">${iconName}</span>
+                    <h3 class="text-xl font-bold text-white">${title}</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            `;
+
+            const grid = section.querySelector('.grid');
+
+            Object.entries(items).forEach(([key, item]) => {
+                const isChecked = userProgress[key] === true;
+                if (isChecked) completedItems++;
+                totalItems++;
+
+                const quizBadge = item.quiz ? `<span class="text-[10px] text-front-blue border border-front-blue/50 px-1 rounded uppercase font-bold ml-2">Quiz</span>` : '';
+
+                grid.insertAdjacentHTML('beforeend', `
+                    <div class="resource-card rounded-2xl p-4 flex items-center gap-4 group">
+                        <div class="w-12 h-12 rounded-xl ${bgColor}/20 flex items-center justify-center flex-shrink-0 border border-white/5 group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined ${textColor}">${iconName}</span>
+                        </div>
+                        
+                        <div class="flex-grow min-w-0">
+                            <a href="${item.url}" target="_blank" class="block text-white font-bold text-sm hover:underline truncate pr-2 group-hover:text-${textColor.split('-')[1]}-300 transition-colors">
+                                ${item.title}
+                            </a>
+                            <div class="flex items-center gap-1">
+                                <p class="text-xs text-gray-400 line-clamp-1 mt-0.5">${item.description || 'Clique para acessar'}</p>
+                                ${quizBadge}
+                            </div>
+                        </div>
+
+                        <div class="flex-shrink-0">
+                            <input type="checkbox" id="${key}" class="hidden" ${isChecked ? 'checked' : ''}>
+                            <label for="${key}" onclick="handleCheckAttempt('${key}', event)" class="cursor-pointer w-10 h-10 rounded-full border border-gray-600 flex items-center justify-center hover:border-white transition-colors bg-black/40">
+                                <span class="btn-content-unchecked material-symbols-outlined text-gray-500 text-sm">check</span>
+                                <span class="btn-content-checked hidden material-symbols-outlined ${textColor} text-lg font-bold">check</span>
+                            </label>
+                        </div>
+                    </div>
+                `);
+            });
+
+            container.appendChild(section);
+        }
+
+        // --- SISTEMA DE QUIZ COMPLETO ---
+
+        function handleCheckAttempt(key, event) {
+            event.preventDefault(); // Impede o comportamento padrão do checkbox
+
+            const checkbox = document.getElementById(key);
+            if (checkbox.checked) {
+                // Se já estiver marcado, permite desmarcar (toggle)
+                saveProgress(key, false);
+                return;
+            }
+
+            const item = allContentData[key];
+
+            if (item && item.quiz) {
+                // Detecta se é o formato antigo (objeto) ou novo (array)
+                activeQuizArray = Array.isArray(item.quiz) ? item.quiz : [item.quiz];
+                currentQuizIndex = 0;
+                activeContentId = key;
+                openQuizModal();
+            } else {
+                // Se não tiver quiz, marca direto
+                saveProgress(key, true);
+            }
+        }
+
+        function openQuizModal() {
+            const quiz = activeQuizArray[currentQuizIndex];
+            const modal = document.getElementById('quizModal');
+            const feedback = document.getElementById('quizFeedback');
+
+            // Reset UI
+            feedback.classList.add('hidden');
+            document.getElementById('modalSubmitBtn').style.display = 'block';
+
+            // Atualiza barra de progresso do quiz
+            const currentStep = currentQuizIndex + 1;
+            const totalSteps = activeQuizArray.length;
+            document.getElementById('quizStepText').innerText = `${currentStep}/${totalSteps}`;
+            document.getElementById('quizProgressBar').style.width = `${(currentStep / totalSteps) * 100}%`;
+
+            // Preenche Pergunta
+            document.getElementById('modalQuestion').textContent = quiz.question;
+            const optsContainer = document.getElementById('modalOptions');
+            optsContainer.innerHTML = '';
+
+            // Preenche Opções
+            quiz.options.forEach((opt, index) => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <input type="radio" name="quizAnswer" id="opt_${index}" value="${index}" class="hidden peer">
+                    <label for="opt_${index}" class="block w-full p-4 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 hover:border-white/30 peer-checked:bg-front-blue peer-checked:border-front-blue peer-checked:text-white transition-all text-sm font-medium">
+                        ${opt}
+                    </label>
+                `;
+                optsContainer.appendChild(div);
+            });
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            document.getElementById('modalSubmitBtn').onclick = validateCurrentQuestion;
+        }
+
+        function validateCurrentQuestion() {
+            const selected = document.querySelector('input[name="quizAnswer"]:checked');
+            const feedback = document.getElementById('quizFeedback');
+
+            if (!selected) {
+                feedback.textContent = "Por favor, selecione uma opção.";
+                feedback.className = "mb-4 p-3 rounded-lg text-sm font-bold text-center bg-red-500/20 text-red-400 border border-red-500/30";
+                feedback.classList.remove('hidden');
+                return;
+            }
+
+            const answerIndex = parseInt(selected.value);
+            const correctIndex = activeQuizArray[currentQuizIndex].correctIndex;
+
+            if (answerIndex === correctIndex) {
+                // ACERTOU
+                if (currentQuizIndex < activeQuizArray.length - 1) {
+                    // Próxima Pergunta
+                    feedback.textContent = "Correto! Avançando...";
+                    feedback.className = "mb-4 p-3 rounded-lg text-sm font-bold text-center bg-green-500/20 text-green-400 border border-green-500/30";
+                    feedback.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        currentQuizIndex++;
+                        openQuizModal();
+                    }, 800);
+                } else {
+                    // TERMINOU O QUIZ - SUCESSO
+                    feedback.textContent = "Parabéns! Módulo concluído.";
+                    feedback.className = "mb-4 p-3 rounded-lg text-sm font-bold text-center bg-green-500/20 text-green-400 border border-green-500/30 shadow-[0_0_15px_rgba(74,222,128,0.2)]";
+                    feedback.classList.remove('hidden');
+
+                    // Salva e fecha após 1.5s
+                    setTimeout(() => {
+                        saveProgress(activeContentId, true);
+                        closeQuizModal();
+                    }, 1500);
+                }
+            } else {
+                // ERROU
+                feedback.textContent = "Resposta incorreta. Tente novamente.";
+                feedback.className = "mb-4 p-3 rounded-lg text-sm font-bold text-center bg-red-500/20 text-red-400 border border-red-500/30";
+                feedback.classList.remove('hidden');
+            }
+        }
+
+        function closeQuizModal() {
+            const modal = document.getElementById('quizModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            activeContentId = null;
+        }
+
+        function saveProgress(key, status) {
+            const user = auth.currentUser;
+            if (user) {
+                // Grava no Firebase. O listener .on no initPage vai pegar essa mudança e atualizar a tela.
+                db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks/${key}`).set(status);
+            }
+        }
+
+        // --- ATUALIZAÇÃO VISUAL DA PÁGINA ---
+        function updateVisualProgress() {
+            let pct = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+            const heroBar = document.getElementById('hero-progress-bar');
+            const floatBar = document.getElementById('floating-progress-bar');
+            const floatText = document.getElementById('floating-progress-text');
+
+            if (heroBar) heroBar.style.width = pct + '%';
+            if (floatBar) floatBar.style.width = pct + '%';
+            if (floatText) floatText.innerText = pct + '%';
+
+            // Desbloqueio do Desafio
+            const container = document.getElementById('final-challenge-container');
+            const overlay = document.getElementById('lock-overlay');
+            const btn = document.getElementById('btn-challenge');
+            const icon = document.getElementById('challenge-icon');
+
+            if (pct === 100 && totalItems > 0) {
+                // UNLOCK
+                container.classList.remove('blur-sm', 'grayscale', 'opacity-60', 'pointer-events-none');
+                container.classList.add('border-eject-yellow', 'shadow-neon-blue');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+
+                btn.disabled = false;
+                btn.classList.remove('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
+                btn.classList.add('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
+                btn.innerText = "INICIAR MISSÃO PRÁTICA";
+
+                icon.innerText = "lock_open";
+                icon.classList.remove('text-gray-500');
+                icon.classList.add('text-eject-yellow');
+                icon.parentElement.classList.add('bg-eject-yellow/20', 'border-eject-yellow');
+            } else {
+                // LOCK
+                container.classList.add('blur-sm', 'grayscale', 'opacity-60', 'pointer-events-none');
+                container.classList.remove('border-eject-yellow', 'shadow-neon-blue');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+
+                btn.disabled = true;
+                btn.classList.add('bg-white/5', 'text-gray-500', 'border-white/10', 'cursor-not-allowed');
+                btn.classList.remove('bg-eject-yellow', 'text-black', 'border-eject-yellow', 'hover:scale-105', 'shadow-lg', 'cursor-pointer');
+                btn.innerText = "Acesso Negado";
+
+                icon.innerText = "lock";
+                icon.classList.add('text-gray-500');
+                icon.classList.remove('text-eject-yellow');
+                icon.parentElement.classList.remove('bg-eject-yellow/20', 'border-eject-yellow');
+            }
+        }
+    </script>
+</body>
+
+</html>

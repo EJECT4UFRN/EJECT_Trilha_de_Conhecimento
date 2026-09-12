@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Validação de Desafios</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+
+<body class="text-slate-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <a href="../sigav_hub.html" class="text-2xl font-bold text-sky-700">
+                        SIGAV
+                    </a>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Central de
+                        Validação</span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+
+                    <span id="userNameDisplay"
+                        class="text-sm font-medium text-gray-700 hidden sm:block">Carregando...</span>
+
+                    <a href="../sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <button id="logoutBtn" title="Sair / Trocar Usuário"
+                        class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
+                        <i data-lucide="log-out" class="h-6 w-6"></i>
+                    </button>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="p-3 bg-yellow-100 text-yellow-600 rounded-lg"><i data-lucide="clock" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase">Pendentes</p>
+                    <h3 class="text-2xl font-bold text-slate-800" id="countPending">0</h3>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="p-3 bg-green-100 text-green-600 rounded-lg"><i data-lucide="check-circle-2"
+                        class="w-6 h-6"></i></div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase">Aprovados</p>
+                    <h3 class="text-2xl font-bold text-slate-800" id="countApproved">0</h3>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center gap-4">
+                <div class="p-3 bg-red-100 text-red-600 rounded-lg"><i data-lucide="x-circle" class="w-6 h-6"></i></div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase">Rejeitados</p>
+                    <h3 class="text-2xl font-bold text-slate-800" id="countRejected">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="font-bold text-slate-700 flex items-center gap-2">
+                    <i data-lucide="inbox" class="w-4 h-4 text-slate-400"></i> Fila de Submissões
+                </h2>
+                <button onclick="loadSubmissions()"
+                    class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Atualizar
+                </button>
+            </div>
+
+            <div id="submissionsList" class="divide-y divide-slate-100">
+                <div class="p-10 text-center text-slate-400">
+                    <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>
+                    Carregando fila...
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="reviewModal"
+        class="fixed inset-0 z-50 hidden flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-[scaleIn_0.2s_ease-out]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800" id="modalTitle">Avaliar Desafio</h3>
+                    <p class="text-sm text-slate-500" id="modalSubtitle">Submetido por Aluno</p>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x"
+                        class="w-5 h-5"></i></button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
+                    <span class="text-xs font-bold text-slate-400 uppercase block mb-1">Repositório / Link</span>
+                    <a id="modalLink" href="#" target="_blank"
+                        class="text-indigo-600 font-bold hover:underline break-all flex items-center gap-2">
+                        <span>https://github.com/...</span> <i data-lucide="external-link" class="w-3 h-3"></i>
+                    </a>
+                </div>
+
+                <div>
+                    <span class="text-xs font-bold text-slate-400 uppercase block mb-1">Observações do Aluno</span>
+                    <p id="modalNotes"
+                        class="text-sm text-slate-600 bg-white border border-slate-200 p-3 rounded-lg italic">
+                        "Sem observações."
+                    </p>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div class="bg-yellow-50 p-3 rounded border border-yellow-100 text-xs text-yellow-800">
+                    <strong class="block mb-1"><i data-lucide="alert-triangle" class="w-3 h-3 inline"></i> Ação
+                        Irreversível</strong>
+                    Ao aprovar, a insígnia será entregue automaticamente e o próximo nível será desbloqueado para o
+                    aluno.
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex gap-3">
+                <button onclick="rejectSubmission()" id="btnReject"
+                    class="flex-1 py-3 border border-red-200 text-red-600 font-bold rounded-lg hover:bg-red-50 transition-colors">
+                    Rejeitar
+                </button>
+                <button onclick="approveSubmission()" id="btnApprove"
+                    class="flex-[2] py-3 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-colors flex items-center justify-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i> Aprovar & Liberar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong
+                class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="../firebase-config.js"></script>
+    <script>
+        // 1. Inicializa Ícones
+        lucide.createIcons();
+
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // VARIÁVEIS GLOBAIS (O Segredo para não perder dados)
+        let currentSubmission = null;
+        let submissionsCache = {};
+
+        // 2. Auth Listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                loadUserInfo(user);
+                loadSubmissions();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function loadUserInfo(user) {
+            db.ref(`users/${user.uid}`).once('value').then(s => {
+                const val = s.val();
+                document.getElementById('userInfo').textContent = val?.name || user.email;
+            });
+        }
+
+        // 3. Carregar e Salvar no Cache
+        function loadSubmissions() {
+            const list = document.getElementById('submissionsList');
+            list.innerHTML = '<div class="p-10 text-center text-slate-400"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>Carregando...</div>';
+
+            db.ref('submissions').once('value').then(snapshot => {
+                const data = snapshot.val();
+                renderList(data);
+                lucide.createIcons();
+            });
+        }
+
+        function renderList(data) {
+            const list = document.getElementById('submissionsList');
+            list.innerHTML = '';
+
+            // --- AQUI ESTÁ A CORREÇÃO PRINCIPAL ---
+            // Salvamos os dados crus na variável global
+            submissionsCache = data || {};
+
+            let pending = 0, approved = 0, rejected = 0;
+
+            if (!data) {
+                list.innerHTML = '<div class="p-10 text-center text-slate-400">Nenhuma submissão encontrada.</div>';
+                updateStats(0, 0, 0);
+                return;
+            }
+
+            const entries = Object.entries(data).sort((a, b) => b[1].timestamp - a[1].timestamp);
+
+            entries.forEach(([id, sub]) => {
+                if (sub.status === 'pending') pending++;
+                else if (sub.status === 'approved') approved++;
+                else if (sub.status === 'rejected') rejected++;
+
+                if (sub.status !== 'pending') return;
+
+                const date = new Date(sub.timestamp).toLocaleDateString('pt-BR');
+
+                let trackColor = 'bg-gray-100 text-gray-600';
+                if (sub.track === 'uxui') trackColor = 'bg-purple-100 text-purple-700';
+                if (sub.track === 'frontend') trackColor = 'bg-sky-100 text-sky-700';
+                if (sub.track === 'backend') trackColor = 'bg-green-100 text-green-700';
+
+                const html = `
+                <div class="p-6 hover:bg-slate-50 transition flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500 uppercase">
+                            ${sub.userName ? sub.userName.substring(0, 2) : 'UK'}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">${sub.userName || 'Usuário Desconhecido'}</h4>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${trackColor} border border-opacity-20">${sub.track}</span>
+                                <span class="text-xs text-slate-400">• Nível: ${sub.level}</span>
+                                <span class="text-xs text-slate-400">• ${date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <a href="${sub.repoLink}" target="_blank" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Ver Link">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </a>
+                        <button onclick="openReview('${id}')" class="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition shadow-sm">
+                            Analisar
+                        </button>
+                    </div>
+                </div>
+            `;
+                list.insertAdjacentHTML('beforeend', html);
+            });
+
+            if (list.innerHTML === '') {
+                list.innerHTML = '<div class="p-10 text-center text-slate-400">Oba! Nenhuma pendência na fila.</div>';
+            }
+
+            updateStats(pending, approved, rejected);
+        }
+
+        function updateStats(p, a, r) {
+            document.getElementById('countPending').textContent = p;
+            document.getElementById('countApproved').textContent = a;
+            document.getElementById('countRejected').textContent = r;
+        }
+
+        // --- 4. ABRIR MODAL (Busca Segura) ---
+        function openReview(id) {
+            // Busca o objeto completo na memória usando o ID
+            const sub = submissionsCache[id];
+
+            if (!sub) {
+                alert("Erro: Dados não encontrados no cache.");
+                return;
+            }
+
+            // Agora currentSubmission está 100% integro
+            currentSubmission = { id, ...sub };
+
+            console.log("Review aberta para:", currentSubmission); // Debug
+
+            document.getElementById('modalTitle').innerText = `Avaliar ${sub.track ? sub.track.toUpperCase() : 'DESCONHECIDO'}`;
+            document.getElementById('modalSubtitle').innerText = `Enviado por ${sub.userName}`;
+
+            const linkEl = document.getElementById('modalLink');
+            linkEl.href = sub.repoLink;
+            // Verifica span para não quebrar
+            if (linkEl.querySelector('span')) linkEl.querySelector('span').innerText = sub.repoLink;
+            else linkEl.innerText = sub.repoLink;
+
+            document.getElementById('modalNotes').innerText = sub.notes || "Sem observações.";
+
+            document.getElementById('reviewModal').classList.remove('hidden');
+            document.getElementById('reviewModal').classList.add('flex');
+        }
+
+        function closeModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+            document.getElementById('reviewModal').classList.remove('flex');
+            currentSubmission = null;
+        }
+
+        // --- 5. APROVAR (Sua função ajustada) ---
+        async function approveSubmission() {
+            if (!currentSubmission) return;
+
+            console.log("Dados atuais:", currentSubmission); // Verifica se track e level estão aqui
+
+            const btn = document.getElementById('btnApprove');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Processando...`;
+            btn.disabled = true;
+
+            try {
+                const { id, userId, track, level } = currentSubmission;
+
+                // Normalização
+                const safeTrack = track ? track.trim().toLowerCase() : '';
+                const rawLevel = level ? level.toString().trim().toLowerCase() : '';
+
+                let normalizedLevel = rawLevel;
+                if (rawLevel === 'level1' || rawLevel === 'basico') normalizedLevel = 'basico';
+                else if (rawLevel === 'level2' || rawLevel === 'intermediario') normalizedLevel = 'intermediario';
+                else if (rawLevel === 'level3' || rawLevel === 'avancado') normalizedLevel = 'avancado';
+
+                const mapKey = `${safeTrack}_${normalizedLevel}`;
+                console.log("Chave gerada:", mapKey);
+
+                const BADGE_MAP = {
+                    'uxui_basico': { name: "UX/UI Básico", img: "../img/insignias/basico_uxui.svg" },
+                    'uxui_intermediario': { name: "UX/UI Intermediário", img: "../img/insignias/inter_uxui.png" },
+                    'uxui_avancado': { name: "UX/UI Avançado", img: "../img/insignias/avancado_uxui.png" },
+                    'frontend_basico': { name: "Frontend Básico", img: "../img/insignias/basico_front.png" },
+                    'frontend_intermediario': { name: "Frontend Intermediário", img: "../img/insignias/inter_front.png" },
+                    'frontend_avancado': { name: "Frontend Avançado", img: "../img/insignias/avan_front.png" },
+                    'backend_basico': { name: "Backend Básico", img: "../img/insignias/basico_back.svg" },
+                    'backend_intermediario': { name: "Backend Intermediário", img: "../img/insignias/inter_back.svg" },
+                    'backend_avancado': { name: "Backend Avançado", img: "../img/insignias/avancado_back.svg" }
+                };
+
+                let selectedBadge = BADGE_MAP[mapKey];
+
+                if (!selectedBadge) {
+                    console.warn(`Chave "${mapKey}" não encontrada. Usando fallback.`);
+                    selectedBadge = { name: "Missão Cumprida", img: "../img/logo.svg" }; // Fallback digno
+                }
+
+                const updates = {};
+                updates[`submissions/${id}/status`] = 'approved';
+                updates[`submissions/${id}/reviewedAt`] = firebase.database.ServerValue.TIMESTAMP;
+
+                const badgeId = mapKey;
+                updates[`users/${userId}/badges/${badgeId}`] = {
+                    id: badgeId,
+                    name: selectedBadge.name,
+                    image: selectedBadge.img,
+                    date: firebase.database.ServerValue.TIMESTAMP,
+                    isNew: true
+                };
+
+                let nextLevelKey = null;
+                if (normalizedLevel === 'basico') nextLevelKey = 'level2_unlocked';
+                if (normalizedLevel === 'intermediario') nextLevelKey = 'level3_unlocked';
+
+                if (nextLevelKey) {
+                    updates[`users/${userId}/progress/${safeTrack}/${nextLevelKey}`] = true;
+                }
+
+                await db.ref().update(updates);
+
+                alert(`Sucesso! Badge: ${selectedBadge.name}`);
+                closeModal();
+                loadSubmissions();
+
+            } catch (error) {
+                console.error(error);
+                alert("Erro: " + error.message);
+            } finally {
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        async function rejectSubmission() {
+            if (!currentSubmission) return;
+            if (!confirm("Tem certeza que deseja rejeitar?")) return;
+
+            const { id } = currentSubmission;
+            await db.ref(`submissions/${id}`).update({
+                status: 'rejected',
+                reviewedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            closeModal();
+            loadSubmissions();
+        }
+
+        // --- AUTH ---
+        function handleLogout() {
+            auth.signOut().then(() => window.location.href = 'login.html');
+        }
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                showDashboard(user);
+                document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            } else {
+                window.location.href = '../login.html';
+            }
+        });
+
+        async function showDashboard(user) {
+            const loadingScreen = document.getElementById('loadingScreen');
+
+            try {
+
+                // 2. Busca dados do Usuário (Nome)
+                const userRef = db.ref(`users/${user.uid}`);
+                const userSnapshot = await userRef.once('value');
+                const userData = userSnapshot.val() || {};
+                const userName = userData.name || user.displayName || user.email.split('@')[0];
+
+                // Atualiza textos na tela
+                const nameDisplay = document.getElementById('userNameDisplay');
+                if (nameDisplay) nameDisplay.textContent = userName;
+
+            } catch (error) {
+                console.error("Erro no dashboard:", error);
+            } finally {
+                // Esconde loading
+                if (loadingScreen) {
+                    loadingScreen.classList.add('loader-hidden');
+                    setTimeout(() => {
+                        loadingScreen.remove();
+                    }, 500);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

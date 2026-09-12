@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Dashboard</title>
-    <!-- Firebase SDKs -->
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
@@ -18,122 +20,186 @@
         body {
             font-family: "Inter", sans-serif;
             background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
-            color: #1f2937;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
+
+        .progress-fill {
+            transition: width 1s ease-in-out;
+        }
+
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
         }
+
         .dashboard-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.2); /* sky-600 shadow */
+            box-shadow: 0 15px 30px rgba(2, 132, 199, 0.2);
         }
-        
-        /* Melhorias específicas para mobile */
-        @media (max-width: 640px) {
-            .dashboard-card:active {
-                transform: translateY(-1px) scale(0.98);
-                transition: transform 0.1s ease-out;
-            }
-            
-            /* Melhora o touch target em dispositivos móveis */
-            .dashboard-card {
-                min-height: 160px;
-            }
-            
-            /* Otimiza o espaçamento vertical para mobile */
-            body {
-                padding-bottom: env(safe-area-inset-bottom);
-            }
+
+        .loader-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
         }
-        
-                
-        /* Layout sticky footer */
-        .page-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .content-wrapper {
-            flex: 1;
-        }
-        
     </style>
 </head>
-<body class="antialiased">
 
-    <!-- Dashboard Principal -->
-    <div id="dashboardContent" class="hidden page-container">
-        <div class="content-wrapper">
-            <header class="bg-white shadow-md sticky top-0 z-50">
-            <nav class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-16 sm:h-20">
-                    <div class="flex items-center min-w-0 flex-1 sm:flex-none">
-                        <span class="text-lg sm:text-2xl font-bold text-sky-700 truncate">
-                            <span id="welcomeMessage">Dashboard</span>
-                        </span>
-                    </div>
-                    <div class="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
-                        <!-- Botão de Voltar ao Hub -->
-                        <a href="sigav_hub.html" title="Voltar ao Hub SIGAV" class="p-1.5 sm:p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
-                            <i data-lucide="home" class="h-5 w-5 sm:h-6 sm:w-6"></i>
-                        </a>
-                        <!-- Botão de Perfil -->
-                        <a href="perfil.html" title="Meu Perfil" class="p-1.5 sm:p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
-                            <i data-lucide="user-circle-2" class="h-5 w-5 sm:h-6 sm:w-6"></i>
-                        </a>
-                        <!-- Botão de Logout -->
-                         <button id="logoutBtn" title="Sair / Trocar Usuário" class="p-1.5 sm:p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
-                            <i data-lucide="log-out" class="h-5 w-5 sm:h-6 sm:w-6"></i>
-                        </button>
-                        <!-- Logotipo da EJECT -->
-                        <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer" class="ml-1 sm:ml-2">
-                            <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-8 sm:h-10">
-                        </a>
-                    </div>
+<body class="antialiased text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <span class="text-2xl font-bold text-sky-700">
+                        SIGAV
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Dashboard</span>
                 </div>
-            </nav>
-        </header>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
 
-        <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-sky-800 mb-6 sm:mb-8 leading-tight">Suas Trilhas de Conhecimento</h1>
+                    <span id="userNameDisplay"
+                        class="text-sm font-medium text-gray-700 hidden sm:block">Carregando...</span>
 
-            <!-- Seção de Trilhas (Cartões) -->
-            <div id="trailsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                <!-- Cards de trilhas iniciadas serão inseridos aqui dinamicamente -->
-            </div>
-            <div id="noTrailsMessage" class="hidden text-center py-8 sm:py-12 bg-white rounded-xl shadow-md mx-2 sm:mx-0">
-                <i data-lucide="rocket" class="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-sky-500"></i>
-                <h2 class="mt-4 text-xl sm:text-2xl font-bold text-gray-700 px-4">Nenhuma trilha iniciada ainda!</h2>
-                <p class="text-gray-500 mt-2 px-4 text-sm sm:text-base">Parece que sua jornada de conhecimento está prestes a começar.</p>
-                <a href="../index.html" class="mt-4 sm:mt-6 inline-block bg-sky-600 text-white font-semibold py-2.5 px-5 sm:py-3 sm:px-6 rounded-lg shadow-md hover:bg-sky-700 transition-transform transform hover:scale-105 text-sm sm:text-base">
-                    Ver todas as trilhas
-                </a>
-            </div>
-        </main>
-        </div>
-        
-        <footer class="bg-sky-900 text-white text-center py-4 sm:py-6 mt-auto">
-            <div class="max-w-7xl mx-auto px-4">
-                <p class="text-xs sm:text-sm leading-relaxed mb-2">Feito com <strong class="font-semibold">foco</strong> e <strong class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
-                <p class="text-xs text-sky-200">
-                    <a href="../termos_de_uso.html" class="text-sky-200 hover:text-white underline transition-colors duration-200">
-                        Termos de Uso
+                    <a href="sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
                     </a>
-                </p>
+
+                    <a href="./perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <button id="logoutBtn" title="Sair / Trocar Usuário"
+                        class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
+                        <i data-lucide="log-out" class="h-6 w-6"></i>
+                    </button>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
             </div>
-        </footer>
+        </nav>
+    </header>
+
+    <div id="loadingScreen" class="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-600 mb-4"></div>
+        <p class="text-gray-600 font-medium animate-pulse">Carregando dashboard...</p>
     </div>
 
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
 
-    <!-- Firebase Config e Lógica de Autenticação -->
-    <script src="firebase-config.js"></script>
+        <div>
+            <h1 id="welcomeMessage" class="text-3xl font-extrabold text-sky-900">Olá!</h1>
+            <p class="text-gray-600 mt-1">Visão geral do seu desenvolvimento.</p>
+        </div>
+
+        <div id="heroTrackContainer" class="space-y-8">
+        </div>
+
+        <section>
+            <h2 class="text-2xl font-bold text-sky-800 mb-6 flex items-center gap-2">
+                <i data-lucide="layers" class="h-6 w-6 text-sky-600"></i>
+                Trilhas Complementares
+            </h2>
+
+            <div id="parallelTrailsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+            <div id="noTrailsMessage"
+                class="hidden text-center py-12 bg-white rounded-xl shadow-md border border-gray-100">
+                <i data-lucide="book-open" class="h-12 w-12 mx-auto text-sky-300"></i>
+                <h2 class="mt-4 text-xl font-bold text-gray-600">Nenhuma trilha complementar iniciada</h2>
+                <p class="text-gray-400 mt-2 text-sm">Explore o catálogo para começar novos aprendizados.</p>
+                <a href="../index.html"
+                    class="inline-flex mt-5 items-center gap-2 px-5 py-2.5 bg-sky-600 text-white font-bold rounded-lg transition-all shadow-lg hover:bg-sky-700">
+                    Explorar Trilhas
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-sky-900 text-white text-center py-6 mt-12">
+        <p class="text-sm">Feito com <strong class="font-semibold">foco</strong> e <strong
+                class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
+    </footer>
+
+    <div id="newBadgeModal"
+        class="fixed inset-0 z-[100] hidden flex-col items-center justify-center bg-black/90 backdrop-blur-xl px-4">
+        <div
+            class="relative w-full max-w-md transform overflow-hidden rounded-3xl border border-white/10 bg-[#0B0E14] shadow-[0_0_100px_rgba(255,204,0,0.3)] transition-all animate-[bounce-in_0.5s_ease-out]">
+
+            <div class="absolute inset-0 bg-gradient-to-b from-sky-500/20 to-transparent opacity-50"></div>
+
+            <div class="relative p-8 text-center">
+                <h2 class="text-3xl font-black text-white mb-2 uppercase italic tracking-wide drop-shadow-lg">Nova
+                    Conquista!</h2>
+                <p class="text-sky-300 text-sm font-bold tracking-widest uppercase mb-8">Missão Aprovada pelo
+                    Comando</p>
+
+                <div class="relative mx-auto mb-8 h-48 w-48 group flex items-center justify-center">
+                    <div class="absolute w-full h-full rounded-full bg-sky-500 blur-3xl opacity-40 animate-pulse">
+                    </div>
+                    <div
+                        class="absolute -inset-4 rounded-full border border-dashed border-white/20 animate-[spin_12s_linear_infinite]">
+                    </div>
+                    <img id="newBadgeImage" src="" alt="Nova Insígnia"
+                        class="relative z-10 h-full w-full object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] animate-float">
+                </div>
+
+                <h3 id="newBadgeName" class="text-2xl font-bold text-white mb-2">Nome da Insígnia</h3>
+                <p class="text-gray-400 text-sm mb-8">Seu código foi validado e aprovado. Você subiu de nível!</p>
+
+                <button onclick="claimBadge()"
+                    class="w-full py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-sky-900/50 uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i data-lucide="award" class="w-5 h-5"></i>
+                    Coletar Recompensa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./firebase-config.js"></script>
+
     <script>
-        // As variáveis 'auth' e 'db' são definidas globalmente em firebase-config.js
+        lucide.createIcons();
+        const auth = firebase.auth();
+        const db = firebase.database();
 
-        // --- Estrutura de Dados de Todas as Trilhas ---
+        // --- CONFIGURAÇÃO: DEFINIÇÃO DAS TRILHAS ESPECIAIS (HERO) ---
+        const SPECIALIZATIONS = {
+            'uxui': {
+                id: 'uxui',
+                title: 'O Astronauta vai à Lua (UX/UI)',
+                subtitle: 'Especialização em Design de Interfaces.',
+                colorHex: '#BD00FF',
+                colorTailwind: 'purple',
+                icon: 'rocket',
+                link: '../nivelamento/uxui/trilha_uxui.html'
+            },
+            'frontend': {
+                id: 'frontend',
+                title: 'O Astronauta vai à Lua (Frontend)',
+                subtitle: 'Especialização em Desenvolvimento Web.',
+                colorHex: '#3B82F6',
+                colorTailwind: 'blue',
+                icon: 'code',
+                link: '../nivelamento/front/trilha_front.html'
+            },
+            'backend': {
+                id: 'backend',
+                title: 'O Astronauta vai à Lua (Backend)',
+                subtitle: 'Especialização em Arquitetura e Dados.',
+                colorHex: '#10B981',
+                colorTailwind: 'green',
+                icon: 'server',
+                link: '../nivelamento/back/trilha_back.html'
+            }
+        };
+
+        // --- LISTA DE TRILHAS PADRÃO (PARALELAS) ---
         const ALL_TRAILS = [
             { id: 'html_e_css', title: 'HTML 5 e CSS 3', description: 'Fundamentos do desenvolvimento web, da semântica à responsividade.', link: '../Trilhas/html_e_css.html', totalTopics: 12 },
             { id: 'javaScript', title: 'JavaScript Essencial', description: 'Lógica, manipulação do DOM e os primeiros passos na interatividade.', link: '../Trilhas/javaScript.html', totalTopics: 5 },
@@ -154,18 +220,407 @@
             { id: 'historia_eject', title: 'História da EJECT', description: 'Conheça a trajetória e os valores da nossa empresa.', link: '../Trilhas/historia_eject.html', totalTopics: 4 },
         ];
 
-        // --- Funções de Lógica do Progresso ---
 
-        function calculateProgress(progressData, totalTopics) {
-            if (!progressData || typeof progressData !== 'object' || totalTopics === 0) {
-                return { completed: 0, percentage: 0 };
+        // 1. CONTROLADOR PRINCIPAL
+        async function showDashboard(user) {
+            const loadingScreen = document.getElementById('loadingScreen');
+
+            try {
+                // 1. Busque o conteúdo do banco (Para contar quantos itens existem)
+                const contentSnap = await db.ref('contents').once('value');
+                const allContent = contentSnap.val() || {};
+
+                // 2. Busca dados do Usuário (Nome)
+                const userRef = db.ref(`users/${user.uid}`);
+                const userSnapshot = await userRef.once('value');
+                const userData = userSnapshot.val() || {};
+                const userName = userData.name || user.displayName || user.email.split('@')[0];
+
+                // 3. NOVO: Busca as Submissões do usuário (Para status "Em Análise")
+                const subSnap = await db.ref('submissions').orderByChild('userId').equalTo(user.uid).once('value');
+                const submissionsObj = subSnap.val() || {};
+                // Transforma o objeto do Firebase em um Array simples
+                const userSubmissions = Object.values(submissionsObj);
+
+                // 4. Verifica se tem insígnias novas para explodir o modal (Confete)
+                await checkNewBadges(user.uid);
+
+                // Atualiza textos na tela
+                const nameDisplay = document.getElementById('userNameDisplay');
+                if (nameDisplay) nameDisplay.textContent = userName;
+
+                const welcomeMsg = document.getElementById('welcomeMessage');
+                if (welcomeMsg) welcomeMsg.textContent = `Olá, ${userName.split(' ')[0]}!`;
+
+                // 5. Carrega os cards passando: UID, Conteúdos e Submissões
+                // ATENÇÃO: Adicionei 'userSubmissions' como 3º parâmetro
+                await loadDashboardData(user.uid, allContent, userSubmissions);
+
+            } catch (error) {
+                console.error("Erro no dashboard:", error);
+            } finally {
+                // Esconde loading
+                if (loadingScreen) {
+                    loadingScreen.classList.add('loader-hidden');
+                    setTimeout(() => {
+                        loadingScreen.remove();
+                    }, 500);
+                }
             }
-            const completedCount = Object.values(progressData).filter(status => status === true).length;
-            const percentage = Math.round((completedCount / totalTopics) * 100);
-            return { completed: completedCount, percentage };
         }
 
-        function createTrailCard(trail, percentage) {
+        // 2. LÓGICA DE DADOS DO DASHBOARD
+        async function loadDashboardData(uid, allContent, userSubmissions = []) {
+            // Busca o progresso do usuário
+            const progressRef = db.ref(`users/${uid}/progress`);
+            const snapshot = await progressRef.once('value');
+            const allProgress = snapshot.val() || {};
+
+            const heroContainer = document.getElementById('heroTrackContainer');
+            const gridContainer = document.getElementById('parallelTrailsGrid');
+            const noTrailsMsg = document.getElementById('noTrailsMessage');
+
+            heroContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
+
+            const userTrailIds = Object.keys(allProgress);
+
+            // A. FILTRA E RENDERIZA AS ESPECIALIZAÇÕES (HERO)
+            // Filtra quais especializações o usuário iniciou
+            const activeSpecializations = userTrailIds.filter(id => SPECIALIZATIONS[id]);
+
+            if (activeSpecializations.length > 0) {
+                activeSpecializations.forEach(specId => {
+                    // Passamos allContent para a função calcular
+                    const heroHTML = getHeroCardHTML(specId, allProgress[specId], allContent, userSubmissions);
+                    heroContainer.innerHTML += heroHTML;
+                });
+            } else {
+                heroContainer.innerHTML = `
+                    <div class="bg-white rounded-2xl shadow-lg border border-sky-100 p-8 text-center">
+                        <div class="bg-sky-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="compass" class="h-8 w-8 text-sky-600"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">Comece sua Jornada</h2>
+                        <p class="text-gray-500 mb-6 max-w-md mx-auto">Você não escolheu nenhuma especialidade para iniciar a jornada "O astronauta vai à lua". </p> 
+                        <a href="../nivelamento/index.html"
+                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-sky-600 text-white font-bold rounded-lg transition-all shadow-lg hover:bg-sky-700">
+                            Acessar a trilha "O astronauta vai à lua"
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a> 
+                    </div>
+                `;
+            }
+
+            // B. RENDERIZA TRILHAS PARALELAS
+            let parallelCount = 0;
+            userTrailIds.forEach(trailId => {
+                if (SPECIALIZATIONS[trailId]) return; // Pula se for hero
+
+                const trailInfo = ALL_TRAILS.find(t => t.id === trailId);
+
+                if (trailInfo) {
+                    const { percentage } = calculateGenericProgress(allProgress[trailId], trailInfo.totalTopics);
+                    const card = createParallelCard(trailInfo, percentage);
+                    gridContainer.insertAdjacentHTML('beforeend', card);
+                    parallelCount++;
+                }
+            });
+
+            if (parallelCount === 0) noTrailsMsg.classList.remove('hidden');
+            else noTrailsMsg.classList.add('hidden');
+
+            lucide.createIcons();
+        }
+
+        // ============================================================
+        // GERADOR DE HTML DO HERO (CARD PRINCIPAL)
+        // ============================================================
+        function getHeroCardHTML(specId, progressData, allContent = {}, userSubmissions = []) {
+
+            // 1. Configuração da Trilha (Cores, Ícones, Títulos)
+            const spec = SPECIALIZATIONS[specId];
+            if (!spec) return ''; // Se não achar a config, não renderiza nada
+
+            // 2. Helper interno para contar itens reais do banco
+            function countTotalItems(levelId) {
+                const levelData = allContent[specId]?.[levelId];
+                if (!levelData) return 0;
+
+                let total = 0;
+                if (levelData.videos) total += Object.keys(levelData.videos).length;
+                if (levelData.artigos) total += Object.keys(levelData.artigos).length;
+                if (levelData.links) total += Object.keys(levelData.links).length;
+                if (levelData.cursos) total += Object.keys(levelData.cursos).length;
+                return total;
+            }
+
+            // 3. Helper para buscar o STATUS DO DESAFIO (Correção do "Chumbado")
+            function getSubmissionStatus(friendlyLevelName) {
+                if (!userSubmissions || userSubmissions.length === 0) return null;
+
+                // Mapeamento: O dashboard usa nomes amigáveis, mas o banco pode ter 'level1'
+                let dbLevelName = friendlyLevelName;
+                if (friendlyLevelName === 'basico') dbLevelName = 'level1';
+                if (friendlyLevelName === 'intermediario') dbLevelName = 'level2';
+                if (friendlyLevelName === 'avancado') dbLevelName = 'level3';
+
+                // Filtra as submissões dessa trilha e desse nível (aceita os dois nomes)
+                const sub = userSubmissions
+                    .filter(s => s.track === specId && (s.level === dbLevelName || s.level === friendlyLevelName))
+                    .sort((a, b) => b.timestamp - a.timestamp)[0]; // Pega a mais recente
+
+                console.log(`Submissão para ${specId} - ${friendlyLevelName}:`, sub);
+
+                return sub ? sub.status : null; // retorna 'pending', 'approved', 'rejected' ou null
+            }
+
+            // --- CÁLCULO NÍVEL 1 (Básico) ---
+            const total1 = countTotalItems('level1');
+            let lvl1Pct = 0;
+            if (progressData.level1 && progressData.level1.tasks) {
+                const done = Object.values(progressData.level1.tasks).filter(v => v === true).length;
+                lvl1Pct = total1 > 0 ? Math.round((done / total1) * 100) : 0;
+            }
+            if (lvl1Pct > 100) lvl1Pct = 100;
+
+            // Busca status (mapeia 'basico' -> 'level1')
+            const status1 = getSubmissionStatus('basico');
+
+
+            // --- CÁLCULO NÍVEL 2 (Intermediário) ---
+            const total2 = countTotalItems('level2');
+            let lvl2Unlocked = progressData.level2_unlocked === true;
+            let lvl2Pct = 0;
+            if (progressData.level2 && progressData.level2.tasks) {
+                const done = Object.values(progressData.level2.tasks).filter(v => v === true).length;
+                lvl2Pct = total2 > 0 ? Math.round((done / total2) * 100) : 0;
+            }
+            if (lvl2Pct > 100) lvl2Pct = 100;
+
+            const status2 = getSubmissionStatus('intermediario');
+
+
+            // --- CÁLCULO NÍVEL 3 (Avançado) ---
+            const total3 = countTotalItems('level3');
+            let lvl3Unlocked = progressData.level3_unlocked === true;
+            let lvl3Pct = 0;
+            if (progressData.level3 && progressData.level3.tasks) {
+                const done = Object.values(progressData.level3.tasks).filter(v => v === true).length;
+                lvl3Pct = total3 > 0 ? Math.round((done / total3) * 100) : 0;
+            }
+            if (lvl3Pct > 100) lvl3Pct = 100;
+
+            const status3 = getSubmissionStatus('avancado');
+
+            // Média Geral
+            const overallPct = Math.round((lvl1Pct + lvl2Pct + lvl3Pct) / 3);
+
+            // --- RETORNO DO HTML COMPLETO ---
+            return `
+                <section class="bg-white rounded-2xl shadow-lg border border-sky-100 overflow-hidden relative transition-all hover:shadow-xl mb-8">
+                    <div class="bg-gradient-to-r from-[#0B0E14] to-${spec.colorTailwind}-900 p-6 sm:p-8 text-white relative overflow-hidden" style="background: linear-gradient(90deg, #0B0E14 0%, ${spec.colorHex} 100%);">
+                        <div class="absolute top-0 right-0 p-8 opacity-10">
+                            <i data-lucide="${spec.icon}" class="w-32 h-32"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold uppercase tracking-widest mb-3 text-white">
+                                <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                                Especialização Ativa
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <h2 class="text-2xl sm:text-3xl font-black mb-2">${spec.title}</h2>
+                                    <p class="text-white/80 text-sm max-w-xl">${spec.subtitle}</p>
+                                </div>
+                                <div class="text-right hidden sm:block">
+                                    <span class="text-4xl font-black">${overallPct}%</span>
+                                    <span class="block text-xs uppercase opacity-70">Concluído</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <a href="${spec.link}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-${spec.colorTailwind}-600 font-bold rounded-lg transition-all shadow-lg hover:bg-gray-100" style="color: ${spec.colorHex}">
+                                    Continuar Missão
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6 grid md:grid-cols-3 gap-6 bg-white">
+                        ${renderLevelCard(1, 'Básico', lvl1Pct, false, spec.colorHex, total1, status1)}
+                        ${renderLevelCard(2, 'Intermediário', lvl2Pct, lvl2Unlocked, spec.colorHex, total2, status2)}
+                        ${renderLevelCard(3, 'Avançado', lvl3Pct, lvl3Unlocked, spec.colorHex, total3, status3)}
+                    </div>
+                </section>
+            `;
+        }
+
+        function renderLevelCard(level, title, pct, unlocked, colorHex, totalItems, submissionStatus) {
+
+            console.log(`Renderizando Nível ${level}: ${title} - ${pct}% - Desbloqueado: ${unlocked} - Status Submissão: ${submissionStatus}`);
+
+            // 1. LIMPEZA DE DADOS (CRUCIAL)
+            // Se o progresso é 0%, garantimos que não existe status de envio.
+            if (pct === 0) submissionStatus = null;
+
+            // 2. FLAGS BOOLEANAS (A Lógica que você pediu)
+            const tasksFinished = pct === 100;                 // Terminou de assistir tudo?
+            const hasSubmission = (submissionStatus !== null && submissionStatus !== undefined && submissionStatus !== ''); // Já enviou o desafio?
+
+            // Status específicos
+            const isApproved = submissionStatus === 'approved';
+            const isPending = submissionStatus === 'pending';
+            const isRejected = submissionStatus === 'rejected';
+
+            // 3. MÁQUINA DE ESTADOS
+            // Define qual o cenário atual (apenas um por vez)
+            let currentState = 'LOCKED';
+
+            if (isPending) {
+                // Prioridade 1: Enviou e está esperando (independente de %)
+                currentState = 'WAITING_REVIEW';
+
+            } else if (isApproved && tasksFinished) {
+                // Prioridade 2: Aprovado E terminou aulas -> GANHA A INSÍGNIA
+                currentState = 'COMPLETED';
+
+            } else if (isRejected) {
+                // Prioridade 3: Foi rejeitado (precisa ver o feedback)
+                currentState = 'REJECTED';
+
+            } else if (tasksFinished && !hasSubmission) {
+                // Prioridade 4: Terminou as aulas (100%), mas NÃO enviou o desafio ainda.
+                // É AQUI QUE CORRIGIMOS O BUG. Ele cai aqui em vez de 'COMPLETED'.
+                currentState = 'READY_TO_SEND';
+
+            } else if (pct > 0 || unlocked || level === 1) {
+                // Prioridade 5: Está fazendo as aulas
+                currentState = 'IN_PROGRESS';
+            }
+
+            // 4. CONFIGURAÇÃO VISUAL
+            let statusText = "Bloqueado";
+            let statusClass = "text-gray-400";
+            let barColor = "bg-gray-200";
+            let icon = "lock";
+            let iconBg = "bg-gray-100 text-gray-400";
+            let statusBadge = "";
+
+            // Helpers para cor dinâmica
+            const dynamicText = `color: ${colorHex}`;
+            const dynamicBg = `background-color: ${colorHex}`;
+            let inlineTextStyle = '';
+            let inlineBarStyle = '';
+
+            console.log(`Nível ${level} - Estado Atual: ${currentState}`);
+
+            switch (currentState) {
+                case 'WAITING_REVIEW':
+                    statusText = "Em Análise";
+                    statusClass = "text-amber-500 font-extrabold";
+                    barColor = "bg-amber-400 animate-pulse";
+                    icon = "hourglass";
+                    iconBg = "bg-amber-100 text-amber-600";
+                    statusBadge = `
+                <div class="mt-2 flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-2 py-1 rounded text-[10px] text-amber-700 font-bold uppercase tracking-wide">
+                    <i data-lucide="clock" class="w-3 h-3"></i> Aguardando Validação
+                </div>`;
+                    break;
+
+                case 'COMPLETED':
+                    statusText = "Validado";
+                    statusClass = "text-green-600";
+                    barColor = "bg-green-500";
+                    icon = "check-circle-2";
+                    iconBg = "bg-green-100 text-green-600";
+                    statusBadge = `
+                <div class="mt-2 flex items-center gap-1.5 bg-green-50 border border-green-200 px-2 py-1 rounded text-[10px] text-green-700 font-bold uppercase tracking-wide">
+                    <i data-lucide="medal" class="w-3 h-3"></i> Insígnia Conquistada
+                </div>`;
+                    break;
+
+                case 'REJECTED':
+                    statusText = "Revisão Necessária";
+                    statusClass = `text-[${colorHex}]`;
+                    inlineTextStyle = dynamicText;
+                    barColor = `bg-[${colorHex}]`;
+                    inlineBarStyle = dynamicBg;
+                    icon = "alert-circle";
+                    iconBg = "bg-red-100 text-red-600";
+                    statusBadge = `
+                <div class="mt-2 flex items-center gap-1.5 bg-red-50 border border-red-200 px-2 py-1 rounded text-[10px] text-red-700 font-bold uppercase tracking-wide">
+                    <i data-lucide="alert-circle" class="w-3 h-3"></i> Verifique o Feedback no Github
+                </div>`;
+                    break;
+
+                case 'READY_TO_SEND':
+                    statusText = "Pronto para o Desafio";
+                    // Usa as cores do nível, NÃO usa verde de validado
+                    statusClass = `text-[${colorHex}]`;
+                    inlineTextStyle = dynamicText;
+                    barColor = `bg-[${colorHex}]`;
+                    inlineBarStyle = dynamicBg;
+                    icon = "send"; // Ícone de envio para incentivar a ação
+                    iconBg = `bg-gray-100 text-[${colorHex}]`;
+                    break;
+
+                case 'IN_PROGRESS':
+                    statusText = pct > 0 ? "Em andamento" : (level === 1 ? "Disponível" : "Desbloqueado");
+                    statusClass = `text-[${colorHex}]`;
+                    inlineTextStyle = dynamicText;
+                    barColor = `bg-[${colorHex}]`;
+                    inlineBarStyle = dynamicBg;
+                    icon = "play-circle";
+                    iconBg = `bg-gray-100 text-[${colorHex}]`;
+                    break;
+            }
+
+            const itemsText = totalItems > 0 ? `${totalItems} atividades` : 'Em breve';
+
+            return `
+                <div class="border border-gray-100 rounded-xl p-4 hover:bg-gray-50 transition-colors flex flex-col h-full relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Nível 0${level}</span>
+                            <h3 class="font-bold text-gray-800 text-sm md:text-base">${title}</h3>
+                        </div>
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 ${iconBg}" style="${inlineTextStyle}">
+                            <i data-lucide="${icon}" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-auto">
+                        <div class="flex items-end justify-between mb-1">
+                            <div>
+                                <span class="text-2xl font-black text-gray-800">${pct}%</span>
+                                <span class="text-[10px] text-gray-400 ml-1">${itemsText}</span>
+                            </div>
+                            <span class="text-xs font-bold mb-1 uppercase tracking-wide ${statusClass}" style="${inlineTextStyle}">${statusText}</span>
+                        </div>
+                        
+                        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div class="h-2 rounded-full w-0 progress-fill ${barColor}" style="width: ${pct}%; ${inlineBarStyle}"></div>
+                        </div>
+
+                        ${statusBadge}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============================================================
+        // HELPERS GERAIS
+        // ============================================================
+        function calculateGenericProgress(progressData, totalTopics) {
+            if (!progressData || typeof progressData !== 'object' || totalTopics === 0) return { percentage: 0 };
+            const completedCount = Object.values(progressData).filter(status => status === true).length;
+            const percentage = Math.round((completedCount / totalTopics) * 100);
+            return { percentage };
+        }
+
+        function createParallelCard(trail, percentage) {
             const isCompleted = percentage === 100;
             const borderColor = isCompleted ? 'border-green-500' : 'border-sky-500';
             const textColor = isCompleted ? 'text-green-700' : 'text-sky-700';
@@ -173,17 +628,16 @@
             const icon = isCompleted ? 'check-circle-2' : 'arrow-right';
 
             return `
-                <a href="${trail.link}" class="dashboard-card block bg-white rounded-xl p-4 sm:p-6 shadow-lg card-shadow border-t-4 ${borderColor} transition transform duration-300">
-                    <div class="flex items-start justify-between mb-3 sm:mb-4">
-                        <h2 class="text-lg sm:text-xl font-bold ${textColor} leading-tight flex-1 pr-2">${trail.title}</h2>
-                        <i data-lucide="${icon}" class="h-5 w-5 sm:h-6 sm:w-6 ${textColor.replace('700', '500')} flex-shrink-0 mt-0.5"></i>
+                <a href="${trail.link}" class="dashboard-card block bg-white rounded-xl p-6 shadow-lg card-shadow border-t-4 ${borderColor} transition transform duration-300">
+                    <div class="flex items-start justify-between mb-4">
+                        <h2 class="text-lg font-bold ${textColor} leading-tight flex-1 pr-2">${trail.title}</h2>
+                        <i data-lucide="${icon}" class="h-6 w-6 ${textColor.replace('700', '500')} flex-shrink-0"></i>
                     </div>
-                    <p class="text-gray-600 mb-4 text-sm sm:text-base leading-relaxed">${trail.description}</p>
-                    
-                    <div class="mt-3 sm:mt-4">
-                        <h3 class="text-xs sm:text-sm font-semibold ${textColor} mb-2">Seu Progresso:</h3>
-                        <div class="w-full bg-gray-200 rounded-full h-2 sm:h-2.5">
-                            <div class="h-2 sm:h-2.5 rounded-full ${bgColor} transition-all duration-500 ease-in-out" style="width: ${percentage}%"></div>
+                    <p class="text-gray-600 mb-4 text-sm leading-relaxed">${trail.description}</p>
+                    <div class="mt-4">
+                        <h3 class="text-xs font-semibold ${textColor} mb-2">Seu Progresso:</h3>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="h-2.5 rounded-full ${bgColor} transition-all duration-500" style="width: ${percentage}%"></div>
                         </div>
                         <p class="text-xs font-medium mt-1.5 text-gray-500 text-right">${percentage}%</p>
                     </div>
@@ -191,89 +645,11 @@
             `;
         }
 
-        async function loadStartedTrails(userId) {
-            const container = document.getElementById('trailsContainer');
-            const noTrailsMessage = document.getElementById('noTrailsMessage');
-            const welcomeMessage = document.getElementById('welcomeMessage');
-            
-            container.innerHTML = '<p class="text-gray-500 col-span-full text-center text-sm sm:text-base py-8">Carregando seu progresso...</p>';
-
-            try {
-                const progressRef = db.ref(`users/${userId}/progress`);
-                const snapshot = await progressRef.once('value');
-                const allProgress = snapshot.val();
-
-                container.innerHTML = ''; // Limpa o estado de carregamento
-
-                if (!allProgress || Object.keys(allProgress).length === 0) {
-                    noTrailsMessage.classList.remove('hidden');
-                    return;
-                }
-
-                const trailIds = Object.keys(allProgress);
-                let startedTrailsCount = 0;
-
-                trailIds.forEach(trailId => {
-                    const progressData = allProgress[trailId];
-                    const trail = ALL_TRAILS.find(t => t.id === trailId);
-
-                    if (trail && progressData) {
-                        startedTrailsCount++;
-                        const { percentage } = calculateProgress(progressData, trail.totalTopics);
-                        const cardHTML = createTrailCard(trail, percentage);
-                        container.insertAdjacentHTML('beforeend', cardHTML);
-                    }
-                });
-
-                if (startedTrailsCount === 0) {
-                    noTrailsMessage.classList.remove('hidden');
-                } else {
-                    noTrailsMessage.classList.add('hidden');
-                }
-
-            } catch (error) {
-                console.error("Erro ao carregar progresso do Realtime Database:", error);
-                container.innerHTML = '<p class="text-red-500 col-span-full text-center text-sm sm:text-base py-8 px-4">Não foi possível carregar seu progresso. Tente recarregar a página.</p>';
-            } finally {
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-            }
-        }
-        
-        // --- Funções de Autenticação e Inicialização ---
-
-        async function showDashboard(user) {
-            document.getElementById('dashboardContent').classList.remove('hidden');
-            
-            try {
-                // Busca os dados do usuário
-                const userRef = db.ref(`users/${user.uid}`);
-                const userSnapshot = await userRef.once('value');
-
-                const userData = userSnapshot.val() || {};
-                const userName = userData.name || user.displayName || user.email.split('@')[0];
-                document.getElementById('welcomeMessage').textContent = `Olá, ${userName}!`;
-
-            } catch (error) {
-                console.error("Erro ao buscar dados do usuário:", error);
-                const fallbackName = user.displayName || user.email.split('@')[0];
-                document.getElementById('welcomeMessage').textContent = `Olá, ${fallbackName}!`;
-            }
-            
-            loadStartedTrails(user.uid);
-        }
-
+        // --- AUTH ---
         function handleLogout() {
-            auth.signOut().then(() => {
-                window.location.href = 'login.html';
-            }).catch((error) => {
-                console.error("Erro ao fazer logout:", error);
-                alert("Ocorreu um erro ao tentar sair. Tente novamente.");
-            });
+            auth.signOut().then(() => window.location.href = 'login.html');
         }
 
-        // --- Verificação de Estado de Autenticação ---
         auth.onAuthStateChanged(user => {
             if (user) {
                 showDashboard(user);
@@ -283,8 +659,104 @@
             }
         });
 
+
+        // --- LÓGICA DE BADGES NOVAS ---
+        // Variável para guardar o ID da badge que está sendo mostrada
+        let pendingBadgeId = null;
+
+        async function checkNewBadges(uid) {
+            try {
+                const badgesRef = db.ref(`users/${uid}/badges`);
+                const snapshot = await badgesRef.once('value');
+                const badges = snapshot.val();
+
+                // Log para Debug: Verifique no console (F12) o que aparece aqui
+                console.log("Minhas Badges:", badges);
+
+                if (!badges) return;
+
+                // Procura a primeira badge que tem isNew: true
+                const newBadgeEntry = Object.entries(badges).find(([key, badge]) => badge.isNew === true);
+
+                if (newBadgeEntry) {
+                    const [key, badge] = newBadgeEntry;
+                    console.log("Nova conquista encontrada:", badge);
+
+                    pendingBadgeId = key; // Guarda o ID para remover o flag depois
+
+                    // Elementos do DOM
+                    const imgEl = document.getElementById('newBadgeImage');
+                    const nameEl = document.getElementById('newBadgeName');
+                    const modalEl = document.getElementById('newBadgeModal');
+
+                    if (imgEl && nameEl && modalEl) {
+                        // Preenche o Modal
+                        imgEl.src = badge.image || 'ai dento';
+                        nameEl.innerText = badge.name;
+
+                        // Abre o Modal
+                        modalEl.classList.remove('hidden');
+                        modalEl.classList.add('flex');
+
+                        // Chama o confete (se a função existir)
+                        if (typeof createConfetti === 'function') createConfetti();
+                    } else {
+                        console.error("Erro: Elementos do Modal de Badge não encontrados no HTML.");
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao verificar badges:", error);
+            }
+        }
+
+        async function claimBadge() {
+            if (!pendingBadgeId) return;
+
+            const uid = auth.currentUser.uid;
+
+            // Remove a flag isNew para não mostrar de novo
+            await db.ref(`users/${uid}/badges/${pendingBadgeId}/isNew`).remove();
+
+            // Fecha modal
+            const modal = document.getElementById('newBadgeModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Recarrega dashboard para atualizar barras de progresso
+            location.reload();
+        }
+
+        // Função utilitária simples para confete (CSS/DOM)
+        function createConfetti() {
+            const colors = ['#38BDF8', '#FFCC00', '#F472B6', '#ffffff'];
+            for (let i = 0; i < 50; i++) {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = '-10px';
+                conf.style.width = '10px';
+                conf.style.height = '10px';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.zIndex = '200';
+                conf.style.animation = `fall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000);
+            }
+
+            // Adicione o keyframe dinamicamente se não existir
+            if (!document.getElementById('confetti-style')) {
+                const style = document.createElement('style');
+                style.id = 'confetti-style';
+                style.innerHTML = `
+            @keyframes fall {
+                to { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+                document.head.appendChild(style);
+            }
+        }
+
     </script>
 </body>
+
 </html>
-
-

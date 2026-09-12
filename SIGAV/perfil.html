@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Meu Perfil</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -20,22 +21,87 @@
             background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%);
             color: #1f2937;
         }
+
+        /* Animação de entrada suave */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge-enter {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        /* Efeito de brilho/card */
+        .badge-card {
+            background: linear-gradient(145deg, #ffffff, #f0f9ff);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .badge-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.15), 0 4px 6px -2px rgba(14, 165, 233, 0.1);
+            border-color: #38bdf8;
+        }
+
+        .badge-img {
+            transition: transform 0.3s ease;
+        }
+
+        .badge-card:hover .badge-img {
+            transform: scale(1.1) rotate(2deg);
+        }
     </style>
 </head>
+
 <body class="antialiased">
 
     <header class="bg-white shadow-md sticky top-0 z-50">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <div class="flex items-center">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
                     <span class="text-2xl font-bold text-sky-700">
-                        Meu Perfil
+                        SIGAV
                     </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ Meu Perfil</span>
                 </div>
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <a href="./sigav_hub.html" title="Voltar ao Hub SIGAV" class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors">
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+
+                    <span id="userNameDisplay"
+                        class="text-sm font-medium text-gray-700 hidden sm:block">Carregando...</span>
+
+                    <a id="manageAdminsBtn" href="gerenciar-admins.html" title="Gerenciar Admins"
+                        class="p-2 rounded-full text-purple-600 bg-purple-100 hover:bg-purple-200 hidden">
+                        <i data-lucide="user-cog" class="h-6 w-6"></i>
+                    </a>
+
+                    <a id="manageUsersBtn" href="gerenciar-usuarios.html" title="Gerenciar Usuários"
+                        class="p-2 rounded-full text-cyan-600 bg-cyan-100 hover:bg-cyan-200 hidden">
+                        <i data-lucide="users" class="h-6 w-6"></i>
+                    </a>
+
+                    <a id="adminPanelBtn" href="Painel de Administração.html" title="Painel de Administração"
+                        class="p-2 rounded-full text-sky-600 bg-sky-100 hover:bg-sky-200 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors hidden">
+                        <i data-lucide="shield" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
                         <i data-lucide="home" class="h-6 w-6"></i>
                     </a>
+
+                    <button id="logoutBtn" title="Sair / Trocar Usuário"
+                        class="p-2 rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-red-500 transition-colors">
+                        <i data-lucide="log-out" class="h-6 w-6"></i>
+                    </button>
+
                     <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
                         <img src="../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
                     </a>
@@ -44,299 +110,370 @@
         </nav>
     </header>
 
-    <main class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 class="text-4xl font-extrabold text-sky-800 mb-8 flex items-center">
-            <i data-lucide="user-cog" class="h-8 w-8 mr-3"></i>
-            Editar Perfil
+            <div class="p-3 bg-sky-100 rounded-full mr-4">
+                <i data-lucide="user-cog" class="h-8 w-8 text-sky-600"></i>
+            </div>
+            Configurações da Conta
         </h1>
 
-        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
+        <section class="bg-white rounded-2xl shadow-lg mb-10 overflow-hidden border border-sky-100">
+            <div
+                class="bg-gradient-to-r from-sky-50 to-white p-6 border-b border-sky-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-yellow-100 rounded-lg text-yellow-600">
+                        <i data-lucide="trophy" class="h-6 w-6"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">Galeria de Conquistas</h2>
+                        <p class="text-xs text-gray-500">Suas insígnias e certificações</p>
+                    </div>
+                </div>
+                <span id="badgeCountTag"
+                    class="hidden px-3 py-1 bg-sky-100 text-sky-700 text-xs font-bold rounded-full border border-sky-200">
+                    0 Conquistas
+                </span>
+            </div>
+
+            <div class="p-6 bg-slate-50/50">
+                <div id="badgesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5">
+                    <div class="col-span-full flex flex-col items-center justify-center py-8 text-sky-600">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600 mb-2"></div>
+                        <span class="text-sm font-medium">Carregando troféus...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="p-6 bg-white rounded-xl shadow-lg mb-8 border border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="smile" class="h-5 w-5 text-gray-400"></i> Dados Pessoais
+            </h3>
             <div class="space-y-4">
                 <div>
-                    <label for="userNameInput" class="block text-sm font-medium text-gray-700">Seu nome</label>
-                    <input 
-                        type="text" 
-                        id="userNameInput" 
-                        placeholder="Digite seu nome ou apelido" 
-                        class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500"
-                    >
+                    <label for="userNameInput" class="block text-sm font-medium text-gray-700 mb-1">Nome de
+                        Exibição</label>
+                    <input type="text" id="userNameInput" placeholder="Como você quer ser chamado?"
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition-all outline-none bg-gray-50 focus:bg-white">
                 </div>
-                <button 
-                    id="saveNameBtn" 
-                    class="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out"
-                >
-                    <i data-lucide="save" class="h-5 w-5 mr-2"></i>
-                    Salvar Nome
+                <button id="saveNameBtn"
+                    class="w-full sm:w-auto flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+                    <i data-lucide="save" class="h-4 w-4 mr-2"></i>
+                    Salvar Alterações
                 </button>
-                <p id="saveNameMessage" class="text-sm text-green-600 text-center pt-2"></p>
+                <p id="saveNameMessage" class="text-sm font-medium pt-2"></p>
             </div>
         </section>
 
-        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Alterar E-mail</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="emailInput" class="block text-sm font-medium text-gray-700">Novo e-mail</label>
-                    <input type="email" id="emailInput" placeholder="Digite seu novo e-mail" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+        <section class="p-6 bg-white rounded-xl shadow-lg mb-8 border border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="shield" class="h-5 w-5 text-gray-400"></i> Segurança
+            </h3>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide">Alterar E-mail</h4>
+                    <input type="email" id="emailInput" placeholder="Novo e-mail"
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none bg-gray-50">
+                    <input type="password" id="emailPasswordInput" placeholder="Senha atual para confirmar"
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none bg-gray-50">
+                    <button id="saveEmailBtn"
+                        class="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm">
+                        Atualizar E-mail
+                    </button>
+                    <p id="saveEmailMessage" class="text-xs text-center min-h-[1.25rem]"></p>
                 </div>
-                <div>
-                    <label for="emailPasswordInput" class="block text-sm font-medium text-gray-700">Sua senha atual</label>
-                    <input type="password" id="emailPasswordInput" placeholder="Digite sua senha para confirmar" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
+
+                <div class="space-y-4 md:border-l md:pl-8 border-gray-100">
+                    <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wide">Alterar Senha</h4>
+                    <input type="password" id="currentPasswordInput" placeholder="Senha atual"
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none bg-gray-50">
+                    <input type="password" id="newPasswordInput" placeholder="Nova senha"
+                        class="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none bg-gray-50">
+                    <button id="savePasswordBtn"
+                        class="w-full bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold py-2.5 px-4 rounded-lg transition-colors text-sm">
+                        Atualizar Senha
+                    </button>
+                    <p id="savePasswordMessage" class="text-xs text-center min-h-[1.25rem]"></p>
                 </div>
-                <button id="saveEmailBtn" class="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
-                    <i data-lucide="mail" class="h-5 w-5 mr-2"></i>
-                    Salvar E-mail
-                </button>
-                <p id="saveEmailMessage" class="text-sm text-center pt-2"></p>
             </div>
         </section>
 
-        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Alterar Senha</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="currentPasswordInput" class="block text-sm font-medium text-gray-700">Senha atual</label>
-                    <input type="password" id="currentPasswordInput" placeholder="Digite sua senha atual" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
-                </div>
-                <div>
-                    <label for="newPasswordInput" class="block text-sm font-medium text-gray-700">Nova senha</label>
-                    <input type="password" id="newPasswordInput" placeholder="Digite sua nova senha" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-sky-500 focus:border-sky-500">
-                </div>
-                <button id="savePasswordBtn" class="w-full flex items-center justify-center bg-sky-600 hover:bg-sky-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
-                    <i data-lucide="key-round" class="h-5 w-5 mr-2"></i>
-                    Salvar Nova Senha
-                </button>
-                <p id="savePasswordMessage" class="text-sm text-center pt-2"></p>
-            </div>
-        </section>
+        <div class="border-t border-gray-200 pt-8 mt-12">
+            <h3 class="text-lg font-bold text-red-600 mb-6 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="h-5 w-5"></i> Zona de Perigo
+            </h3>
 
-        <section class="p-6 bg-white rounded-xl shadow-lg mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Resetar Progresso</h2>
-            <p class="text-sm text-gray-600 mb-4">Esta ação irá apagar todos os seus dados de progresso no sistema, mas sua conta será mantida. Esta ação não pode ser desfeita.</p>
-            <button id="resetProgressBtn" class="w-full flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
-                <i data-lucide="rotate-cw" class="h-5 w-5 mr-2"></i>
-                Resetar Meu Progresso
-            </button>
-            <p id="resetProgressMessage" class="text-sm text-center pt-2"></p>
-        </section>
+            <div class="grid gap-6">
+                <div
+                    class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-orange-50 rounded-xl border border-orange-100">
+                    <div class="mb-4 sm:mb-0">
+                        <h4 class="font-bold text-orange-800">Resetar Progresso</h4>
+                        <p class="text-sm text-orange-600/80 mt-1 max-w-md">Isso apagará todos os níveis desbloqueados e
+                            insígnias conquistadas. Sua conta permanece ativa.</p>
+                    </div>
+                    <button id="resetProgressBtn"
+                        class="whitespace-nowrap px-4 py-2 bg-white border border-orange-200 text-orange-600 font-semibold rounded-lg hover:bg-orange-100 transition-colors text-sm shadow-sm">
+                        Resetar Tudo
+                    </button>
+                </div>
+                <p id="resetProgressMessage" class="text-xs text-center -mt-4 mb-2"></p>
 
-        <section class="p-6 bg-red-50 border-l-4 border-red-500 rounded-r-lg shadow-lg">
-            <h2 class="text-2xl font-bold text-red-800 mb-4">Área de Risco</h2>
-            <p class="text-sm text-red-700 mb-4">A exclusão da sua conta é permanente e removerá todos os seus dados do sistema. Para confirmar, digite sua senha e clique no botão abaixo.</p>
-            <div>
-                <label for="deletePasswordInput" class="block text-sm font-medium text-red-700">Sua senha atual</label>
-                <input type="password" id="deletePasswordInput" placeholder="Digite sua senha para confirmar a exclusão" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                <div class="p-6 bg-red-50 border border-red-100 rounded-xl">
+                    <h4 class="font-bold text-red-800 mb-2">Excluir Conta</h4>
+                    <p class="text-sm text-red-600/80 mb-4">Ação irreversível. Todos os seus dados serão removidos
+                        permanentemente dos servidores.</p>
+
+                    <div class="flex gap-3">
+                        <input type="password" id="deletePasswordInput" placeholder="Confirme sua senha"
+                            class="flex-grow p-2.5 border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white text-sm">
+                        <button id="deleteAccountBtn"
+                            class="px-5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors text-sm shadow-sm flex items-center gap-2">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i> Excluir
+                        </button>
+                    </div>
+                    <p id="deleteAccountMessage" class="text-xs mt-2"></p>
+                </div>
             </div>
-            <button id="deleteAccountBtn" class="mt-4 w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow transition duration-150 ease-in-out">
-                <i data-lucide="trash-2" class="h-5 w-5 mr-2"></i>
-                Deletar Minha Conta Permanentemente
-            </button>
-            <p id="deleteAccountMessage" class="text-sm text-center pt-2"></p>
-        </section>
+        </div>
     </main>
 
     <script src="./firebase-config.js"></script>
     <script>
-        // As variáveis 'auth' e 'db' são definidas globalmente em firebase-config.js
-        const DASHBOARD_URL = 'index.html';
+        const DASHBOARD_URL = 'dashboard.html';
 
-        // Função para carregar o nome do usuário
+        // --- FUNÇÕES DE CARREGAMENTO ---
+
+        // Função para carregar o nome do usuário (CORRIGIDA)
         function loadUserName(user) {
             const userId = user.uid;
             const userNameInput = document.getElementById('userNameInput');
+            const userNameDisplay = document.getElementById('userNameDisplay'); // Referência ao span do header
 
             db.ref(`users/${userId}/name`).once('value').then(snapshot => {
-                const currentName = snapshot.val();
-                if (currentName) {
-                    userNameInput.value = currentName;
-                }
+                const nameFromDb = snapshot.val();
+
+                // Define o nome: usa o do banco, ou do Google/Auth, ou o início do email
+                const finalName = nameFromDb || user.displayName || user.email.split('@')[0];
+
+                // Atualiza o input de edição
+                if (userNameInput) userNameInput.value = finalName;
+
+                // Atualiza o texto "Carregando..." no header
+                if (userNameDisplay) userNameDisplay.textContent = finalName;
             });
         }
 
-        // Função para salvar o nome do usuário
-        function saveUserName() {
-            const user = auth.currentUser;
-            const userNameInput = document.getElementById('userNameInput');
-            const saveNameMessage = document.getElementById('saveNameMessage');
-            const newName = userNameInput.value.trim();
-
-            if (!user) {
-                alert("Sessão expirada. Por favor, faça login novamente.");
-                window.location.href = DASHBOARD_URL;
-                return;
-            }
-
-            if (!newName) {
-                alert("Por favor, digite um nome válido.");
-                return;
-            }
-
+        // Carregar Insígnias (Versão Melhorada)
+        function loadUserBadges(user) {
+            const badgesGrid = document.getElementById('badgesGrid');
+            const countTag = document.getElementById('badgeCountTag');
             const userId = user.uid;
-            
-            // Atualiza o nome no Realtime Database
-            const dbUpdate = db.ref(`users/${userId}/name`).set(newName);
-            // Atualiza o nome no perfil do Auth
-            const authUpdate = user.updateProfile({ displayName: newName });
 
-            Promise.all([dbUpdate, authUpdate])
-                .then(() => {
-                    showMessage('saveNameMessage', "Nome salvo com sucesso!");
-                })
-                .catch(error => {
-                    console.error("Erro ao salvar o nome:", error);
-                    showMessage('saveNameMessage', "Ocorreu um erro ao salvar seu nome.", true);
+            db.ref(`users/${userId}/badges`).once('value').then(snapshot => {
+                const badges = snapshot.val();
+                badgesGrid.innerHTML = '';
+
+                if (!badges) {
+                    // Estado Vazio Bonito
+                    badgesGrid.innerHTML = `
+                        <div class="col-span-full flex flex-col items-center justify-center py-10 text-center">
+                            <div class="bg-gray-100 p-4 rounded-full mb-3">
+                                <i data-lucide="award" class="h-8 w-8 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-gray-800 font-bold mb-1">Sem conquistas ainda</h3>
+                            <p class="text-sm text-gray-500 mb-4 max-w-xs mx-auto">Complete os desafios das trilhas para preencher sua galeria.</p>
+                            <a href="${DASHBOARD_URL}" class="text-xs font-bold text-sky-600 hover:text-sky-800 hover:underline uppercase tracking-wide">
+                                Ir para as Trilhas
+                            </a>
+                        </div>
+                    `;
+                    countTag.textContent = "0 Conquistas";
+                    countTag.classList.remove('hidden');
+                    lucide.createIcons();
+                    return;
+                }
+
+                const badgeList = Object.values(badges);
+
+                // Atualiza contador
+                countTag.textContent = `${badgeList.length} Conquista${badgeList.length !== 1 ? 's' : ''}`;
+                countTag.classList.remove('hidden');
+
+                // Renderiza Badges
+                badgeList.forEach((badge, index) => {
+                    const badgeEl = document.createElement('div');
+                    // Adiciona delay na animação para efeito cascata
+                    badgeEl.style.animationDelay = `${index * 100}ms`;
+                    badgeEl.className = 'badge-enter badge-card group relative flex flex-col items-center p-4 rounded-xl border border-sky-100 cursor-default';
+
+                    const dateStr = badge.date ? new Date(badge.date).toLocaleDateString('pt-BR') : '';
+
+                    badgeEl.innerHTML = `
+                        <div class="relative w-20 h-20 mb-3 flex items-center justify-center filter drop-shadow-sm group-hover:drop-shadow-lg transition-all">
+                            <img src="${badge.image}" alt="${badge.name}" class="badge-img max-w-full max-h-full object-contain" onerror="this.src='../img/logo.svg'">
+                        </div>
+                        <span class="text-xs font-bold text-gray-700 text-center leading-tight mb-1 group-hover:text-sky-700 transition-colors">${badge.name}</span>
+                        ${dateStr ? `<span class="text-[10px] text-gray-400 font-mono bg-white px-2 py-0.5 rounded-full border border-gray-100 mt-1">${dateStr}</span>` : ''}
+                    `;
+                    badgesGrid.appendChild(badgeEl);
                 });
+
+            }).catch(err => {
+                console.error("Erro ao carregar badges:", err);
+                badgesGrid.innerHTML = '<p class="text-red-500 text-sm col-span-full text-center">Erro ao carregar conquistas.</p>';
+            });
         }
 
-        // Função para exibir mensagens
+        // --- FUNÇÕES DE AÇÃO (Salvar, Deletar, etc) ---
+
         function showMessage(elementId, text, isError = false, duration = 3000) {
             const element = document.getElementById(elementId);
             element.textContent = text;
-            element.className = `text-sm text-center pt-2 ${isError ? 'text-red-600' : 'text-green-600'}`;
+            element.className = `text-sm text-center pt-2 ${isError ? 'text-red-600' : 'text-green-600'} font-medium animate-pulse`;
             if (duration > 0) {
-                setTimeout(() => { element.textContent = ''; }, duration);
+                setTimeout(() => { element.textContent = ''; element.className = ''; }, duration);
             }
         }
 
-        // Função para reautenticar o usuário
         function reauthenticate(password) {
             const user = auth.currentUser;
             const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
             return user.reauthenticateWithCredential(credential);
         }
 
-        // Função para alterar o e-mail
+        function saveUserName() {
+            const user = auth.currentUser;
+            const newName = document.getElementById('userNameInput').value.trim();
+
+            if (!user) return;
+            if (!newName) { alert("Nome inválido."); return; }
+
+            const p1 = db.ref(`users/${user.uid}/name`).set(newName);
+            const p2 = user.updateProfile({ displayName: newName });
+
+            Promise.all([p1, p2])
+                .then(() => showMessage('saveNameMessage', "Nome atualizado!"))
+                .catch(err => showMessage('saveNameMessage', "Erro ao salvar.", true));
+        }
+
         function changeEmail() {
             const newEmail = document.getElementById('emailInput').value.trim();
             const password = document.getElementById('emailPasswordInput').value;
-            const messageEl = 'saveEmailMessage';
 
             if (!newEmail || !password) {
-                showMessage(messageEl, "Preencha o novo e-mail e a senha atual.", true);
+                showMessage('saveEmailMessage', "Preencha todos os campos.", true);
                 return;
             }
 
             reauthenticate(password).then(() => {
                 const user = auth.currentUser;
                 user.updateEmail(newEmail).then(() => {
-                    // Atualiza também o e-mail no Realtime Database
-                    db.ref(`users/${user.uid}/email`).set(newEmail).then(() => {
-                        showMessage(messageEl, "E-mail alterado com sucesso!");
-                        document.getElementById('emailPasswordInput').value = '';
-                        document.getElementById('emailInput').value = '';
-                    });
-                }).catch(error => {
-                    console.error("Erro ao alterar e-mail:", error);
-                    showMessage(messageEl, `Erro ao alterar e-mail: ${error.message}`, true);
-                });
-            }).catch(error => {
-                console.error("Erro de reautenticação:", error);
-                showMessage(messageEl, "Senha incorreta. Verifique e tente novamente.", true);
-            });
+                    db.ref(`users/${user.uid}/email`).set(newEmail);
+                    showMessage('saveEmailMessage', "E-mail atualizado!");
+                    document.getElementById('emailPasswordInput').value = '';
+                }).catch(err => showMessage('saveEmailMessage', err.message, true));
+            }).catch(err => showMessage('saveEmailMessage', "Senha incorreta.", true));
         }
 
-        // Função para alterar a senha
         function changePassword() {
-            const currentPassword = document.getElementById('currentPasswordInput').value;
-            const newPassword = document.getElementById('newPasswordInput').value;
-            const messageEl = 'savePasswordMessage';
+            const currentPass = document.getElementById('currentPasswordInput').value;
+            const newPass = document.getElementById('newPasswordInput').value;
 
-            if (!currentPassword || !newPassword) {
-                showMessage(messageEl, "Preencha a senha atual e a nova senha.", true);
+            if (!currentPass || !newPass) {
+                showMessage('savePasswordMessage', "Preencha os campos.", true);
                 return;
             }
 
-            reauthenticate(currentPassword).then(() => {
-                auth.currentUser.updatePassword(newPassword).then(() => {
-                    showMessage(messageEl, "Senha alterada com sucesso!");
+            reauthenticate(currentPass).then(() => {
+                auth.currentUser.updatePassword(newPass).then(() => {
+                    showMessage('savePasswordMessage', "Senha atualizada!");
                     document.getElementById('currentPasswordInput').value = '';
                     document.getElementById('newPasswordInput').value = '';
-                }).catch(error => {
-                    console.error("Erro ao alterar senha:", error);
-                    showMessage(messageEl, `Erro ao alterar senha: ${error.message}`, true);
-                });
-            }).catch(error => {
-                console.error("Erro de reautenticação:", error);
-                showMessage(messageEl, "Senha atual incorreta.", true);
-            });
+                }).catch(err => showMessage('savePasswordMessage', err.message, true));
+            }).catch(err => showMessage('savePasswordMessage', "Senha atual incorreta.", true));
         }
 
-        // Função para resetar o progresso
-        function resetProgress() {
-            if (!confirm("Você tem certeza que deseja resetar seu progresso? Esta ação não pode ser desfeita.")) {
-                return;
-            }
+        async function resetProgress() {
+            if (!confirm("Confirma o reset? Isso apagará TODAS as conquistas, progresso e envios de desafios. Essa ação é irreversível.")) return;
+
             const user = auth.currentUser;
-            const messageEl = 'resetProgressMessage';
-            // Correção: remove apenas o nó 'progress' do usuário, preservando nome e e-mail.
-            db.ref(`users/${user.uid}/progress`).remove()
-                .then(() => {
-                    showMessage(messageEl, "Seu progresso foi resetado com sucesso.");
-                })
-                .catch(error => {
-                    console.error("Erro ao resetar progresso:", error);
-                    showMessage(messageEl, "Ocorreu um erro ao resetar seu progresso.", true);
-                });
+            if (!user) return;
+
+            const btn = document.getElementById('btnReset'); // Se tiver um botão com id btnReset
+            if (btn) btn.disabled = true;
+
+            try {
+                // 1. Prepara o objeto de atualização (Deleção Atômica)
+                const updates = {};
+
+                // Apaga Progresso e Badges do perfil do usuário
+                updates[`users/${user.uid}/progress`] = null;
+                updates[`users/${user.uid}/badges`] = null;
+
+                // 2. Busca as submissões feitas por esse usuário para apagar também
+                const submissionsRef = db.ref('submissions');
+                const snapshot = await submissionsRef.orderByChild('userId').equalTo(user.uid).once('value');
+                const userSubmissions = snapshot.val();
+
+                // Se existirem submissões, marca elas para deletar (null)
+                if (userSubmissions) {
+                    Object.keys(userSubmissions).forEach(submissionId => {
+                        updates[`submissions/${submissionId}`] = null;
+                    });
+                }
+
+                // 3. Executa todas as exclusões de uma vez
+                await db.ref().update(updates);
+
+                showMessage('resetProgressMessage', "Progresso e histórico apagados com sucesso.");
+
+                // 4. Recarrega a página para limpar variáveis de memória (cache)
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+
+            } catch (error) {
+                console.error("Erro ao resetar:", error);
+                showMessage('resetProgressMessage', "Erro ao resetar: " + error.message, true);
+                if (btn) btn.disabled = false;
+            }
         }
 
-        // Função para deletar a conta
         function deleteAccount() {
             const password = document.getElementById('deletePasswordInput').value;
-            const messageEl = 'deleteAccountMessage';
-
             if (!password) {
-                showMessage(messageEl, "Por favor, digite sua senha para confirmar a exclusão.", true);
+                showMessage('deleteAccountMessage', "Digite sua senha.", true);
                 return;
             }
-
-            if (!confirm("ATENÇÃO: Você tem certeza que deseja excluir sua conta permanentemente? Todos os seus dados serão perdidos.")) {
-                return;
-            }
+            if (!confirm("Tem certeza absoluta? Essa ação é irreversível.")) return;
 
             reauthenticate(password).then(() => {
                 const user = auth.currentUser;
-                const userId = user.uid;
-                
-                // Deleta dados do database primeiro
-                db.ref(`users/${userId}`).remove().then(() => {
-                    // Depois deleta o usuário
+                const uid = user.uid;
+                db.ref(`users/${uid}`).remove().then(() => {
                     user.delete().then(() => {
-                        alert("Sua conta foi excluída com sucesso.");
-                        window.location.href = DASHBOARD_URL;
-                    }).catch(error => {
-                        console.error("Erro ao deletar conta de autenticação:", error);
-                        showMessage(messageEl, `Erro ao deletar sua conta: ${error.message}`, true);
+                        alert("Conta excluída.");
+                        window.location.href = 'login.html';
                     });
-                }).catch(error => {
-                    console.error("Erro ao deletar dados do usuário:", error);
-                    showMessage(messageEl, `Erro ao deletar seus dados: ${error.message}`, true);
                 });
-
-            }).catch(error => {
-                console.error("Erro de reautenticação:", error);
-                showMessage(messageEl, "Senha incorreta. A conta não foi excluída.", true);
-            });
+            }).catch(err => showMessage('deleteAccountMessage', "Senha incorreta.", true));
         }
 
-        // Função de inicialização da página
         function initProfilePage() {
             lucide.createIcons();
-
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    // Usuário está logado, carrega o nome
                     loadUserName(user);
-                    
-                    // Adiciona os listeners para os botões
+                    loadUserBadges(user);
+
                     document.getElementById('saveNameBtn').addEventListener('click', saveUserName);
                     document.getElementById('saveEmailBtn').addEventListener('click', changeEmail);
                     document.getElementById('savePasswordBtn').addEventListener('click', changePassword);
                     document.getElementById('resetProgressBtn').addEventListener('click', resetProgress);
                     document.getElementById('deleteAccountBtn').addEventListener('click', deleteAccount);
                 } else {
-                    // Usuário não está logado, redireciona para o dashboard/login
-                    console.log('Nenhum usuário logado. Redirecionando...');
-                    window.location.href = DASHBOARD_URL;
+                    window.location.href = 'login.html';
                 }
             });
         }
@@ -345,4 +482,5 @@
     </script>
 
 </body>
+
 </html>

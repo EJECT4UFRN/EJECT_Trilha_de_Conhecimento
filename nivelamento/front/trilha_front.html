@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Trilha Frontend</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="../../img/eject_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script>
+        // Inicializar os ícones do Lucide
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+            lucide.createIcons();
+        }
+    </script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
+                    colors: {
+                        'space-dark': '#0B0E14',
+                        'space-blue': '#151925',
+                        'front-blue': '#3B82F6',
+                        'front-light': '#60A5FA',
+                        'eject-yellow': '#FFCC00',
+                        'success-green': '#00FF94',
+                        'js-yellow': '#F7DF1E',
+                    },
+                    backgroundImage: {
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1E3A8A 0%, #0F172A 45%, #05070A 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #0B0E14;
+            color: white;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image:
+                radial-gradient(white, rgba(255, 255, 255, .2) 1px, transparent 2px),
+                radial-gradient(white, rgba(255, 255, 255, .1) 1px, transparent 2px);
+            background-size: 550px 550px, 200px 200px;
+        }
+
+        .timeline-line {
+            background: linear-gradient(to bottom, #3B82F6 0%, #0B0E14 100%);
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            border-color: #3B82F6;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-deep-space min-h-screen flex flex-col font-sans">
+
+    <div class="stars"></div>
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center min-w-0 flex-1 sm:flex-none">
+                    <span class="text-2xl font-bold text-sky-700">
+                        <a href="../../index.html">HUB DE CONHECIMENTOS</a>
+                    </span>
+                    <span class="ml-4 text-xl font-semibold text-gray-500 hidden sm:inline-block">/ <a
+                            href="../../nivelamento/index.html">Astronauta vai à
+                            Lua</a></span>
+                </div>
+                <div class="flex items-center space-x-2 lg:space-x-4 flex-shrink-0">
+                    <a href="../../SIGAV/sigav_hub.html" title="hub central"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="home" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="../../SIGAV/perfil.html" title="Meu Perfil"
+                        class="p-2 rounded-full text-sky-600 hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-sky-500 transition-colors">
+                        <i data-lucide="user-circle-2" class="h-6 w-6"></i>
+                    </a>
+
+                    <a href="https://www.ejectufrn.com.br/" target="_blank" rel="noopener noreferrer">
+                        <img src="../../img/logo.svg" alt="Logotipo da EJECT" class="h-10">
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow">
+
+        <section class="relative py-16 px-4 text-center">
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-front-blue/10 border border-front-blue/30 text-front-light text-xs font-bold uppercase tracking-wider mb-4">
+                <span class="material-symbols-outlined text-sm">code</span> Trilha de Frontend
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">
+                CONSTRUINDO <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-front-blue to-white">INTERFACES</span>
+            </h1>
+            <p class="text-lg text-gray-300 max-w-2xl mx-auto font-light">
+                Construa experiências visuais intuitivas e responsivas para o usuário.
+            </p>
+        </section>
+
+        <section class="max-w-6xl mx-auto px-4 mb-20">
+            <div class="grid md:grid-cols-3 gap-6">
+                <a href="#nivel-1"
+                    class="level-card bg-space-blue border border-white/10 rounded-2xl p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-front-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <span
+                            class="text-4xl font-black text-white/10 group-hover:text-white/30 transition-colors">01</span>
+                        <span
+                            class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded uppercase border border-blue-500/30">Disponível</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 relative z-10">BÁSICO</h3>
+                    <p class="text-sm text-gray-400 mb-6 relative z-10">HTML5, Semântica e Introdução ao CSS.</p>
+                    <div
+                        class="flex items-center gap-2 text-front-blue font-bold text-sm group-hover:translate-x-2 transition-transform relative z-10">
+                        ACESSAR <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </div>
+                </a>
+
+                <a href="#nivel-2"
+                    class="level-card bg-space-blue border border-white/10 rounded-2xl p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <span
+                            class="text-4xl font-black text-white/10 group-hover:text-white/30 transition-colors">02</span>
+                        <span id="icon-status-2" class="material-symbols-outlined text-gray-500">lock</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 relative z-10">INTERMEDIÁRIO</h3>
+                    <p class="text-sm text-gray-400 mb-6 relative z-10">JavaScript, DOM, Lógica de Programação e
+                        responsividade de telas.</p>
+                    <div
+                        class="flex items-center gap-2 text-white/50 font-bold text-sm group-hover:text-white group-hover:translate-x-2 transition-all relative z-10">
+                        ACESSAR <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </div>
+                </a>
+
+                <a href="#nivel-3"
+                    class="level-card bg-space-blue border border-white/10 rounded-2xl p-6 transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-br from-eject-yellow/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <span
+                            class="text-4xl font-black text-white/10 group-hover:text-white/30 transition-colors">03</span>
+                        <span id="icon-status-3" class="material-symbols-outlined text-gray-500">lock</span>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2 relative z-10">AVANÇADO</h3>
+                    <p class="text-sm text-gray-400 mb-6 relative z-10">React, APIs e State Management.</p>
+                    <div
+                        class="flex items-center gap-2 text-white/50 font-bold text-sm group-hover:text-white group-hover:translate-x-2 transition-all relative z-10">
+                        ACESSAR <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <section class="max-w-4xl mx-auto px-4 pb-24 relative">
+
+            <div class="absolute left-8 md:left-1/2 top-0 bottom-0 w-px timeline-line -ml-[0.5px]"></div>
+
+            <div id="nivel-1" class="relative mb-24 scroll-mt-32">
+                <div
+                    class="absolute left-8 md:left-1/2 -ml-4 w-8 h-8 rounded-full bg-front-blue border-4 border-space-dark z-20 flex items-center justify-center text-white font-bold shadow-[0_0_20px_#3B82F6]">
+                    1</div>
+
+                <div class="ml-20 md:ml-0 md:w-1/2 md:pr-12 md:text-right">
+                    <div
+                        class="inline-block px-3 py-1 bg-front-blue/20 text-front-light text-xs font-bold rounded mb-2 border border-front-blue/50">
+                        NÍVEL BÁSICO</div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Explorador Web</h2>
+                    <p class="text-gray-400 text-sm mb-6">Comece sua jornada criando a estrutura e estilo das páginas.
+                    </p>
+                </div>
+
+                <div class="ml-12 md:ml-auto md:w-1/2 md:pl-12 mt-4 md:-mt-24">
+                    <div
+                        class="bg-space-blue border border-white/10 rounded-2xl overflow-hidden hover:border-front-blue/50 transition-colors shadow-2xl">
+                        <div class="p-6 bg-gradient-to-b from-front-blue/10 to-transparent">
+                            <h3 class="font-bold text-lg mb-1">Conteúdo do Módulo</h3>
+                            <p class="text-xs text-gray-400">Básico</p>
+                        </div>
+                        <div class="px-6 pb-6 space-y-4">
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">html</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">HTML5 Semântico</p>
+                                    <p class="text-xs text-gray-500">Tags, Estrutura e SEO básico.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">css</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">CSS3 Moderno</p>
+                                    <p class="text-xs text-gray-500">Flexbox, Grid e Estilização.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-black/20 border-t border-white/5">
+                            <a href="./basico/basico_front.html"
+                                class="w-full py-3 bg-front-blue text-white font-bold rounded-xl shadow-lg hover:bg-white hover:text-front-blue transition-all flex items-center justify-center gap-2 group">
+                                INICIAR NÍVEL 01 <span
+                                    class="material-symbols-outlined group-hover:translate-x-1 transition-transform">rocket_launch</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="nivel-2" class="relative mb-24 scroll-mt-32">
+                <div
+                    class="absolute left-8 md:left-1/2 -ml-4 w-8 h-8 rounded-full bg-space-dark border-2 border-white/30 z-20 flex items-center justify-center text-white font-bold">
+                    2</div>
+
+                <div class="ml-20 md:ml-auto md:w-1/2 md:pl-12">
+                    <div
+                        class="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-xs font-bold rounded mb-2 border border-blue-500/50">
+                        NÍVEL INTERMEDIÁRIO</div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Construtor de Interfaces</h2>
+                    <p class="text-gray-400 text-sm mb-6">Dê vida às interfaces com lógica e interatividade.</p>
+                </div>
+
+                <div class="ml-12 md:ml-0 md:mr-auto md:w-1/2 md:pr-12 mt-4 md:-mt-24">
+                    <div id="level-2-card"
+                        class="bg-space-blue border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 shadow-2xl relative grayscale opacity-70">
+
+                        <div id="lock-overlay-2"
+                            class="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center">
+                            <span class="material-symbols-outlined text-4xl text-gray-500 mb-2">lock</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-widest text-gray-500 border border-gray-600 px-3 py-1 rounded">
+                                Complete o Nível 1
+                            </span>
+                        </div>
+
+                        <div class="p-6 bg-gradient-to-b from-blue-500/10 to-transparent">
+                            <h3 class="font-bold text-lg mb-1">Conteúdo do Módulo</h3>
+                            <p class="text-xs text-gray-400">intermediário</p>
+                        </div>
+
+                        <div class="px-6 pb-6 space-y-4">
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">javascript</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">JavaScript Core</p>
+                                    <p class="text-xs text-gray-500">Variáveis, Funções e Eventos.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">web</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">Manipulação DOM</p>
+                                    <p class="text-xs text-gray-500">Criando elementos dinâmicos.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">devices</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">Responsividade</p>
+                                    <p class="text-xs text-gray-500">Criando elementos responsivos.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-black/20 border-t border-white/5">
+                            <a id="btn-level-2" href="#"
+                                class="w-full py-3 bg-gray-800 border border-white/5 text-gray-500 font-bold rounded-xl cursor-not-allowed pointer-events-none flex items-center justify-center gap-2 transition-all">
+                                <span class="material-symbols-outlined">lock</span> BLOQUEADO
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="nivel-3" class="relative scroll-mt-32">
+                <div
+                    class="absolute left-8 md:left-1/2 -ml-4 w-8 h-8 rounded-full bg-space-dark border-2 border-white/30 z-20 flex items-center justify-center text-white font-bold">
+                    3</div>
+
+                <div class="ml-20 md:ml-0 md:w-1/2 md:pr-12 md:text-right">
+                    <div
+                        class="inline-block px-3 py-1 bg-eject-yellow/20 text-eject-yellow text-xs font-bold rounded mb-2 border border-eject-yellow/50">
+                        NÍVEL AVANÇADO</div>
+                    <h2 class="text-3xl font-bold text-white mb-2">Arquiteto de Experiências Web</h2>
+                    <p class="text-gray-400 text-sm mb-6">Frameworks modernos, componentes e consumo de APIs.</p>
+                </div>
+
+                <div class="ml-12 md:ml-auto md:w-1/2 md:pl-12 mt-4 md:-mt-24">
+                    <div id="level-3-card"
+                        class="bg-space-blue border border-white/10 rounded-2xl overflow-hidden transition-all duration-500 shadow-2xl relative grayscale opacity-70">
+
+                        <div id="lock-overlay-3"
+                            class="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center">
+                            <span class="material-symbols-outlined text-4xl text-gray-500 mb-2">lock</span>
+                            <span
+                                class="text-xs font-bold uppercase tracking-widest text-gray-500 border border-gray-600 px-3 py-1 rounded">
+                                Complete o Nível 2
+                            </span>
+                        </div>
+
+                        <div class="p-6 bg-gradient-to-b from-eject-yellow/10 to-transparent">
+                            <h3 class="font-bold text-lg mb-1">Conteúdo do Módulo</h3>
+                            <p class="text-xs text-gray-400">Avançado</p>
+                        </div>
+                        <div class="px-6 pb-6 space-y-4">
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">code_blocks</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">React.js</p>
+                                    <p class="text-xs text-gray-500">Hooks, Components e Props.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 items-start">
+                                <span class="material-symbols-outlined text-gray-500 text-lg mt-0.5">cloud_sync</span>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">Integração API</p>
+                                    <p class="text-xs text-gray-500">Fetch, Axios e Async/Await.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-black/20 border-t border-white/5">
+                            <a id="btn-level-3" href="./avancado/avancado_front.html"
+                                class="w-full py-3 bg-gray-800 border border-white/5 text-gray-500 font-bold rounded-xl cursor-not-allowed pointer-events-none flex items-center justify-center gap-2 transition-all">
+                                <span class="material-symbols-outlined">lock</span> BLOQUEADO
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <footer class="w-full bg-slate-800 py-6 px-4 mt-auto">
+        <div class="max-w-6xl mx-auto text-center">
+            <p class="text-sm text-gray-300 m-0 mb-2">Feito com <strong class="font-semibold">foco</strong> e <strong
+                    class="font-semibold">compromisso</strong> pela EJECT© 2024-2025.</p>
+        </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="../../SIGAV/firebase-config.js"></script>
+
+    <script>
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Verifica Nível 2
+                    checkLevel2Unlock(user.uid);
+                    // Verifica Nível 3
+                    checkLevel3Unlock(user.uid);
+                }
+            });
+        });
+
+        // --- VERIFICAÇÃO NÍVEL 2 ---
+        function checkLevel2Unlock(uid) {
+            const progressRef = db.ref('users/' + uid + '/progress/frontend/level2_unlocked');
+            const badgeRef = db.ref('users/' + uid + '/badges/frontend_basico');
+
+            Promise.all([progressRef.once('value'), badgeRef.once('value')])
+                .then(([progressSnap, badgeSnap]) => {
+                    const isUnlocked = progressSnap.val() === true;
+                    const hasBadge = badgeSnap.exists();
+
+                    if (isUnlocked || hasBadge) {
+                        unlockLevel2();
+                    }
+                })
+                .catch(err => console.error("Erro Lv2:", err));
+        }
+
+        function unlockLevel2() {
+            const card = document.getElementById('level-2-card');
+            const btn = document.getElementById('btn-level-2');
+            const overlay = document.getElementById('lock-overlay-2');
+            const iconStatus = document.getElementById('icon-status-2');
+
+            if (overlay) overlay.style.display = 'none';
+
+            if (card) {
+                card.classList.remove('grayscale', 'opacity-70');
+                card.classList.add('shadow-[0_0_30px_rgba(59,130,246,0.3)]', 'border-blue-500/50');
+            }
+
+            if (iconStatus) {
+                iconStatus.innerText = "lock_open";
+                iconStatus.classList.remove('text-gray-500');
+                iconStatus.classList.add('text-blue-400');
+            }
+
+            if (btn) {
+                btn.classList.remove('bg-gray-800', 'text-gray-500', 'cursor-not-allowed', 'pointer-events-none', 'border-white/5');
+                btn.classList.add('bg-front-blue', 'text-white', 'hover:bg-white', 'hover:text-front-blue', 'shadow-lg');
+                btn.href = "./intermediario/intermediario_front.html";
+                btn.innerHTML = `ACESSAR MISSÃO <span class="material-symbols-outlined">rocket_launch</span>`;
+            }
+        }
+
+        // --- VERIFICAÇÃO NÍVEL 3 (ADICIONADO) ---
+        function checkLevel3Unlock(uid) {
+            const progressRef = db.ref('users/' + uid + '/progress/frontend/level3_unlocked');
+            const badgeRef = db.ref('users/' + uid + '/badges/frontend_intermediario');
+
+            Promise.all([progressRef.once('value'), badgeRef.once('value')])
+                .then(([progressSnap, badgeSnap]) => {
+                    const isUnlocked = progressSnap.val() === true;
+                    const hasBadge = badgeSnap.exists();
+
+                    if (isUnlocked || hasBadge) {
+                        unlockLevel3();
+                    }
+                })
+                .catch(err => console.error("Erro Lv3:", err));
+        }
+
+        function unlockLevel3() {
+            const card = document.getElementById('level-3-card');
+            const btn = document.getElementById('btn-level-3');
+            const overlay = document.getElementById('lock-overlay-3');
+            const iconStatus = document.getElementById('icon-status-3');
+
+            // 1. Remove Overlay
+            if (overlay) overlay.style.display = 'none';
+
+            // 2. Estilo do Card
+            if (card) {
+                card.classList.remove('grayscale', 'opacity-70');
+                // Brilho Amarelo/Dourado para o nível avançado
+                card.classList.add('shadow-[0_0_30px_rgba(255,204,0,0.3)]', 'border-eject-yellow/50');
+            }
+
+            // 3. Ícone
+            if (iconStatus) {
+                iconStatus.innerText = "lock_open";
+                iconStatus.classList.remove('text-gray-500');
+                iconStatus.classList.add('text-blue-400');
+            }
+
+            // 4. Botão
+            if (btn) {
+                btn.classList.remove('bg-gray-800', 'text-gray-500', 'cursor-not-allowed', 'pointer-events-none', 'border-white/5');
+                // Estilo Amarelo EJECT
+                btn.classList.add('bg-eject-yellow', 'text-black', 'hover:bg-white', 'shadow-lg');
+                // Link para o nível avançado (Crie depois: avancado_front.html)
+                btn.href = "./avancado/avancado_front.html";
+                btn.innerHTML = `ACESSAR MISSÃO <span class="material-symbols-outlined">rocket_launch</span>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

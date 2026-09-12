@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJECT | Mapeamento de Missão</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@200;300;400;500;600;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Exo 2"', 'sans-serif'] },
+                    colors: {
+                        'space-dark': '#0B0E14',
+                        'space-blue': '#151925',
+                        'eject-blue': '#0055AA',
+                        'eject-yellow': '#FFCC00',
+                        'neon-blue': '#00F0FF',
+                        'neon-purple': '#BD00FF',
+                        'neon-green': '#00FF94',
+                    },
+                    backgroundImage: {
+                        'deep-space': 'radial-gradient(circle at 50% 0%, #1e293b 0%, #0B0E14 100%)',
+                        'glass': 'linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    }
+                },
+                keyframes: {
+                    float: {
+                        '0%, 100%': { transform: 'translateY(0)' },
+                        '50%': { transform: 'translateY(-10px)' },
+                    },
+                    glow: {
+                        'from': { boxShadow: '0 0 10px -5px currentColor' },
+                        'to': { boxShadow: '0 0 20px 5px currentColor' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0B0E14;
+            color: white;
+        }
+
+        /* Efeito de Estrelas no Fundo */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background-image:
+                radial-gradient(white, rgba(255, 255, 255, .2) 1px, transparent 2px),
+                radial-gradient(white, rgba(255, 255, 255, .1) 1px, transparent 2px);
+            background-size: 500px 500px, 200px 200px;
+            background-position: 0 0, 40px 60px;
+        }
+
+        /* Glassmorphism Refinado */
+        .glass-panel {
+            background: rgba(20, 25, 40, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Card Selection Effect */
+        .tech-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .tech-card.selected {
+            border-color: #FFCC00;
+            background: linear-gradient(180deg, rgba(255, 204, 0, 0.1) 0%, rgba(20, 25, 40, 0.8) 100%);
+            box-shadow: 0 0 30px -10px rgba(255, 204, 0, 0.3);
+        }
+
+        .tech-card.selected .icon-box {
+            background-color: #FFCC00;
+            color: #000;
+        }
+
+        /* Rating Bar Styles */
+        .rating-segment {
+            height: 8px;
+            border-radius: 2px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .rating-segment:hover {
+            opacity: 0.8;
+        }
+
+        /* Cores dinâmicas para as barras ativas */
+        .filled-uxui {
+            background-color: #BD00FF;
+            box-shadow: 0 0 8px #BD00FF;
+        }
+
+        .filled-frontend {
+            background-color: #00F0FF;
+            box-shadow: 0 0 8px #00F0FF;
+        }
+
+        .filled-backend {
+            background-color: #00FF94;
+            box-shadow: 0 0 8px #00FF94;
+        }
+
+        /* Scrollbar customizada */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body class="bg-deep-space min-h-screen flex flex-col font-sans overflow-x-hidden">
+
+    <div class="stars"></div>
+
+    <div class="fixed top-0 left-1/4 w-96 h-96 bg-blue-600 rounded-full blur-[150px] opacity-20 pointer-events-none">
+    </div>
+    <div
+        class="fixed bottom-0 right-1/4 w-96 h-96 bg-purple-600 rounded-full blur-[150px] opacity-10 pointer-events-none">
+    </div>
+
+    <header class="w-full py-6 px-4 z-50">
+        <nav class="max-w-6xl mx-auto flex justify-between items-center">
+            <button onclick="window.location.href='index.html'"
+                class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group">
+                <div
+                    class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-eject-yellow transition-colors">
+                    <span class="material-symbols-outlined text-sm">arrow_back</span>
+                </div>
+                <span class="text-sm font-medium tracking-wide">ABORTAR MISSÃO</span>
+            </button>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                <span class="text-xs font-mono text-gray-400 uppercase tracking-widest">Sistema de Mapeamento
+                    Online</span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center px-4 py-8 relative z-10">
+
+        <div class="w-full max-w-5xl">
+
+            <div class="mb-8 mx-auto max-w-3xl">
+                <div class="flex justify-between items-center relative">
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-white/10 rounded-full -z-10">
+                    </div>
+                    <div id="progress-line"
+                        class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-eject-yellow to-eject-blue w-0 transition-all duration-700 rounded-full -z-10">
+                    </div>
+
+                    <div class="flex flex-col items-center gap-2 cursor-default">
+                        <div id="step-node-1"
+                            class="w-10 h-10 rounded-full bg-eject-yellow text-black flex items-center justify-center font-bold shadow-[0_0_15px_rgba(255,204,0,0.5)] transition-all duration-500 z-10">
+                            1</div>
+                        <span class="text-xs uppercase tracking-widest font-semibold text-eject-yellow">Classe</span>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-2 opacity-50 transition-opacity duration-500"
+                        id="step-label-2">
+                        <div id="step-node-2"
+                            class="w-10 h-10 rounded-full bg-space-blue border-2 border-white/20 text-white flex items-center justify-center font-bold transition-all duration-500 z-10">
+                            2</div>
+                        <span class="text-xs uppercase tracking-widest font-semibold">Diagnóstico</span>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-2 opacity-50 transition-opacity duration-500"
+                        id="step-label-3">
+                        <div id="step-node-3"
+                            class="w-10 h-10 rounded-full bg-space-blue border-2 border-white/20 text-white flex items-center justify-center font-bold transition-all duration-500 z-10">
+                            3</div>
+                        <span class="text-xs uppercase tracking-widest font-semibold">Lançamento</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-1 overflow-hidden min-h-[550px] flex flex-col relative animate-float">
+
+                <div class="p-6 md:p-10 flex-grow flex flex-col">
+
+                    <div id="view-1" class="flex-grow flex flex-col justify-center transition-all duration-500">
+                        <div class="text-center mb-10">
+                            <h1 class="text-3xl md:text-4xl font-bold mb-3">Escolha sua Especialidade</h1>
+                            <p class="text-gray-400 max-w-xl mx-auto">Identifique sua função na tripulação para carregar
+                                o protocolo de treinamento adequado.</p>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 gap-6">
+
+                            <div onclick="selectTech('uxui')" id="card-uxui"
+                                class="tech-card cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div
+                                    class="icon-box w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-4 text-purple-400 transition-colors">
+                                    <span class="material-symbols-outlined text-3xl">brush</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">UX/UI Design</h3>
+                                <p class="text-sm text-gray-400">Figma, Prototipagem, Design System.</p>
+                            </div>
+
+                            <div onclick="selectTech('frontend')" id="card-frontend"
+                                class="tech-card cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div
+                                    class="icon-box w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-4 text-cyan-400 transition-colors">
+                                    <span class="material-symbols-outlined text-3xl">code</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">Frontend</h3>
+                                <p class="text-sm text-gray-400">React, TypeScript, Tailwind, API.</p>
+                            </div>
+
+                            <div onclick="selectTech('backend')" id="card-backend"
+                                class="tech-card cursor-pointer bg-white/5 border border-white/10 rounded-2xl p-6 relative group overflow-hidden">
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                </div>
+                                <div
+                                    class="icon-box w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center mb-4 text-green-400 transition-colors">
+                                    <span class="material-symbols-outlined text-3xl">terminal</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2">Backend</h3>
+                                <p class="text-sm text-gray-400">Django, Python, Banco de Dados.</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="view-2" class="hidden opacity-0 flex-grow flex flex-col transition-all duration-500">
+                        <div
+                            class="flex flex-col md:flex-row justify-between items-end mb-6 border-b border-white/10 pb-4">
+                            <div>
+                                <h2 class="text-2xl font-bold text-white">Nível de Proficiência</h2>
+                                <p class="text-gray-400 text-sm mt-1">Avalie seu conhecimento atual de 0 a 5 em cada
+                                    tecnologia.</p>
+                            </div>
+                            <div class="flex gap-4 text-xs font-mono text-gray-500 mt-4 md:mt-0">
+                                <div class="flex items-center gap-1">
+                                    <div class="w-3 h-3 bg-white/10 rounded-sm"></div> 0: Desconheço
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <div id="legend-color" class="w-3 h-3 bg-eject-yellow rounded-sm"></div> 5: Domino
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="skills-container"
+                            class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+                        </div>
+                    </div>
+
+                    <div id="view-3"
+                        class="hidden opacity-0 flex-grow flex flex-col items-center justify-center transition-all duration-500">
+
+                        <div
+                            class="bg-white text-eject-blue-dark rounded-3xl w-full max-w-md overflow-hidden shadow-[0_0_40px_rgba(255,255,255,0.2)] relative">
+                            <div
+                                class="bg-eject-blue-dark p-6 flex justify-between items-center relative overflow-hidden">
+                                <div
+                                    class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20">
+                                </div>
+                                <div>
+                                    <p class="text-eject-yellow text-xs font-bold tracking-[0.2em]">PASSAGEIRO</p>
+                                    <h3 class="text-white text-xl font-bold mt-1">ASTRONAUTA</h3>
+                                </div>
+                                <span
+                                    class="material-symbols-outlined text-white/20 text-5xl absolute right-4 rotate-12">rocket_launch</span>
+                            </div>
+
+                            <div class="p-6 relative">
+                                <div class="absolute -top-3 -left-3 w-6 h-6 bg-deep-space rounded-full"></div>
+                                <div class="absolute -top-3 -right-3 w-6 h-6 bg-deep-space rounded-full"></div>
+
+                                <div class="grid grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <p class="text-gray-400 text-xs uppercase font-bold">Setor</p>
+                                        <p id="ticket-sector" class="text-lg font-bold text-eject-blue font-mono">--</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-400 text-xs uppercase font-bold">Pontuação</p>
+                                        <p id="ticket-score" class="text-lg font-bold text-eject-blue font-mono">0 pts
+                                        </p>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <p class="text-gray-400 text-xs uppercase font-bold">Nível Sugerido</p>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="material-symbols-outlined text-eject-yellow">stars</span>
+                                            <p id="ticket-level"
+                                                class="text-xl font-black uppercase text-eject-blue-dark">CALCULANDO...
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="border-t border-dashed border-gray-300 pt-4 text-center">
+                                    <p class="text-xs text-gray-400 mb-2">Código de Autorização</p>
+                                    <p class="font-mono tracking-[0.5em] text-lg font-bold">EJ-2024-X</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-center text-gray-400 text-sm mt-8 max-w-sm">
+                            Sua trilha foi personalizada com base na profundidade do seu conhecimento.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="bg-white/5 border-t border-white/10 p-6 flex justify-between items-center backdrop-blur-sm">
+                    <button id="btn-back" onclick="changeStep(-1)"
+                        class="px-6 py-3 rounded-xl text-gray-400 font-bold hover:bg-white/5 hover:text-white transition-all disabled:opacity-0 disabled:pointer-events-none"
+                        disabled>
+                        Voltar
+                    </button>
+
+                    <button id="btn-next" onclick="changeStep(1)"
+                        class="group px-8 py-3 bg-white text-eject-blue-dark rounded-xl font-bold shadow-lg hover:bg-eject-yellow transition-all flex items-center gap-3 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed"
+                        disabled>
+                        <span>Confirmar Setor</span>
+                        <span
+                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // --- DADOS DAS SKILLS ---
+        const skillsData = {
+            'frontend': [
+                "HTML5 Semântico", "CSS3 / Flexbox / Grid", "JavaScript (ES6+)",
+                "React Hooks (useState)", "Consumo de APIs (Fetch)",
+                "Tailwind CSS", "TypeScript Básico", "Git Flow", "Next.js"
+            ],
+            'backend': [
+                "Lógica (Python)", "Estrutura de Dados", "Django Framework",
+                "Django REST", "SQL / Modelagem", "Autenticação (JWT)",
+                "Docker Básico", "Git Flow", "Testes Unitários"
+            ],
+            'uxui': [
+                "Figma Interface", "Auto Layout", "Prototipagem",
+                "Design System", "Tipografia & Cores", "Heurísticas",
+                "Wireframing", "Hemsley Fraser", "Pesquisa Usuário"
+            ]
+        };
+
+        // Objeto para guardar as notas do usuário: { 'HTML5 Semântico': 3, ... }
+        let userRatings = {};
+
+        // --- ESTADO DA APLICAÇÃO ---
+        let currentStep = 1;
+        let selectedArea = null;
+
+        // --- FUNÇÕES DE LÓGICA ---
+
+        function selectTech(area) {
+            // Visual Selection
+            document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById(`card-${area}`).classList.add('selected');
+
+            // Logic
+            selectedArea = area;
+            userRatings = {}; // Reseta notas ao trocar de área
+
+            // Atualiza cor da legenda na tela 2
+            const colorMap = { 'uxui': '#BD00FF', 'frontend': '#00F0FF', 'backend': '#00FF94' };
+            document.getElementById('legend-color').style.backgroundColor = colorMap[area];
+
+            // Enable Button
+            const btn = document.getElementById('btn-next');
+            btn.disabled = false;
+            btn.querySelector('span').innerText = "Confirmar Setor";
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skills-container');
+            container.innerHTML = '';
+
+            const skills = skillsData[selectedArea] || [];
+
+            skills.forEach((skill, index) => {
+                // Cria HTML da barra de 0 a 5
+                let segmentsHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    segmentsHTML += `<div onclick="setRating('${skill}', ${i})" id="seg-${skill}-${i}" class="rating-segment w-full h-full"></div>`;
+                }
+
+                const html = `
+                    <div class="p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-bold text-gray-200">${skill}</span>
+                            <span id="score-display-${skill}" class="text-xs font-mono text-gray-400 bg-black/30 px-2 py-1 rounded">0/5</span>
+                        </div>
+                        <div class="flex gap-1 h-3 relative w-full">
+                            ${segmentsHTML}
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function setRating(skillName, value) {
+            userRatings[skillName] = value;
+
+            // Atualiza visual das barras
+            const colorMap = { 'uxui': 'filled-uxui', 'frontend': 'filled-frontend', 'backend': 'filled-backend' };
+            const activeClass = colorMap[selectedArea];
+
+            for (let i = 1; i <= 5; i++) {
+                const segment = document.getElementById(`seg-${skillName}-${i}`);
+                if (i <= value) {
+                    segment.classList.add(activeClass);
+                    segment.style.opacity = '1';
+                } else {
+                    segment.classList.remove('filled-uxui', 'filled-frontend', 'filled-backend');
+                    segment.style.opacity = '';
+                }
+            }
+
+            // Atualiza texto numérico
+            document.getElementById(`score-display-${skillName}`).innerText = `${value}/5`;
+            document.getElementById(`score-display-${skillName}`).classList.add('text-white');
+        }
+
+        function calculateLevel() {
+            const skills = skillsData[selectedArea];
+            const maxScore = skills.length * 5; // Nota máxima possível
+            let currentScore = 0;
+
+            skills.forEach(skill => {
+                currentScore += (userRatings[skill] || 0);
+            });
+
+            const percentage = (currentScore / maxScore) * 100;
+            let levelName = "Nível 1 - Lançamento";
+
+            // Regra de negócio ajustada para pontuação
+            if (percentage > 30 && percentage <= 70) levelName = "Nível 2 - Órbita";
+            if (percentage > 70) levelName = "Nível 3 - Alunissagem";
+
+            return { level: levelName, score: currentScore, max: maxScore };
+        }
+
+        function generateTicket() {
+            // Preencher dados do ticket
+            const areaNames = { 'uxui': 'UX/UI DESIGN', 'frontend': 'FRONTEND DEV', 'backend': 'BACKEND DEV' };
+            const result = calculateLevel();
+
+            document.getElementById('ticket-sector').innerText = areaNames[selectedArea];
+            document.getElementById('ticket-score').innerText = `${result.score} / ${result.max}`;
+            document.getElementById('ticket-level').innerText = result.level;
+        }
+
+        function changeStep(direction) {
+            const nextStep = currentStep + direction;
+            if (nextStep < 1 || nextStep > 3) return;
+
+            // Animação de Saída
+            const currentView = document.getElementById(`view-${currentStep}`);
+            currentView.classList.add('opacity-0', 'hidden');
+            currentView.classList.remove('flex');
+
+            // Lógica entre passos
+            if (currentStep === 1 && direction === 1) {
+                renderSkills();
+                document.getElementById('btn-next').querySelector('span').innerText = "Calcular Rota";
+            }
+            if (currentStep === 2 && direction === 1) {
+                generateTicket();
+                document.getElementById('btn-next').querySelector('span').innerText = "Iniciar Treinamento";
+                document.getElementById('btn-next').classList.replace('bg-white', 'bg-eject-yellow');
+                document.getElementById('btn-next').onclick = () => alert("Mapeamento concluído! Redirecionando...");
+            }
+
+            // Atualiza Váriaveis
+            currentStep = nextStep;
+
+            // Animação de Entrada
+            const nextView = document.getElementById(`view-${currentStep}`);
+            nextView.classList.remove('hidden');
+            nextView.classList.add('flex');
+            setTimeout(() => nextView.classList.remove('opacity-0'), 50);
+
+            updateUI();
+        }
+
+        function updateUI() {
+            // 1. Atualizar Barra de Progresso
+            const progressLine = document.getElementById('progress-line');
+            if (currentStep === 1) progressLine.style.width = '0%';
+            if (currentStep === 2) progressLine.style.width = '50%';
+            if (currentStep === 3) progressLine.style.width = '100%';
+
+            // 2. Atualizar Labels
+            for (let i = 1; i <= 3; i++) {
+                const node = document.getElementById(`step-node-${i}`);
+                const label = document.getElementById(`step-label-${i}`);
+
+                if (i <= currentStep) {
+                    node.classList.add('bg-eject-yellow', 'text-black', 'shadow-[0_0_15px_rgba(255,204,0,0.5)]');
+                    node.classList.remove('bg-space-blue', 'text-white', 'border-white/20');
+                    if (label) label.classList.remove('opacity-50');
+                } else {
+                    node.classList.remove('bg-eject-yellow', 'text-black', 'shadow-[0_0_15px_rgba(255,204,0,0.5)]');
+                    node.classList.add('bg-space-blue', 'text-white', 'border-white/20');
+                    if (label) label.classList.add('opacity-50');
+                }
+            }
+
+            document.getElementById('btn-back').disabled = (currentStep === 1);
+        }
+
+    </script>
+</body>
+
+</html>
