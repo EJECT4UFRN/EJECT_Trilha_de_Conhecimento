@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Recuperar Senha</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
-    <script src="firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="data-api.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -78,40 +77,86 @@
         </div>
     </div>
 
-    <!-- Firebase Config e Lógica de Autenticação -->
+    <!-- Supabase -->
     <script>
-        // A variável 'auth' já é inicializada em firebase-config.js
         const form = document.getElementById('recuperar-senha-form');
         const emailInput = document.getElementById('email');
         const mensagemDiv = document.getElementById('mensagem');
         const submitButton = form.querySelector('button[type="submit"]');
+        const titulo = document.querySelector('h2');
+        const descricao = titulo.nextElementSibling;
 
-        form.addEventListener('submit', (e) => {
+        let modoNovaSenha = false;
+
+        function entrarModoNovaSenha() {
+            if (modoNovaSenha) return;
+            modoNovaSenha = true;
+            titulo.textContent = 'Nova Senha';
+            descricao.textContent = 'Digite a nova senha para a sua conta.';
+            emailInput.type = 'password';
+            emailInput.placeholder = 'Nova senha (mín. 6 caracteres)';
+            emailInput.autocomplete = 'new-password';
+            emailInput.minLength = 6;
+            emailInput.value = '';
+            submitButton.textContent = 'Salvar nova senha';
+            mensagemDiv.innerHTML = '';
+        }
+
+        // O link do e-mail abre esta página com um token de recuperação. Dependendo do fluxo do
+        // projeto ele chega como #...type=recovery (implícito) ou ?code=... (PKCE), então detectamos
+        // pela URL e também pelo evento PASSWORD_RECOVERY.
+        const urlParams = new URLSearchParams(window.location.hash.slice(1) || window.location.search);
+        if (urlParams.get('type') === 'recovery' || urlParams.has('code')) {
+            entrarModoNovaSenha();
+        }
+        Api.onAuthChange((user, event) => {
+            if (event === 'PASSWORD_RECOVERY') entrarModoNovaSenha();
+        });
+
+        function mostrar(tipo, texto) {
+            const cor = tipo === 'ok' ? 'text-green-500' : 'text-red-500';
+            mensagemDiv.innerHTML = `<p class="${cor}"></p>`;
+            mensagemDiv.firstChild.textContent = texto;
+        }
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = emailInput.value;
-            
+            const valor = emailInput.value;
+
             // Desabilitar botão e mostrar feedback
             submitButton.disabled = true;
             submitButton.textContent = 'Enviando...';
             mensagemDiv.innerHTML = '';
 
-            auth.sendPasswordResetEmail(email)
-                .then(() => {
-                    mensagemDiv.innerHTML = '<p class="text-green-500">E-mail de redefinição enviado! Verifique sua caixa de entrada.</p>';
-                    // Mantém o botão desabilitado para evitar reenvios
-                })
-                .catch((error) => {
-                    console.error("Erro ao enviar e-mail de redefinição:", error);
-                    let mensagemErro = 'Ocorreu um erro. Tente novamente.';
-                    if (error.code === 'auth/user-not-found') {
-                        mensagemErro = 'Nenhum usuário encontrado com este e-mail.';
+            try {
+                if (modoNovaSenha) {
+                    if (!(await Api.currentUser())) {
+                        throw Object.assign(new Error('sem sessão'), { code: 'no_session' });
                     }
-                    mensagemDiv.innerHTML = `<p class="text-red-500">${mensagemErro}</p>`;
-                    
-                    // Reabilitar botão em caso de erro
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Enviar Link';
-                });
+                    await Api.updatePassword(valor);
+                    mostrar('ok', 'Senha alterada! Redirecionando para o login...');
+                    await Api.signOut();
+                    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+                    return;
+                }
+                const destino = window.location.origin + window.location.pathname;
+                await Api.resetPassword(valor, destino);
+                // Mantém o botão desabilitado para evitar reenvios.
+                // (Por segurança o Supabase não revela se o e-mail existe.)
+                mostrar('ok', 'Se o e-mail estiver cadastrado, enviamos o link de redefinição. Verifique sua caixa de entrada.');
+            } catch (error) {
+                console.error('Erro na recuperação de senha:', error);
+                let mensagemErro = 'Ocorreu um erro. Tente novamente.';
+                if (error.code === 'weak_password') mensagemErro = 'A senha é muito fraca (mínimo 6 caracteres).';
+                if (error.code === 'no_session') mensagemErro = 'Link inválido ou expirado. Solicite um novo link de redefinição.';
+                if (error.code === 'same_password') mensagemErro = 'A nova senha deve ser diferente da atual.';
+                if (error.code === 'over_email_send_rate_limit' || error.code === 'over_request_rate_limit') {
+                    mensagemErro = 'Muitas tentativas. Aguarde um pouco e tente novamente.';
+                }
+                mostrar('erro', mensagemErro);
+                submitButton.disabled = false;
+                submitButton.textContent = modoNovaSenha ? 'Salvar nova senha' : 'Enviar Link';
+            }
         });
     </script>
 </body>

@@ -823,15 +823,12 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Firebase Config from external file -->
-    <script src="SIGAV/firebase-config.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="SIGAV/supabase-config.js"></script>
+    <script src="SIGAV/supabase-client.js"></script>
+    <script src="SIGAV/data-api.js"></script>
 
-    <!-- Progress module: adiciona barra em cada card e salva no Firestore por usuário -->
-    <script src="SIGAV/progress.js"></script>
 
     <script>
         /**
@@ -1016,7 +1013,7 @@
         }
 
         /**
-         * Lógica de Autenticação e Modal com Firebase
+         * Lógica de Autenticação e Modal (Supabase Auth)
          */
         document.addEventListener('DOMContentLoaded', function () {
             // Setup de Filtros e Pesquisa
@@ -1087,8 +1084,10 @@
                 }
             };
 
-            // Observador do estado de autenticação do Firebase
-            auth.onAuthStateChanged(user => {
+            let currentUser = null;
+            // Observador do estado de autenticação
+            Api.onAuthChange(user => {
+                currentUser = user;
                 updateLoginIcon(user);
             });
 
@@ -1116,8 +1115,8 @@
                 const password = document.getElementById('password').value;
                 loginError.classList.add('hidden');
 
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
+                Api.signIn(email, password)
+                    .then(() => {
                         // Login bem-sucedido
                         loginModal.style.display = 'none';
                         window.location.href = 'SIGAV/dashboard.html'; // Redireciona para o dashboard

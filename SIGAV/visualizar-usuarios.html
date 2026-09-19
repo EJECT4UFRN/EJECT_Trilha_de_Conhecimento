@@ -8,9 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body { font-family: "Inter", sans-serif; background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%); }
     </style>
@@ -37,52 +34,58 @@
         </div>
     </main>
 
-    <script src="./firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./data-api.js"></script>
     <script>
         function renderUserList(users) {
             const container = document.getElementById('userListContainer');
             container.innerHTML = '';
 
-            if (!users || Object.keys(users).length === 0) {
+            if (!users || users.length === 0) {
                 container.innerHTML = '<p>Nenhum usuário encontrado.</p>';
                 return;
             }
 
-            const sortedUsers = Object.values(users).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            const sortedUsers = [...users].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
             sortedUsers.forEach(user => {
                 const userElement = document.createElement('div');
                 userElement.className = 'flex items-center justify-between py-3 border-b last:border-b-0';
                 userElement.innerHTML = `
                     <div>
-                        <p class="font-semibold">${user.name || 'Nome não definido'}</p>
-                        <p class="text-sm text-gray-500">${user.email || 'E-mail não definido'}</p>
+                        <p class="font-semibold">${Api.esc(user.name) || 'Nome não definido'}</p>
+                        <p class="text-sm text-gray-500">${Api.esc(user.email) || 'E-mail não definido'}</p>
                     </div>
                 `;
                 container.appendChild(userElement);
             });
         }
 
+        async function loadUsers() {
+            renderUserList(await Api.listProfiles());
+        }
+
         async function initUserListPage() {
             lucide.createIcons();
-            auth.onAuthStateChanged(async user => {
+            let started = false;
+            Api.onAuthChange(async user => {
                 if (!user) {
                     window.location.href = './sigav_hub.html';
                     return;
                 }
+                if (started) return;
+                started = true;
 
-                const adminSnapshot = await db.ref(`admins/${user.uid}`).once('value');
-                const isStandardAdmin = adminSnapshot.exists();
-                const isSuperAdmin = user.email === 'educhior@hotmail.com';
-
-                if (isStandardAdmin || isSuperAdmin) {
-                    db.ref('users').on('value', snapshot => {
-                        const users = snapshot.val() || {};
-                        renderUserList(users);
-                    }, error => {
+                if (await Api.isAdmin()) {
+                    try {
+                        await loadUsers();
+                        Api.watch('profiles', () => loadUsers().catch(console.error));
+                    } catch (error) {
                         console.error("Erro ao carregar dados:", error);
                         document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados. Verifique as permissões.';
-                    });
+                    }
                 } else {
                     alert('Acesso negado. Esta área é restrita para administradores.');
                     window.location.href = './sigav_hub.html';

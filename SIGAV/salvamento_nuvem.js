@@ -1,119 +1,104 @@
+// Salva/carrega o progresso dos tópicos de uma trilha no Supabase.
+// Requer data-api.js (window.Api) e, na página, #trilha-id, .topic-checkbox[data-key],
+// #progress-bar, #progress-text e #progress-status.
 document.addEventListener('DOMContentLoaded', () => {
-            // Verificar se o Firebase está disponível e configurado
-            if (typeof firebase === 'undefined') {
-                console.warn('⚠️ Firebase não está disponível para salvamento na nuvem');
-                return;
-            }
-            
-            // Verificar se o database está disponível
-            if (typeof firebase.database !== 'function') {
-                console.warn('⚠️ Firebase Realtime Database não está disponível');
-                return;
-            }
-            
-            try {
-                const db = firebase.database();
-                const auth = firebase.auth();
+    if (!window.Api) {
+        console.warn('Supabase não disponível para salvamento na nuvem');
+        return;
+    }
 
-                const trilhaId = document.getElementById('trilha-id').value;
-                const checkboxes = document.querySelectorAll('.topic-checkbox');
-                const totalTopics = checkboxes.length;
+    const trilhaEl = document.getElementById('trilha-id');
+    if (!trilhaEl) return;
+    const trilhaId = trilhaEl.value;
+    const checkboxes = document.querySelectorAll('.topic-checkbox');
+    const totalTopics = checkboxes.length;
 
-                const progressBar = document.getElementById('progress-bar');
-                const progressText = document.getElementById('progress-text');
-                const progressStatus = document.getElementById('progress-status');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const progressStatus = document.getElementById('progress-status');
 
-                let currentUser = null;
-                let localProgress = {};
+    let currentUser = null;
+    let localProgress = {};
 
-                function updateProgressBar() {
-                    const completedCount = Object.values(localProgress).filter(Boolean).length;
-                    const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
+    // A barra e os textos de status são opcionais (nem toda trilha os exibe).
+    function setStatus(text, cls) {
+        if (!progressStatus) return;
+        progressStatus.textContent = text;
+        progressStatus.className = `text-sm font-medium ${cls}`;
+    }
 
-                    progressBar.style.width = `${percentage}%`;
-                    progressBar.classList.toggle('bg-green-600', percentage === 100);
-                    progressBar.classList.toggle('bg-sky-600', percentage < 100);
-                    progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
-                }
+    function updateProgressBar() {
+        const completedCount = Object.values(localProgress).filter(Boolean).length;
+        const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
 
-                function applyProgressToUI() {
-                    checkboxes.forEach(checkbox => {
-                        const key = checkbox.dataset.key;
-                        checkbox.checked = !!localProgress[key];
-                    });
-                    updateProgressBar();
-                }
+        if (!progressBar || !progressText) return;
+        progressBar.style.width = `${percentage}%`;
+        progressBar.classList.toggle('bg-green-600', percentage === 100);
+        progressBar.classList.toggle('bg-sky-600', percentage < 100);
+        progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
+    }
 
-                async function saveProgressToDatabase() {
-                    if (!currentUser) return;
-                    progressStatus.textContent = 'Salvando...';
-                    progressStatus.className = 'text-sm font-medium text-yellow-600';
-
-                    const progressRef = db.ref(`users/${currentUser.uid}/progress/${trilhaId}`);
-                    try {
-                        await progressRef.set(localProgress);
-                        progressStatus.textContent = 'Progresso salvo na nuvem';
-                        progressStatus.className = 'text-sm font-medium text-green-600';
-                    } catch (error) {
-                        console.error("Erro ao salvar no Realtime Database: ", error);
-                        progressStatus.textContent = 'Erro ao salvar';
-                        progressStatus.className = 'text-sm font-medium text-red-600';
-                    }
-                }
-
-                const debouncedSave = (() => {
-                    let timeout;
-                    return () => {
-                        clearTimeout(timeout);
-                        timeout = setTimeout(saveProgressToDatabase, 1500);
-                    };
-                })();
-
-                async function loadProgressFromDatabase() {
-                    if (!currentUser) return;
-                    progressStatus.textContent = 'Carregando...';
-                    progressStatus.className = 'text-sm font-medium text-gray-500';
-
-                    const progressRef = db.ref(`users/${currentUser.uid}/progress/${trilhaId}`);
-                    try {
-                        const snapshot = await progressRef.once('value');
-                        if (snapshot.exists()) {
-                            localProgress = snapshot.val();
-                            applyProgressToUI();
-                            progressStatus.textContent = 'Progresso carregado da nuvem';
-                            progressStatus.className = 'text-sm font-medium text-green-600';
-                        } else {
-                            progressStatus.textContent = 'Nenhum progresso salvo na nuvem ainda';
-                            progressStatus.className = 'text-sm font-medium text-gray-500';
-                        }
-                    } catch (error) {
-                        console.error("Erro ao carregar do Realtime Database: ", error);
-                        progressStatus.textContent = 'Erro ao carregar progresso';
-                        progressStatus.className = 'text-sm font-medium text-red-600';
-                    }
-                }
-
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', () => {
-                        const key = checkbox.dataset.key;
-                        localProgress[key] = checkbox.checked;
-                        updateProgressBar();
-                        debouncedSave();
-                    });
-                });
-
-                auth.onAuthStateChanged(user => {
-                    if (user) {
-                        currentUser = user;
-                        loadProgressFromDatabase();
-                    } else {
-                        currentUser = null;
-                        // Se não houver usuário, redireciona para a página de login para evitar inconsistências.
-                        console.log('Usuário não autenticado. Redirecionando para login...');
-                        window.location.href = '../SIGAV/login.html';
-                    }
-                });
-            } catch (error) {
-                console.error('❌ Erro ao inicializar Firebase Database:', error);
-            }
+    function applyProgressToUI() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !!localProgress[checkbox.dataset.key];
         });
+        updateProgressBar();
+    }
+
+    async function saveProgress() {
+        if (!currentUser) return;
+        setStatus('Salvando...', 'text-yellow-600');
+        try {
+            await Api.saveTrailProgress(trilhaId, localProgress);
+            setStatus('Progresso salvo na nuvem', 'text-green-600');
+        } catch (error) {
+            console.error('Erro ao salvar progresso:', error);
+            setStatus('Erro ao salvar', 'text-red-600');
+        }
+    }
+
+    const debouncedSave = (() => {
+        let timeout;
+        return () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(saveProgress, 1500);
+        };
+    })();
+
+    async function loadProgress() {
+        if (!currentUser) return;
+        setStatus('Carregando...', 'text-gray-500');
+        try {
+            const saved = await Api.getTrailProgress(trilhaId, currentUser.uid);
+            if (Object.keys(saved).length > 0) {
+                localProgress = saved;
+                applyProgressToUI();
+                setStatus('Progresso carregado da nuvem', 'text-green-600');
+            } else {
+                setStatus('Nenhum progresso salvo na nuvem ainda', 'text-gray-500');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar progresso:', error);
+            setStatus('Erro ao carregar progresso', 'text-red-600');
+        }
+    }
+
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            localProgress[checkbox.dataset.key] = checkbox.checked;
+            updateProgressBar();
+            debouncedSave();
+        });
+    });
+
+    Api.onAuthChange(user => {
+        if (user) {
+            currentUser = user;
+            loadProgress();
+        } else {
+            currentUser = null;
+            // Sem usuário: volta para o login para evitar inconsistências.
+            window.location.href = '../SIGAV/login.html';
+        }
+    });
+});

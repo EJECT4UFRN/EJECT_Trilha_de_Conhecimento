@@ -11,169 +11,21 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
-    <!-- Firebase Config -->
-    <script src="../SIGAV/firebase-config.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../SIGAV/supabase-config.js"></script>
+    <script src="../SIGAV/supabase-client.js"></script>
+    <script src="../SIGAV/data-api.js"></script>
 
     <script src="../SIGAV/salvamento_nuvem.js"></script>
-    <script src="../SIGAV/trilha-progress.js"></script>
 
-    <!-- Lógica JavaScript (Firebase Modular v11 e Controle de Progresso) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Variáveis globais fornecidas pelo ambiente
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db, auth;
-        let currentUser = null;
-        let localProgress = {};
-        const trilhaId = document.getElementById('trilha-id')?.value || 'marketing_comercial';
-        const checkboxes = document.querySelectorAll('.topic-checkbox');
-        const totalTopics = checkboxes.length;
-
-        const progressBar = document.getElementById('progress-bar');
-        const progressText = document.getElementById('progress-text');
-        const progressStatus = document.getElementById('progress-status');
-
-        if (firebaseConfig) {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            setPersistence(auth, browserLocalPersistence);
-        } else {
-            console.error("Firebase config is missing.");
-        }
-
-        function updateProgressBar() {
-            const completedCount = Object.values(localProgress).filter(Boolean).length;
-            const percentage = totalTopics > 0 ? Math.round((completedCount / totalTopics) * 100) : 0;
-
-            progressBar.style.width = `${percentage}%`;
-            
-            progressBar.classList.toggle('bg-green-600', percentage === 100);
-            progressBar.classList.toggle('bg-sky-600', percentage < 100);
-            
-            progressText.textContent = `${completedCount} de ${totalTopics} tópicos concluídos (${percentage}%)`;
-        }
-        
-        function getProgressRef(userId, trilhaId) {
-            return doc(db, 'artifacts', appId, 'users', userId, 'trilha_progress', trilhaId);
-        }
-
-        async function saveProgressToDatabase() {
-            if (!currentUser || !db) return;
-            progressStatus.textContent = 'Salvando...';
-            progressStatus.className = 'text-sm font-medium text-yellow-600';
-
-            const userRef = getProgressRef(currentUser.uid, trilhaId);
-            
-            try {
-                await setDoc(userRef, localProgress, { merge: true });
-                progressStatus.textContent = 'Progresso salvo na nuvem';
-                progressStatus.className = 'text-sm font-medium text-green-600';
-            } catch (error) {
-                console.error("Erro ao salvar no Firestore: ", error);
-                progressStatus.textContent = 'Erro ao salvar';
-                progressStatus.className = 'text-sm font-medium text-red-600';
-            }
-        }
-
-        const debouncedSave = (() => {
-            let timeout;
-            return () => {
-                clearTimeout(timeout);
-                timeout = setTimeout(saveProgressToDatabase, 1500);
-            };
-        })();
-        
-        function applyProgressToUI() {
-            checkboxes.forEach(checkbox => {
-                const key = checkbox.dataset.key;
-                checkbox.checked = !!localProgress[key];
-            });
-            updateProgressBar();
-        }
-
-        async function loadProgressFromDatabase(user) {
-            if (!user || !db) return;
-            progressStatus.textContent = 'Carregando...';
-            progressStatus.className = 'text-sm font-medium text-gray-500';
-
-            const userRef = getProgressRef(user.uid, trilhaId);
-            
-            try {
-                const docSnap = await getDoc(userRef);
-                if (docSnap.exists()) {
-                    localProgress = docSnap.data();
-                    applyProgressToUI();
-                    progressStatus.textContent = 'Progresso carregado da nuvem';
-                    progressStatus.className = 'text-sm font-medium text-green-600';
-                } else {
-                    localProgress = {};
-                    applyProgressToUI();
-                    progressStatus.textContent = 'Nenhum progresso salvo ainda';
-                    progressStatus.className = 'text-sm font-medium text-gray-500';
-                }
-            } catch (error) {
-                console.error("Erro ao carregar do Firestore: ", error);
-                progressStatus.textContent = 'Erro ao carregar progresso';
-                progressStatus.className = 'text-sm font-medium text-red-600';
-            }
-        }
-        
-        // 1. Inicializa o estado de Autenticação/Carga
-        if (firebaseConfig) {
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user;
-                    await loadProgressFromDatabase(user);
-                } else {
-                    // Tenta o login automático via custom token ou anônimo
-                    try {
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                            const anonUser = await signInAnonymously(auth);
-                            currentUser = anonUser.user;
-                            await loadProgressFromDatabase(currentUser);
-                        }
-                    } catch (error) {
-                         console.error("Erro de autenticação:", error);
-                         currentUser = null;
-                         progressStatus.textContent = 'Falha na autenticação. Progresso não será salvo.';
-                         progressStatus.className = 'text-sm font-medium text-red-600';
-                    }
-                }
-
-                // 2. Adiciona os listeners de mudança depois que a autenticação for resolvida
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', () => {
-                        const key = checkbox.dataset.key;
-                        localProgress[key] = checkbox.checked;
-                        updateProgressBar();
-                        
-                        if (currentUser) {
-                           debouncedSave();
-                        }
-                    });
-                });
-            });
-        }
-        
+    <script>
+        // Progresso é salvo por ../SIGAV/salvamento_nuvem.js (Supabase).
         window.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined' && lucide.createIcons) {
                 lucide.createIcons();
             }
-            updateProgressBar();
         });
     </script>
 

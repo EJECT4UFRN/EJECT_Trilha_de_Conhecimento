@@ -14,13 +14,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
-    <!-- Firebase Config -->
-    <script src="../SIGAV/firebase-config.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../SIGAV/supabase-config.js"></script>
+    <script src="../SIGAV/supabase-client.js"></script>
+    <script src="../SIGAV/data-api.js"></script>
 
     <style>
         /* Estilos do sistema de progresso */
@@ -847,7 +846,6 @@
     <script src="../SIGAV/salvamento_nuvem.js"></script>
     <script src="../Acessibilidade/acessibilidade.js"></script>
     
-    <script src="../SIGAV/trilha-progress.js"></script>
     <script>
         // Assegurar que o objeto jsPDF está disponível globalmente se usar a versão UMD
         const { jsPDF } = window.jspdf;
@@ -1206,18 +1204,14 @@
                     localStorage.removeItem('user');
                     sessionStorage.clear();
                     
-                    // Se usando Firebase, fazer logout
-                    if (typeof firebase !== 'undefined' && firebase.auth) {
-                        firebase.auth().signOut().then(() => {
-                            // Redirecionar para a página de login
-                            window.location.href = '../SIGAV/login.html';
-                        }).catch((error) => {
+                    const goToLogin = () => { window.location.href = '../SIGAV/login.html'; };
+                    if (window.Api) {
+                        Api.signOut().then(goToLogin).catch((error) => {
                             console.error('Erro ao fazer logout:', error);
-                            window.location.href = '../SIGAV/login.html';
+                            goToLogin();
                         });
                     } else {
-                        // Redirecionar diretamente se não houver Firebase
-                        window.location.href = '../SIGAV/login.html';
+                        goToLogin();
                     }
                 }
             });

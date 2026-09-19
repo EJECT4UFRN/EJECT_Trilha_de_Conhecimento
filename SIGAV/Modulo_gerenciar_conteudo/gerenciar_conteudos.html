@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Studio de Conteúdos</title>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -219,12 +216,12 @@
                 class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
 
-    <script src="../firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="../data-api.js"></script>
     <script>
         lucide.createIcons();
-        const db = firebase.database();
-        const auth = firebase.auth();
-
         let isSaving = false;
         let currentLoadedData = null;
 
@@ -307,11 +304,8 @@
             const newItem = {
                 title: document.getElementById('inpTitle').value,
                 url: document.getElementById('inpUrl').value,
-                description: document.getElementById('inpDesc').value,
-                createdAt: isEditing ? firebase.database.ServerValue.TIMESTAMP : firebase.database.ServerValue.TIMESTAMP
+                description: document.getElementById('inpDesc').value
             };
-
-            if (isEditing) newItem.updatedAt = firebase.database.ServerValue.TIMESTAMP;
 
             if (document.getElementById('hasQuiz').checked) {
                 const qElements = document.querySelectorAll('.quiz-question-card');
@@ -345,12 +339,8 @@
                 newItem.quiz = null;
             }
 
-            let dbRef;
-            if (isEditing) {
-                dbRef = db.ref(`contents/${track}/${level}/${cat}/${editId}`).update(newItem);
-            } else {
-                dbRef = db.ref(`contents/${track}/${level}/${cat}`).push(newItem);
-            }
+            // Somente administradores conseguem gravar (garantido pelo RLS do banco).
+            const dbRef = Api.saveContent(track, level, cat, newItem, isEditing ? editId : null);
 
             dbRef.then(() => {
                 showToast(isEditing ? "Conteúdo atualizado!" : "Conteúdo publicado!");
@@ -452,7 +442,29 @@
         }
 
         // --- LOAD & RENDER ---
-        auth.onAuthStateChanged(user => { if (user) loadContents(); else window.location.href = 'login.html'; });
+        // Página restrita a administradores (o RLS do banco também impede gravações de não-admins).
+        let contentsGuardStarted = false;
+        Api.onAuthChange(async user => {
+            if (!user) { window.location.href = '../login.html'; return; }
+            if (contentsGuardStarted) return;
+            contentsGuardStarted = true;
+            if (!(await Api.isAdmin())) {
+                alert('Acesso negado. Esta área é restrita para administradores.');
+                window.location.href = '../sigav_hub.html';
+                return;
+            }
+            loadContents();
+            // Atualiza a lista quando os conteúdos mudam (equivale ao antigo .on('value'))
+            Api.watch('contents', () => refreshList().catch(console.error));
+        });
+
+        async function refreshList() {
+            const track = document.getElementById('selTrack').value;
+            const level = document.getElementById('selLevel').value;
+            const data = await Api.getContents(track, level);
+            currentLoadedData = Object.keys(data).length ? data : null;
+            renderList(currentLoadedData);
+        }
 
         function loadContents() {
             const track = document.getElementById('selTrack').value;
@@ -467,10 +479,9 @@
 
             listEl.innerHTML = '<div class="text-center py-10 text-slate-400">Carregando...</div>';
 
-            db.ref(`contents/${track}/${level}`).on('value', snapshot => {
-                const data = snapshot.val();
-                currentLoadedData = data;
-                renderList(data);
+            refreshList().catch(err => {
+                console.error(err);
+                listEl.innerHTML = '<p class="text-center text-red-500">Erro ao carregar os conteúdos.</p>';
             });
         }
 
@@ -489,9 +500,9 @@
                         listEl.innerHTML += `
                             <div class="bg-slate-50 p-3 rounded border border-slate-100 mb-2 flex justify-between items-center group hover:bg-white hover:shadow-sm transition">
                                 <div class="flex-1">
-                                    <span class="font-bold text-slate-700 text-sm block">${item.title}</span>
+                                    <span class="font-bold text-slate-700 text-sm block">${Api.esc(item.title)}</span>
                                     <div class="flex gap-2 text-xs text-slate-400 items-center">
-                                        <a href="${item.url}" target="_blank" class="hover:text-blue-500 truncate max-w-[200px]">${item.url}</a>
+                                        <a href="${Api.esc(item.url)}" target="_blank" rel="noopener" class="hover:text-blue-500 truncate max-w-[200px]">${Api.esc(item.url)}</a>
                                         ${quizCount > 0 ? `<span class="text-orange-600 bg-orange-100 px-1.5 rounded font-bold border border-orange-200">${quizCount} Perguntas</span>` : ''}
                                     </div>
                                 </div>
@@ -511,11 +522,13 @@
             lucide.createIcons();
         }
 
-        function deleteContent(cat, id) {
+        async function deleteContent(cat, id) {
             if (confirm("Excluir permanentemente?")) {
-                const t = document.getElementById('selTrack').value;
-                const l = document.getElementById('selLevel').value;
-                db.ref(`contents/${t}/${l}/${cat}/${id}`).remove();
+                try {
+                    await Api.deleteContent(id);
+                } catch (err) {
+                    showToast("Erro: " + err.message, "error");
+                }
             }
         }
 
@@ -527,56 +540,6 @@
             setTimeout(() => el.remove(), 3000);
         }
 
-        async function showDashboard(user) {
-            const loadingScreen = document.getElementById('loadingScreen');
-
-            try {
-                // 1. Busque o conteúdo do banco PRIMEIRO (Para contar quantos itens existem)
-                const contentSnap = await db.ref('contents').once('value');
-                const allContent = contentSnap.val() || {};
-
-                // 2. Dados do Usuário
-                const userRef = db.ref(`users/${user.uid}`);
-                const userSnapshot = await userRef.once('value');
-                const userData = userSnapshot.val() || {};
-                const userName = userData.name || user.displayName || user.email.split('@')[0];
-
-                // Atualiza textos
-                const nameDisplay = document.getElementById('userNameDisplay');
-                if (nameDisplay) nameDisplay.textContent = userName;
-
-                const welcomeMsg = document.getElementById('welcomeMessage');
-                if (welcomeMsg) welcomeMsg.textContent = `Olá, ${userName.split(' ')[0]}!`;
-
-                // 3. Carrega os cards passando o allContent
-                await loadDashboardData(user.uid, allContent);
-
-            } catch (error) {
-                console.error("Erro no dashboard:", error);
-            } finally {
-                // Esconde loading
-                if (loadingScreen) {
-                    loadingScreen.classList.add('loader-hidden');
-                    setTimeout(() => {
-                        loadingScreen.remove();
-                    }, 500);
-                }
-            }
-        }
-
-        // --- AUTH ---
-        function handleLogout() {
-            auth.signOut().then(() => window.location.href = 'login.html');
-        }
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                showDashboard(user);
-                document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-            } else {
-                window.location.href = '../login.html';
-            }
-        });
     </script>
 </body>
 

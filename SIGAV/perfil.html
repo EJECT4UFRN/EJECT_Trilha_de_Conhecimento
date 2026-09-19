@@ -11,9 +11,6 @@
     <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         body {
@@ -238,7 +235,10 @@
         </div>
     </main>
 
-    <script src="./firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./data-api.js"></script>
     <script>
         const DASHBOARD_URL = 'dashboard.html';
 
@@ -250,10 +250,10 @@
             const userNameInput = document.getElementById('userNameInput');
             const userNameDisplay = document.getElementById('userNameDisplay'); // Referência ao span do header
 
-            db.ref(`users/${userId}/name`).once('value').then(snapshot => {
-                const nameFromDb = snapshot.val();
+            Api.getProfile(userId).then(profile => {
+                const nameFromDb = profile && profile.name;
 
-                // Define o nome: usa o do banco, ou do Google/Auth, ou o início do email
+                // Define o nome: usa o do banco, ou do Auth, ou o início do email
                 const finalName = nameFromDb || user.displayName || user.email.split('@')[0];
 
                 // Atualiza o input de edição
@@ -270,11 +270,10 @@
             const countTag = document.getElementById('badgeCountTag');
             const userId = user.uid;
 
-            db.ref(`users/${userId}/badges`).once('value').then(snapshot => {
-                const badges = snapshot.val();
+            Api.getBadges(userId).then(badges => {
                 badgesGrid.innerHTML = '';
 
-                if (!badges) {
+                if (!badges || Object.keys(badges).length === 0) {
                     // Estado Vazio Bonito
                     badgesGrid.innerHTML = `
                         <div class="col-span-full flex flex-col items-center justify-center py-10 text-center">
@@ -336,28 +335,28 @@
             }
         }
 
+        // Confirma a senha atual antes de operações sensíveis.
         function reauthenticate(password) {
-            const user = auth.currentUser;
-            const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
-            return user.reauthenticateWithCredential(credential);
+            return Api.verifyPassword(password);
         }
 
-        function saveUserName() {
-            const user = auth.currentUser;
+        async function saveUserName() {
+            const user = await Api.currentUser();
             const newName = document.getElementById('userNameInput').value.trim();
 
             if (!user) return;
             if (!newName) { alert("Nome inválido."); return; }
 
-            const p1 = db.ref(`users/${user.uid}/name`).set(newName);
-            const p2 = user.updateProfile({ displayName: newName });
-
-            Promise.all([p1, p2])
-                .then(() => showMessage('saveNameMessage', "Nome atualizado!"))
-                .catch(err => showMessage('saveNameMessage', "Erro ao salvar.", true));
+            try {
+                await Promise.all([Api.updateName(user.uid, newName), Api.updateDisplayName(newName)]);
+                showMessage('saveNameMessage', "Nome atualizado!");
+            } catch (err) {
+                console.error(err);
+                showMessage('saveNameMessage', "Erro ao salvar.", true);
+            }
         }
 
-        function changeEmail() {
+        async function changeEmail() {
             const newEmail = document.getElementById('emailInput').value.trim();
             const password = document.getElementById('emailPasswordInput').value;
 
@@ -366,17 +365,23 @@
                 return;
             }
 
-            reauthenticate(password).then(() => {
-                const user = auth.currentUser;
-                user.updateEmail(newEmail).then(() => {
-                    db.ref(`users/${user.uid}/email`).set(newEmail);
-                    showMessage('saveEmailMessage', "E-mail atualizado!");
-                    document.getElementById('emailPasswordInput').value = '';
-                }).catch(err => showMessage('saveEmailMessage', err.message, true));
-            }).catch(err => showMessage('saveEmailMessage', "Senha incorreta.", true));
+            try {
+                await reauthenticate(password);
+            } catch (err) {
+                showMessage('saveEmailMessage', "Senha incorreta.", true);
+                return;
+            }
+            try {
+                await Api.updateEmail(newEmail);
+                // O Supabase envia um e-mail de confirmação; o e-mail do perfil é atualizado após a confirmação.
+                showMessage('saveEmailMessage', "Enviamos um link de confirmação para o novo e-mail.", false, 6000);
+                document.getElementById('emailPasswordInput').value = '';
+            } catch (err) {
+                showMessage('saveEmailMessage', err.message, true);
+            }
         }
 
-        function changePassword() {
+        async function changePassword() {
             const currentPass = document.getElementById('currentPasswordInput').value;
             const newPass = document.getElementById('newPasswordInput').value;
 
@@ -385,50 +390,38 @@
                 return;
             }
 
-            reauthenticate(currentPass).then(() => {
-                auth.currentUser.updatePassword(newPass).then(() => {
-                    showMessage('savePasswordMessage', "Senha atualizada!");
-                    document.getElementById('currentPasswordInput').value = '';
-                    document.getElementById('newPasswordInput').value = '';
-                }).catch(err => showMessage('savePasswordMessage', err.message, true));
-            }).catch(err => showMessage('savePasswordMessage', "Senha atual incorreta.", true));
+            try {
+                await reauthenticate(currentPass);
+            } catch (err) {
+                showMessage('savePasswordMessage', "Senha atual incorreta.", true);
+                return;
+            }
+            try {
+                await Api.updatePassword(newPass);
+                showMessage('savePasswordMessage', "Senha atualizada!");
+                document.getElementById('currentPasswordInput').value = '';
+                document.getElementById('newPasswordInput').value = '';
+            } catch (err) {
+                showMessage('savePasswordMessage', err.message, true);
+            }
         }
 
         async function resetProgress() {
             if (!confirm("Confirma o reset? Isso apagará TODAS as conquistas, progresso e envios de desafios. Essa ação é irreversível.")) return;
 
-            const user = auth.currentUser;
+            const user = await Api.currentUser();
             if (!user) return;
 
             const btn = document.getElementById('btnReset'); // Se tiver um botão com id btnReset
             if (btn) btn.disabled = true;
 
             try {
-                // 1. Prepara o objeto de atualização (Deleção Atômica)
-                const updates = {};
-
-                // Apaga Progresso e Badges do perfil do usuário
-                updates[`users/${user.uid}/progress`] = null;
-                updates[`users/${user.uid}/badges`] = null;
-
-                // 2. Busca as submissões feitas por esse usuário para apagar também
-                const submissionsRef = db.ref('submissions');
-                const snapshot = await submissionsRef.orderByChild('userId').equalTo(user.uid).once('value');
-                const userSubmissions = snapshot.val();
-
-                // Se existirem submissões, marca elas para deletar (null)
-                if (userSubmissions) {
-                    Object.keys(userSubmissions).forEach(submissionId => {
-                        updates[`submissions/${submissionId}`] = null;
-                    });
-                }
-
-                // 3. Executa todas as exclusões de uma vez
-                await db.ref().update(updates);
+                // Apaga progresso, badges e envios de desafios numa única transação (RPC).
+                await Api.resetMyProgress();
 
                 showMessage('resetProgressMessage', "Progresso e histórico apagados com sucesso.");
 
-                // 4. Recarrega a página para limpar variáveis de memória (cache)
+                // Recarrega a página para limpar variáveis de memória (cache)
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -440,7 +433,7 @@
             }
         }
 
-        function deleteAccount() {
+        async function deleteAccount() {
             const password = document.getElementById('deletePasswordInput').value;
             if (!password) {
                 showMessage('deleteAccountMessage', "Digite sua senha.", true);
@@ -448,22 +441,31 @@
             }
             if (!confirm("Tem certeza absoluta? Essa ação é irreversível.")) return;
 
-            reauthenticate(password).then(() => {
-                const user = auth.currentUser;
-                const uid = user.uid;
-                db.ref(`users/${uid}`).remove().then(() => {
-                    user.delete().then(() => {
-                        alert("Conta excluída.");
-                        window.location.href = 'login.html';
-                    });
-                });
-            }).catch(err => showMessage('deleteAccountMessage', "Senha incorreta.", true));
+            try {
+                await reauthenticate(password);
+            } catch (err) {
+                showMessage('deleteAccountMessage', "Senha incorreta.", true);
+                return;
+            }
+            try {
+                // Remove a conta; perfil, progresso, insígnias e envios caem em cascata no banco.
+                await Api.deleteMyAccount();
+                alert("Conta excluída.");
+                window.location.href = 'login.html';
+            } catch (err) {
+                console.error(err);
+                showMessage('deleteAccountMessage', "Erro ao excluir a conta.", true);
+            }
         }
 
         function initProfilePage() {
             lucide.createIcons();
-            auth.onAuthStateChanged(user => {
+            let initialized = false;
+            Api.onAuthChange(user => {
                 if (user) {
+                    // O evento de auth pode disparar de novo (renovação de token): inicializa uma vez.
+                    if (initialized) return;
+                    initialized = true;
                     loadUserName(user);
                     loadUserBadges(user);
 

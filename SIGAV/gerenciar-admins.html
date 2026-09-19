@@ -8,9 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body { font-family: "Inter", sans-serif; background: linear-gradient(275.04deg, rgb(228, 243, 255) 1.05%, rgb(244, 246, 251) 100%); }
         /* Correção do CSS para o botão de alternância (toggle) */
@@ -47,34 +44,40 @@
         </div>
     </main>
 
-    <script src="./firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./data-api.js"></script>
     <script>
+        let currentUid = null;
+
+        // users: [{uid, name, email}]; admins: { uid: { isSuper } }
         function renderUserList(users, admins) {
             const container = document.getElementById('userListContainer');
             container.innerHTML = '';
 
-            if (!users) {
+            if (!users || users.length === 0) {
                 container.innerHTML = '<p>Nenhum usuário encontrado.</p>';
                 return;
             }
 
-            Object.keys(users).forEach(uid => {
-                const user = users[uid];
-                const isSuperAdmin = user.email === 'educhior@hotmail.com';
-                const isAdmin = admins[uid] === true;
+            users.forEach(user => {
+                const uid = user.uid;
+                const isSuperAdmin = !!(admins[uid] && admins[uid].isSuper);
+                const isAdmin = !!admins[uid];
 
                 const userElement = document.createElement('div');
                 userElement.className = 'flex items-center justify-between py-3 border-b last:border-b-0';
                 userElement.innerHTML = `
                     <div>
-                        <p class="font-semibold">${user.name || 'Nome não definido'}</p>
-                        <p class="text-sm text-gray-500">${user.email || 'E-mail não definido'}</p>
+                        <p class="font-semibold">${Api.esc(user.name) || 'Nome não definido'}</p>
+                        <p class="text-sm text-gray-500">${Api.esc(user.email) || 'E-mail não definido'}</p>
                     </div>
                     <div class="flex items-center">
                         ${isSuperAdmin ? '<span class="text-sm font-bold text-purple-600 mr-4">Super Admin</span>' : `
-                        <label for="toggle-${uid}" class="flex items-center cursor-pointer">
+                        <label for="toggle-${Api.esc(uid)}" class="flex items-center cursor-pointer">
                             <div class="relative">
-                                <input type="checkbox" id="toggle-${uid}" class="sr-only toggle-checkbox" ${isAdmin ? 'checked' : ''}>
+                                <input type="checkbox" id="toggle-${Api.esc(uid)}" class="sr-only toggle-checkbox" ${isAdmin ? 'checked' : ''}>
                                 <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
                                 <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
                             </div>
@@ -85,51 +88,47 @@
                 container.appendChild(userElement);
 
                 if (!isSuperAdmin) {
-                    document.getElementById(`toggle-${uid}`).addEventListener('change', (e) => {
+                    document.getElementById(`toggle-${uid}`).addEventListener('change', async (e) => {
                         const newAdminStatus = e.target.checked;
-                        db.ref(`admins/${uid}`).set(newAdminStatus ? true : null)
-                            .then(() => console.log(`Status de admin para ${uid} atualizado para ${newAdminStatus}`))
-                            .catch(err => console.error("Erro ao atualizar status de admin:", err));
+                        try {
+                            await Api.setAdmin(uid, newAdminStatus, currentUid);
+                            console.log(`Status de admin para ${uid} atualizado para ${newAdminStatus}`);
+                        } catch (err) {
+                            console.error("Erro ao atualizar status de admin:", err);
+                            e.target.checked = !newAdminStatus;
+                        }
                     });
                 }
             });
         }
 
+        async function loadAndRender() {
+            const [users, admins] = await Promise.all([Api.listProfiles(), Api.listAdmins()]);
+            renderUserList(users, admins);
+        }
+
         function initAdminManagement() {
             lucide.createIcons();
-            auth.onAuthStateChanged(async user => {
+            let started = false;
+            Api.onAuthChange(async user => {
                 if (!user) {
                     window.location.href = './sigav_hub.html';
                     return;
                 }
+                if (started) return;
+                started = true;
+                currentUid = user.uid;
 
-                // CORREÇÃO: Permite que qualquer admin acesse esta página.
-                const adminSnapshot = await db.ref(`admins/${user.uid}`).once('value');
-                const isStandardAdmin = adminSnapshot.exists();
-                const isSuperAdmin = user.email === 'educhior@hotmail.com';
-
-                if (isStandardAdmin || isSuperAdmin) {
-                    const usersRef = db.ref('users');
-                    const adminsRef = db.ref('admins');
-
-                    Promise.all([usersRef.once('value'), adminsRef.once('value')])
-                        .then(([usersSnapshot, adminsSnapshot]) => {
-                            const users = usersSnapshot.val() || {};
-                            const admins = adminsSnapshot.val() || {};
-                            renderUserList(users, admins);
-
-                            adminsRef.on('value', updatedAdminsSnapshot => {
-                                usersRef.once('value').then(updatedUsersSnapshot => {
-                                    const updatedUsers = updatedUsersSnapshot.val() || {};
-                                    const updatedAdmins = updatedAdminsSnapshot.val() || {};
-                                    renderUserList(updatedUsers, updatedAdmins);
-                                });
-                            });
-                        })
-                        .catch(error => {
-                            console.error("Erro ao carregar dados:", error);
-                            document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados. Verifique as permissões.';
-                        });
+                // Qualquer admin pode acessar esta página (a segurança real está no RLS do banco).
+                if (await Api.isAdmin()) {
+                    try {
+                        await loadAndRender();
+                        // Recarrega quando a lista de admins muda (equivale ao antigo .on('value')).
+                        Api.watch('admins', () => loadAndRender().catch(console.error));
+                    } catch (error) {
+                        console.error("Erro ao carregar dados:", error);
+                        document.getElementById('loadingMessage').textContent = 'Erro ao carregar dados. Verifique as permissões.';
+                    }
                 } else {
                     alert('Acesso negado. Esta área é restrita para administradores.');
                     window.location.href = './sigav_hub.html';

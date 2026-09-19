@@ -10,9 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         body {
@@ -173,44 +170,52 @@
                 class="font-semibold">compromisso</strong> pela EJECT© - Todos os direitos reservados.</p>
     </footer>
 
-    <script src="../firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="../data-api.js"></script>
     <script>
         // 1. Inicializa Ícones
         lucide.createIcons();
-
-        const db = firebase.database();
-        const auth = firebase.auth();
 
         // VARIÁVEIS GLOBAIS (O Segredo para não perder dados)
         let currentSubmission = null;
         let submissionsCache = {};
 
-        // 2. Auth Listener
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                loadUserInfo(user);
-                loadSubmissions();
-            } else {
+        // 2. Auth Listener: somente administradores avaliam desafios
+        //    (o RLS e as funções approve/reject do banco também exigem admin)
+        let started = false;
+        Api.onAuthChange(async user => {
+            if (!user) {
                 window.location.href = 'login.html';
+                return;
             }
-        });
+            if (started) return;
+            started = true;
 
-        function loadUserInfo(user) {
-            db.ref(`users/${user.uid}`).once('value').then(s => {
-                const val = s.val();
-                document.getElementById('userInfo').textContent = val?.name || user.email;
-            });
-        }
+            if (!(await Api.isAdmin())) {
+                alert('Acesso negado. Esta área é restrita para administradores.');
+                window.location.href = 'sigav_hub.html';
+                return;
+            }
+            showDashboard(user);
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            loadSubmissions();
+        });
 
         // 3. Carregar e Salvar no Cache
         function loadSubmissions() {
             const list = document.getElementById('submissionsList');
             list.innerHTML = '<div class="p-10 text-center text-slate-400"><i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto mb-2"></i>Carregando...</div>';
 
-            db.ref('submissions').once('value').then(snapshot => {
-                const data = snapshot.val();
-                renderList(data);
+            Api.listSubmissions().then(subs => {
+                const data = {};
+                subs.forEach(sub => { data[sub.id] = sub; });
+                renderList(subs.length ? data : null);
                 lucide.createIcons();
+            }).catch(err => {
+                console.error(err);
+                list.innerHTML = '<div class="p-10 text-center text-red-500">Erro ao carregar as submissões.</div>';
             });
         }
 
@@ -250,10 +255,10 @@
                 <div class="p-6 hover:bg-slate-50 transition flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-start gap-4">
                         <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-500 uppercase">
-                            ${sub.userName ? sub.userName.substring(0, 2) : 'UK'}
+                            ${Api.esc(sub.userName ? sub.userName.substring(0, 2) : 'UK')}
                         </div>
                         <div>
-                            <h4 class="font-bold text-slate-800">${sub.userName || 'Usuário Desconhecido'}</h4>
+                            <h4 class="font-bold text-slate-800">${Api.esc(sub.userName || 'Usuário Desconhecido')}</h4>
                             <div class="flex items-center gap-2 mt-1">
                                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${trackColor} border border-opacity-20">${sub.track}</span>
                                 <span class="text-xs text-slate-400">• Nível: ${sub.level}</span>
@@ -263,7 +268,7 @@
                     </div>
                     
                     <div class="flex items-center gap-3">
-                        <a href="${sub.repoLink}" target="_blank" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Ver Link">
+                        <a href="${Api.esc(sub.repoLink)}" target="_blank" rel="noopener" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Ver Link">
                             <i data-lucide="external-link" class="w-5 h-5"></i>
                         </a>
                         <button onclick="openReview('${id}')" class="px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition shadow-sm">
@@ -336,63 +341,11 @@
             btn.disabled = true;
 
             try {
-                const { id, userId, track, level } = currentSubmission;
+                // Numa única transação o banco marca como aprovado, concede a insígnia
+                // ({trilha}_{nivel}) e libera o próximo nível (função approve_submission).
+                await Api.approveSubmission(currentSubmission.id);
 
-                // Normalização
-                const safeTrack = track ? track.trim().toLowerCase() : '';
-                const rawLevel = level ? level.toString().trim().toLowerCase() : '';
-
-                let normalizedLevel = rawLevel;
-                if (rawLevel === 'level1' || rawLevel === 'basico') normalizedLevel = 'basico';
-                else if (rawLevel === 'level2' || rawLevel === 'intermediario') normalizedLevel = 'intermediario';
-                else if (rawLevel === 'level3' || rawLevel === 'avancado') normalizedLevel = 'avancado';
-
-                const mapKey = `${safeTrack}_${normalizedLevel}`;
-                console.log("Chave gerada:", mapKey);
-
-                const BADGE_MAP = {
-                    'uxui_basico': { name: "UX/UI Básico", img: "../img/insignias/basico_uxui.svg" },
-                    'uxui_intermediario': { name: "UX/UI Intermediário", img: "../img/insignias/inter_uxui.png" },
-                    'uxui_avancado': { name: "UX/UI Avançado", img: "../img/insignias/avancado_uxui.png" },
-                    'frontend_basico': { name: "Frontend Básico", img: "../img/insignias/basico_front.png" },
-                    'frontend_intermediario': { name: "Frontend Intermediário", img: "../img/insignias/inter_front.png" },
-                    'frontend_avancado': { name: "Frontend Avançado", img: "../img/insignias/avan_front.png" },
-                    'backend_basico': { name: "Backend Básico", img: "../img/insignias/basico_back.svg" },
-                    'backend_intermediario': { name: "Backend Intermediário", img: "../img/insignias/inter_back.svg" },
-                    'backend_avancado': { name: "Backend Avançado", img: "../img/insignias/avancado_back.svg" }
-                };
-
-                let selectedBadge = BADGE_MAP[mapKey];
-
-                if (!selectedBadge) {
-                    console.warn(`Chave "${mapKey}" não encontrada. Usando fallback.`);
-                    selectedBadge = { name: "Missão Cumprida", img: "../img/logo.svg" }; // Fallback digno
-                }
-
-                const updates = {};
-                updates[`submissions/${id}/status`] = 'approved';
-                updates[`submissions/${id}/reviewedAt`] = firebase.database.ServerValue.TIMESTAMP;
-
-                const badgeId = mapKey;
-                updates[`users/${userId}/badges/${badgeId}`] = {
-                    id: badgeId,
-                    name: selectedBadge.name,
-                    image: selectedBadge.img,
-                    date: firebase.database.ServerValue.TIMESTAMP,
-                    isNew: true
-                };
-
-                let nextLevelKey = null;
-                if (normalizedLevel === 'basico') nextLevelKey = 'level2_unlocked';
-                if (normalizedLevel === 'intermediario') nextLevelKey = 'level3_unlocked';
-
-                if (nextLevelKey) {
-                    updates[`users/${userId}/progress/${safeTrack}/${nextLevelKey}`] = true;
-                }
-
-                await db.ref().update(updates);
-
-                alert(`Sucesso! Badge: ${selectedBadge.name}`);
+                alert('Desafio aprovado! Insígnia concedida.');
                 closeModal();
                 loadSubmissions();
 
@@ -411,11 +364,13 @@
             if (!currentSubmission) return;
             if (!confirm("Tem certeza que deseja rejeitar?")) return;
 
-            const { id } = currentSubmission;
-            await db.ref(`submissions/${id}`).update({
-                status: 'rejected',
-                reviewedAt: firebase.database.ServerValue.TIMESTAMP
-            });
+            try {
+                await Api.rejectSubmission(currentSubmission.id);
+            } catch (error) {
+                console.error(error);
+                alert("Erro: " + error.message);
+                return;
+            }
 
             closeModal();
             loadSubmissions();
@@ -423,27 +378,16 @@
 
         // --- AUTH ---
         function handleLogout() {
-            auth.signOut().then(() => window.location.href = 'login.html');
+            Api.signOut().then(() => window.location.href = 'login.html');
         }
-
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                showDashboard(user);
-                document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-            } else {
-                window.location.href = '../login.html';
-            }
-        });
 
         async function showDashboard(user) {
             const loadingScreen = document.getElementById('loadingScreen');
 
             try {
 
-                // 2. Busca dados do Usuário (Nome)
-                const userRef = db.ref(`users/${user.uid}`);
-                const userSnapshot = await userRef.once('value');
-                const userData = userSnapshot.val() || {};
+                // Nome do usuário
+                const userData = (await Api.getProfile(user.uid)) || {};
                 const userName = userData.name || user.displayName || user.email.split('@')[0];
 
                 // Atualiza textos na tela

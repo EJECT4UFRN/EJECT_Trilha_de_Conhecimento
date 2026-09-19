@@ -9,11 +9,11 @@
   <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-  <!-- Firebase v8 SDK (compat) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="../firebase-config.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="../supabase-client.js"></script>
+  <script src="../data-api.js"></script>
 
   <style>
     body {
@@ -108,37 +108,20 @@
 
   <script>
   // Globals
-  let db, auth;
   let users = {};
   let teams = {};
-  let isFirebaseReady = false;
   let isAdminUser = false; // permissões do usuário atual
+  let currentUser = null;
 
-  // Helper: resolveTeamKey (retorna chave em teams a partir de id ou nome)
+  // Times são identificados pelo id (uuid). Aceita também o nome, por compatibilidade.
   function resolveTeamKey(teamIdOrName) {
     if (!teamIdOrName) return null;
     if (teams[teamIdOrName]) return teamIdOrName;
     for (const k of Object.keys(teams)) {
-      const t = teams[k];
-      if (!t) continue;
-      if (t.id && t.id === teamIdOrName) return k;
-      if (t.name && t.name === teamIdOrName) return k;
+      if (teams[k] && teams[k].name === teamIdOrName) return k;
     }
     return null;
   }
-
-    function initFirebase() {
-      try {
-        if (!window.firebase || !firebase.database) throw new Error('SDK Firebase ausente');
-        db = firebase.database();
-        auth = firebase.auth();
-        isFirebaseReady = true;
-      } catch (e) {
-        console.error('Firebase não inicializado', e);
-        isFirebaseReady = false;
-        showStatus('Firebase não disponível. Verifique `firebase-config.js`.', true);
-      }
-    }
 
     // --- Sistema de Notificações (simples) ---
     function showNotification(message, type = 'success') {
@@ -162,19 +145,12 @@
     }
 
     async function checkAdminAccess() {
-      if (!auth || !auth.currentUser) return false;
-      const user = auth.currentUser;
-      if (user.email === 'educhior@hotmail.com') return true;
       try {
-        const snap = await db.ref(`admins/${user.uid}`).once('value');
-        if (snap.exists()) return true;
-        const userSnap = await db.ref(`users/${user.uid}`).once('value');
-        const u = userSnap.val();
-        if (u && u.isAdmin) return true;
+        return await Api.isAdmin();
       } catch (err) {
         console.warn('Erro checando admin:', err);
+        return false;
       }
-      return false;
     }
 
     function showAccessDenied() {
@@ -218,57 +194,45 @@
       }
     }
 
-    // Carregar usuários e equipes
-    function populateUsersAndTeams() {
+    // Carregar usuários e equipes (admin)
+    async function populateUsersAndTeams() {
       const userSelect = document.getElementById('userSelect');
       const teamSelect = document.getElementById('teamSelect');
 
       userSelect.innerHTML = '<option value="">-- Selecionar usuário --</option>';
       teamSelect.innerHTML = '<option value="">-- Sem equipe --</option>';
 
-      if (!isFirebaseReady) return;
-
-      // Carregar profiles públicos
-      db.ref('profiles').once('value').then(snapshot => {
-        const data = snapshot.val() || {};
-        users = {};
-        // transformar em array ordenada por nome para melhor UX
-        const arr = Object.entries(data).map(([uid, profile]) => ({ uid, profile }));
-        arr.sort((a,b) => {
-          const na = (a.profile.name || a.profile.displayName || a.uid).toLowerCase();
-          const nb = (b.profile.name || b.profile.displayName || b.uid).toLowerCase();
-          return na.localeCompare(nb);
-        });
-
-        arr.forEach(({ uid, profile }) => {
-          // normalizar teamId para chave conhecida, se possível
-          const rawTeam = profile.gamification && profile.gamification.teamId ? profile.gamification.teamId : null;
-          const normalized = resolveTeamKey(rawTeam) || rawTeam || null;
-          users[uid] = { id: uid, name: profile.name || (profile.displayName || uid), teamId: normalized, score: (profile.gamification && profile.gamification.score) || 0 };
-          const opt = document.createElement('option');
-          opt.value = uid;
-          opt.textContent = users[uid].name || uid; // mostrar somente o nome para melhor UX
-          userSelect.appendChild(opt);
-        });
-      }).catch(err => {
-        console.error('Erro ao buscar profiles', err);
-        showStatus('Erro ao carregar usuários: ' + err.message, true);
-      });
-
-      // Carregar teams
-      db.ref('gamification/teams').once('value').then(snapshot => {
-        const data = snapshot.val() || {};
+      try {
+        // Times primeiro, para resolver o time de cada perfil
+        const teamList = await Api.listTeams();
         teams = {};
-        Object.entries(data).forEach(([teamId, team]) => {
-          teams[teamId] = Object.assign({ id: teamId }, team);
+        teamList.forEach(team => {
+          teams[team.id] = team;
           const opt = document.createElement('option');
-          opt.value = teamId;
-          opt.textContent = team.name || teamId;
+          opt.value = team.id;
+          opt.textContent = team.name || team.id;
           teamSelect.appendChild(opt);
         });
-      }).catch(err => {
+      } catch (err) {
         console.error('Erro ao buscar teams', err);
-      });
+      }
+
+      try {
+        // Perfis ordenados por nome para melhor UX
+        const profiles = (await Api.listProfiles()).sort((a, b) =>
+          (a.name || a.uid).toLowerCase().localeCompare((b.name || b.uid).toLowerCase()));
+        users = {};
+        profiles.forEach(profile => {
+          users[profile.uid] = { id: profile.uid, name: profile.name || profile.uid, teamId: profile.teamId, score: profile.score || 0 };
+          const opt = document.createElement('option');
+          opt.value = profile.uid;
+          opt.textContent = users[profile.uid].name;
+          userSelect.appendChild(opt);
+        });
+      } catch (err) {
+        console.error('Erro ao buscar profiles', err);
+        showStatus('Erro ao carregar usuários: ' + err.message, true);
+      }
     }
 
     function timeAgo(ts) {
@@ -284,49 +248,32 @@
       return `${days}d atrás`;
     }
 
-    // Função principal: gravar atividade e atualizar scores
+    // Função principal: gravar atividade. Os scores (individual e do time) são somados
+    // atomicamente no banco pela função record_activity, que também valida as permissões.
     async function recordActivity(e) {
       e.preventDefault();
-      if (!isFirebaseReady) { showStatus('Firebase não inicializado.', true); return; }
 
       const uid = document.getElementById('userSelect').value;
-  const type = document.getElementById('typeSelect').value;
-  const pointsIndividual = Number(document.getElementById('pointsIndividualInput').value) || 0;
-  const pointsTeam = Number(document.getElementById('pointsTeamInput').value) || 0;
-  const teamId = document.getElementById('teamSelect').value || null;
+      const type = document.getElementById('typeSelect').value;
+      const pointsIndividual = Number(document.getElementById('pointsIndividualInput').value) || 0;
+      const pointsTeam = Number(document.getElementById('pointsTeamInput').value) || 0;
+      const teamId = document.getElementById('teamSelect').value || null;
       const desc = (document.getElementById('descInput').value || '').trim();
 
-  if (!uid) { showStatus('Selecione um usuário.', true); return; }
-  if (!teamId) { showStatus('Selecione uma equipe.', true); return; }
-  if ((pointsIndividual <= 0) && (pointsTeam <= 0)) { showStatus('Informe pelo menos um valor de pontos (>0) — individual ou equipe.', true); return; }
+      if (!uid) { showStatus('Selecione um usuário.', true); return; }
+      if (!teamId) { showStatus('Selecione uma equipe.', true); return; }
+      if ((pointsIndividual <= 0) && (pointsTeam <= 0)) { showStatus('Informe pelo menos um valor de pontos (>0) — individual ou equipe.', true); return; }
 
       setSubmitting(true);
 
       try {
-        const newActRef = db.ref('gamification/activities').push();
-  const activityId = newActRef.key;
-  const timestamp = Date.now();
-  const activity = { id: activityId, userId: uid, type, pointsIndividual: pointsIndividual || 0, pointsTeam: pointsTeam || 0, teamId: teamId || null, description: desc, timestamp };
-
-        // 1) gravar atividade
-        await newActRef.set(activity);
-
-        // 2) atualizar profile público score (somar pontos individuais) e último registro
-        if (pointsIndividual && pointsIndividual > 0) {
-          const profileScoreRef = db.ref(`profiles/${uid}/gamification/score`);
-          await profileScoreRef.transaction(current => { return (current || 0) + pointsIndividual; });
-        }
-        // também atualizar último registro resumido
-        db.ref(`profiles/${uid}/gamification/lastActivity`).set({ pointsIndividual: pointsIndividual || 0, pointsTeam: pointsTeam || 0, type, timestamp });
-
-        // 3) atualizar teams score quando houver teamId e pontos para equipe
-        if (teamId && pointsTeam && pointsTeam > 0) {
-          const teamScoreRef = db.ref(`gamification/teams/${teamId}/score`);
-          await teamScoreRef.transaction(current => { return (current || 0) + pointsTeam; });
-        }
+        const activity = await Api.recordActivity({
+          userId: uid, teamId, type,
+          pointsIndividual, pointsTeam, description: desc
+        });
 
         showStatus('Atividade contabilizada com sucesso.');
-  addRecent(activity);
+        addRecent(activity);
         document.getElementById('recordForm').reset();
       } catch (err) {
         console.error('Erro ao registrar atividade', err);
@@ -342,8 +289,8 @@
   const uname = users[activity.userId] ? users[activity.userId].name : activity.userId;
   const pInd = activity.pointsIndividual || 0;
   const pTeam = activity.pointsTeam || 0;
-  const teamBadge = activity.teamId ? `<div class="text-xs text-gray-500">Equipe: ${teams[activity.teamId]?.name || activity.teamId}</div>` : '';
-  el.innerHTML = `<div class="p-3 border rounded shadow-sm flex justify-between items-start"><div><strong>${uname}</strong> <div class="text-gray-500">+${pInd} pts (individual) ${pTeam? ' • +' + pTeam + ' pts (equipe)':''}</div>${teamBadge}<div class="text-xs text-gray-600 mt-1">${activity.description || ''}</div></div><div class="text-xs text-gray-400 ml-4">${timeAgo(activity.timestamp)}</div></div>`;
+  const teamBadge = activity.teamId ? `<div class="text-xs text-gray-500">Equipe: ${Api.esc(teams[activity.teamId]?.name || activity.teamId)}</div>` : '';
+  el.innerHTML = `<div class="p-3 border rounded shadow-sm flex justify-between items-start"><div><strong>${Api.esc(uname)}</strong> <div class="text-gray-500">+${pInd} pts (individual) ${pTeam? ' • +' + pTeam + ' pts (equipe)':''}</div>${teamBadge}<div class="text-xs text-gray-600 mt-1">${Api.esc(activity.description)}</div></div><div class="text-xs text-gray-400 ml-4">${timeAgo(activity.timestamp)}</div></div>`;
       recent.prepend(el);
       // limit
       while (recent.children.length > 10) recent.removeChild(recent.lastChild);
@@ -351,8 +298,6 @@
 
     // Listeners
     window.addEventListener('DOMContentLoaded', () => {
-      initFirebase();
-
       if (typeof lucide !== 'undefined' && lucide.createIcons) {
         lucide.createIcons();
       }
@@ -368,47 +313,40 @@
       document.getElementById('recordForm').addEventListener('submit', recordActivity);
       document.getElementById('clearBtn').addEventListener('click', () => document.getElementById('recordForm').reset());
 
-      if (!isFirebaseReady) return;
-
       // Esperar autenticação e configurar a página de acordo com permissões (admin ou usuário comum)
-      auth.onAuthStateChanged(async (user) => {
+      let started = false;
+      Api.onAuthChange(async (user) => {
         if (!user) {
           redirectToLogin();
           return;
         }
+        if (started) return;
+        started = true;
+        currentUser = user;
 
         // verificar se é admin
-        const allowed = await checkAdminAccess();
-        isAdminUser = !!allowed;
+        isAdminUser = await checkAdminAccess();
 
         if (isAdminUser) {
-          // admin: comportamento original
-          populateUsersAndTeams();
+          // admin: escolhe qualquer usuário e time
+          await populateUsersAndTeams();
         } else {
-          // usuário comum: permitir uso restrito — apenas registrar atividades para si mesmo
+          // usuário comum: uso restrito — apenas registrar atividades para si mesmo e para o próprio time
           try {
-            // carregar teams (para eventualmente mostrar o time do usuário)
-            await db.ref('gamification/teams').once('value').then(snapshot => {
-              const data = snapshot.val() || {};
-              teams = {};
-              Object.entries(data).forEach(([teamId, team]) => {
-                teams[teamId] = Object.assign({ id: teamId }, team);
-              });
-            });
-
-            // buscar profile do usuário para nome e team
-            const profileSnap = await db.ref(`profiles/${user.uid}`).once('value');
-            const profile = profileSnap.val() || {};
+            const [teamList, profile] = await Promise.all([Api.listTeams(), Api.getProfile(user.uid)]);
+            teams = {};
+            teamList.forEach(t => { teams[t.id] = t; });
 
             // preencher userSelect apenas com o próprio usuário e desabilitar seleção
             const userSelect = document.getElementById('userSelect');
             userSelect.innerHTML = '';
             const opt = document.createElement('option');
             opt.value = user.uid;
-            opt.textContent = profile.name || profile.displayName || (user.email ? user.email.split('@')[0] : user.uid);
+            opt.textContent = (profile && profile.name) || (user.email ? user.email.split('@')[0] : user.uid);
             userSelect.appendChild(opt);
             userSelect.value = user.uid;
             userSelect.disabled = true;
+            users[user.uid] = { id: user.uid, name: opt.textContent };
 
             // preencher teamSelect com todas as equipes, mas pré-selecionar o time do perfil e desabilitar alteração
             const teamSelect = document.getElementById('teamSelect');
@@ -416,26 +354,25 @@
             Object.values(teams).forEach(t => {
               const o = document.createElement('option'); o.value = t.id; o.textContent = t.name || t.id; teamSelect.appendChild(o);
             });
-            const userTeamIdRaw = profile.gamification?.teamId || null;
-            const userTeamId = resolveTeamKey(userTeamIdRaw) || userTeamIdRaw || null;
+            const userTeamId = profile && profile.teamId;
             if (userTeamId) teamSelect.value = userTeamId;
             teamSelect.disabled = true;
 
           } catch (err) {
             console.error('Erro ao configurar página para usuário comum:', err);
             showNotification('Erro ao carregar seus dados: ' + (err.message || err), 'error');
-            // fallback: permitir que usuário veja form, mas sem seleção preenchida
-            populateUsersAndTeams();
             document.getElementById('userSelect').disabled = true;
             document.getElementById('teamSelect').disabled = true;
           }
         }
 
-        // load recent activities local cache (both para admin e usuário comum)
-        db.ref('gamification/activities').limitToLast(10).once('value').then(snapshot => {
-          const data = snapshot.val() || {};
-          Object.values(data).sort((a,b) => (b.timestamp||0)-(a.timestamp||0)).forEach(act => addRecent(act));
-        }).catch(err => { console.warn('Não foi possível carregar atividades recentes:', err); });
+        // últimas atividades (admin e usuário comum)
+        try {
+          const recent = await Api.listActivities({ limit: 10 });
+          recent.slice().reverse().forEach(act => addRecent(act));
+        } catch (err) {
+          console.warn('Não foi possível carregar atividades recentes:', err);
+        }
       });
     });
   </script>
