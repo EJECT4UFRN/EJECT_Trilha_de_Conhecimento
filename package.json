@@ -1,0 +1,14 @@
+{
+  "name": "eject-trilha-de-conhecimento",
+  "private": true,
+  "type": "module",
+  "description": "Scripts de apoio (o site em si é estático, sem build).",
+  "scripts": {
+    "config": "node scripts/generate-config.mjs",
+    "migrate:dry": "node scripts/migrate-from-firebase.mjs --dry-run",
+    "migrate": "node scripts/migrate-from-firebase.mjs"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "^2.116.0"
+  }
+}

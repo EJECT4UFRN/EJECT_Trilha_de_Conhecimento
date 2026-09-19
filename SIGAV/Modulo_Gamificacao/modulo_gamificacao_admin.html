@@ -9,11 +9,10 @@
     <link rel="icon" type="image/x-icon" href="../img/eject_logo.png">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="../firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../supabase-config.js"></script>
+    <script src="../supabase-client.js"></script>
+    <script src="../data-api.js"></script>
 
     <style>
         body {
@@ -288,68 +287,30 @@
     let isUserAdmin = false;
     let teamsData = {};
     let membersData = {};
-    // profilesData will hold synchronized profile info which may contain authoritative gamification scores
-    let profilesData = {};
-
     // --- Helper: resolveTeamKey ---
-    // Recebe um valor que pode ser a chave do time, o campo `id` internamente ou o `name`.
-    // Retorna a chave (key) correspondente em teamsData ou null se não encontrado.
+    // Times são identificados pelo id (uuid); aceita também o nome, por compatibilidade.
     function resolveTeamKey(teamIdOrName) {
         if (!teamIdOrName) return null;
-        if (teamsData[teamIdOrName]) return teamIdOrName; // já é chave
+        if (teamsData[teamIdOrName]) return teamIdOrName;
         for (const k of Object.keys(teamsData)) {
             const t = teamsData[k];
-            if (!t) continue;
-            if (t.id && t.id === teamIdOrName) return k;
-            if (t.name && t.name === teamIdOrName) return k;
+            if (t && t.name === teamIdOrName) return k;
         }
         return null;
     }
 
         // --- Controle de Acesso Administrativo ---
         async function checkAdminAccess() {
-            console.log('🔍 Verificando acesso admin...');
-            console.log('Current user:', currentUser);
-            
             if (!currentUser) {
-                console.log('❌ Usuário não logado');
                 redirectToLogin();
                 return false;
             }
 
             try {
-                console.log('🔍 Verificando se user está autenticado:', currentUser.uid, currentUser.email);
-                
-                // Verificar se é super admin (email específico)
-                if (currentUser.email === 'educhior@hotmail.com') {
-                    console.log('✅ Super admin detectado:', currentUser.email);
-                    isUserAdmin = true;
-                    return true;
-                }
+                // Admin definido na tabela `admins`; o RLS/RPC do banco reforçam a regra.
+                isUserAdmin = await Api.isAdmin();
+                if (isUserAdmin) return true;
 
-                // Verificar se é admin padrão no banco
-                console.log('🔍 Consultando admins/' + currentUser.uid);
-                const adminSnapshot = await db.ref(`admins/${currentUser.uid}`).once('value');
-                console.log('📊 Admin snapshot exists:', adminSnapshot.exists());
-                if (adminSnapshot.exists()) {
-                    console.log('✅ Admin padrão detectado:', currentUser.uid);
-                    isUserAdmin = true;
-                    return true;
-                }
-
-                // Verificar na tabela users se tem isAdmin
-                console.log('🔍 Consultando users/' + currentUser.uid);
-                const userSnapshot = await db.ref(`users/${currentUser.uid}`).once('value');
-                const userData = userSnapshot.val();
-                console.log('📊 User data:', userData);
-                
-                if (userData && userData.isAdmin) {
-                    console.log('✅ Admin via userData detectado:', currentUser.uid);
-                    isUserAdmin = true;
-                    return true;
-                }
-
-                console.log('❌ Usuário sem privilégios administrativos');
                 showAccessDenied();
                 return false;
             } catch (error) {
@@ -477,16 +438,10 @@
 
             if (confirm(`Tem certeza que deseja EXCLUIR a equipe "${team.name}"? Esta ação é irreversível e removerá todos os dados de pontuação históricos da equipe.`)) {
                 try {
-                    // Remover membros da equipe (atualizar em profiles, caminho canônico de gamification)
-                    const membersInTeam = Object.values(membersData).filter(m => m.teamId === teamId);
-                    for (const member of membersInTeam) {
-                        // Garantir que removemos pelo campo correto
-                        await db.ref(`profiles/${member.id}/gamification/teamId`).remove();
-                    }
-                    
-                    // Excluir a equipe
-                    await db.ref(`gamification/teams/${teamId}`).remove();
-                    
+                    // Excluir a equipe (o banco bloqueia se ainda houver membros)
+                    await Api.deleteTeam(teamId);
+                    await loadGamificationData();
+
                     showNotification(`Equipe "${team.name}" excluída com sucesso!`, 'success');
                 } catch (error) {
                     console.error('Erro ao excluir equipe:', error);
@@ -520,34 +475,11 @@
             }
             
             try {
-                console.log('💾 Tentando salvar equipe...');
-                console.log('User autenticado:', currentUser?.uid, currentUser?.email);
-                console.log('Firebase auth state:', firebase.auth().currentUser);
-                console.log('Team data:', { teamId, teamName });
-                
-                if (teamId) {
-                    // Edição de equipe existente
-                    console.log('📝 Editando equipe:', teamId);
-                    await db.ref(`gamification/teams/${teamId}`).update({
-                        name: teamName,
-                        updatedAt: Date.now(),
-                        updatedBy: currentUser.uid
-                    });
-                    showNotification(`Equipe "${teamName}" atualizada com sucesso!`, 'success');
-                } else {
-                    // Criação de nova equipe
-                    console.log('➕ Criando nova equipe');
-                    const newTeamRef = db.ref('gamification/teams').push();
-                    const teamData = {
-                        id: newTeamRef.key,
-                        name: teamName,
-                        createdAt: Date.now(),
-                        createdBy: currentUser.uid
-                    };
-                    console.log('📋 Dados da equipe:', teamData);
-                    await newTeamRef.set(teamData);
-                    showNotification(`Equipe "${teamName}" criada com sucesso!`, 'success');
-                }
+                await Api.saveTeam(teamName, teamId || null, currentUser.uid);
+                showNotification(teamId
+                    ? `Equipe "${teamName}" atualizada com sucesso!`
+                    : `Equipe "${teamName}" criada com sucesso!`, 'success');
+                await loadGamificationData();
                 closeModal();
             } catch (error) {
                 console.error('❌ Erro detalhado ao salvar equipe:', error);
@@ -585,69 +517,14 @@
             }
             
             try {
-                console.log('🔄 Atualizando alocação do membro:', memberId, 'para equipe:', newTeamId);
-                const userRef = db.ref(`users/${memberId}`);
-                // Verificar se o usuário existe no Firebase
-                const userSnapshot = await userRef.once('value');
-                if (!userSnapshot.exists()) {
-                    showNotification('Usuário não encontrado no banco de dados!', 'error');
-                    return;
-                }
-                // Buscar atividades do membro
-                const activitiesSnapshot = await db.ref('gamification/activities').orderByChild('userId').equalTo(memberId).once('value');
-                const activities = activitiesSnapshot.val() || {};
-                // Descobrir equipe antiga
-                const oldTeamId = member.teamId || null;
-                // Calcular total de pontos de equipe do membro
-                let totalTeamPoints = 0;
-                Object.values(activities).forEach(act => {
-                    totalTeamPoints += parseInt(act.pointsTeam) || 0;
-                });
-                // Se removendo da equipe antiga, subtrair pontos
-                if (oldTeamId && totalTeamPoints > 0) {
-                    const oldTeamScoreRef = db.ref(`gamification/teams/${oldTeamId}/score`);
-                    const oldTeamScoreSnap = await oldTeamScoreRef.once('value');
-                    const oldScore = parseInt(oldTeamScoreSnap.val()) || 0;
-                    await oldTeamScoreRef.set(Math.max(0, oldScore - totalTeamPoints));
-                }
-                // Se alocando em nova equipe, somar pontos
-                if (newTeamId && totalTeamPoints > 0) {
-                    const newTeamScoreRef = db.ref(`gamification/teams/${newTeamId}/score`);
-                    const newTeamScoreSnap = await newTeamScoreRef.once('value');
-                    const newScore = parseInt(newTeamScoreSnap.val()) || 0;
-                    await newTeamScoreRef.set(newScore + totalTeamPoints);
-                }
-                // Atualizar dados de gamificação
-                // Garantir que gravamos a chave correta do time (normalizar caso um nome tenha sido passado)
-                let teamKeyToSave = null;
-                if (newTeamId) {
-                    teamKeyToSave = resolveTeamKey(newTeamId) || newTeamId;
-                }
-
-                const gamificationData = {
-                    teamId: teamKeyToSave,
-                    lastUpdated: Date.now(),
-                    updatedBy: currentUser.uid
-                };
-
-                if (teamKeyToSave) {
-                    // Alocar à nova equipe usando profiles como caminho canônico
-                    await db.ref(`profiles/${memberId}/gamification`).update(gamificationData);
-                    console.log('✅ Usuário alocado à equipe (profiles):', teamKeyToSave);
-                } else {
-                    // Remover da equipe atual
-                    await db.ref(`profiles/${memberId}/gamification/teamId`).remove();
-                    await db.ref(`profiles/${memberId}/gamification`).update({
-                        lastUpdated: Date.now(),
-                        updatedBy: currentUser.uid
-                    });
-                    console.log('✅ Usuário removido da equipe (profiles)');
-                }
+                // Os pontos de equipe das atividades do membro saem da equipe antiga e
+                // entram na nova, de forma atômica (função move_member_team no banco).
+                await Api.moveMemberTeam(memberId, newTeamId);
+                await loadGamificationData();
                 const teamName = newTeamId ? teamsData[newTeamId]?.name : 'nenhuma equipe';
                 const action = newTeamId ? `alocado à equipe "${teamName}"` : 'removido da equipe atual';
                 showNotification(`${member.name || member.displayName} ${action} com sucesso!`, 'success');
                 closeAllocateModal();
-                // Os dados serão atualizados automaticamente pelos listeners
             } catch (error) {
                 console.error('❌ Erro ao atualizar alocação:', error);
                 console.error('Error code:', error.code);
@@ -679,26 +556,7 @@
             }
 
             try {
-                // Buscar atividades do membro para subtrair pontos de equipe
-                const activitiesSnapshot = await db.ref('gamification/activities').orderByChild('userId').equalTo(memberId).once('value');
-                const activities = activitiesSnapshot.val() || {};
-
-                let totalTeamPoints = 0;
-                Object.values(activities).forEach(act => {
-                    totalTeamPoints += parseInt(act.pointsTeam) || 0;
-                });
-
-                const oldTeamId = member.teamId || null;
-                if (oldTeamId && totalTeamPoints > 0) {
-                    const oldTeamScoreRef = db.ref(`gamification/teams/${oldTeamId}/score`);
-                    const oldTeamScoreSnap = await oldTeamScoreRef.once('value');
-                    const oldScore = parseInt(oldTeamScoreSnap.val()) || 0;
-                    await oldTeamScoreRef.set(Math.max(0, oldScore - totalTeamPoints));
-                }
-
-                // Remover teamId do usuário (usar profiles como caminho canônico para gamification)
-                await db.ref(`profiles/${memberId}/gamification/teamId`).remove();
-                await db.ref(`profiles/${memberId}/gamification`).update({ lastUpdated: Date.now(), updatedBy: currentUser.uid });
+                await Api.moveMemberTeam(memberId, null);
 
                 showNotification(`${member.name || member.displayName} removido(a) da equipe com sucesso.`, 'success');
 
@@ -889,167 +747,83 @@
                 lucide.createIcons();
             }
 
-            // Verificar se o Firebase foi carregado
-            if (typeof firebase === 'undefined') {
-                console.error('❌ Firebase não foi carregado');
-                showNotification('Erro: Firebase não foi carregado. Recarregue a página.', 'error');
-                return;
-            }
-
             // Verificar autenticação e permissões
-            auth.onAuthStateChanged(async (user) => {
-                console.log('🔐 Estado de autenticação mudou:', user ? user.email : 'não logado');
-                
+            let started = false;
+            Api.onAuthChange(async (user) => {
                 if (user) {
+                    if (started) return;
+                    started = true;
                     currentUser = user;
-                    console.log('✅ Usuário logado:', user.email, user.uid);
-                    
+
                     // Verificar se tem permissões de admin
                     const hasAccess = await checkAdminAccess();
-                    
+
                     if (hasAccess) {
-                        console.log('✅ Acesso administrativo confirmado');
-                        
-                        // Carregar dados da gamificação
-                        loadGamificationData();
-                        
+                        // Carregar dados da gamificação e acompanhar mudanças em tempo real
+                        try {
+                            await loadGamificationData();
+                        } catch (error) {
+                            console.error('❌ Erro ao carregar dados:', error);
+                            showNotification('Erro ao carregar dados: ' + error.message, 'error');
+                        }
+                        Api.watch('teams', () => loadGamificationData().catch(console.error));
+                        Api.watch('profiles', () => loadGamificationData().catch(console.error));
+
                         // Mostrar notificação de boas-vindas
                         setTimeout(() => {
                             showNotification(`Bem-vindo(a), ${user.email}! Painel carregado com sucesso.`, 'success');
                         }, 1000);
                     }
                 } else {
-                    console.log('❌ Usuário não está logado');
                     redirectToLogin();
                 }
-            }, (error) => {
-                console.error('❌ Erro no listener de autenticação:', error);
-                showNotification('Erro de autenticação: ' + error.message, 'error');
             });
         });
 
-        // Função para testar conexão com Firebase
-        function testFirebaseConnection() {
-            console.log('🧪 Testando conexão com Firebase...');
-            
-            db.ref('.info/connected').on('value', (snapshot) => {
-                if (snapshot.val() === true) {
-                    console.log('✅ Conectado ao Firebase Realtime Database');
-                } else {
-                    console.log('❌ Desconectado do Firebase Realtime Database');
-                    showNotification('Problema de conexão com o banco de dados', 'error');
-                }
-            });
-        }
-
-        // Testar conexão quando a página carregar
-        window.addEventListener('load', testFirebaseConnection);
-
         // --- Carregamento de Dados ---
-        function loadGamificationData() {
-            console.log('📂 Carregando dados da gamificação...');
-            
-            // Mostrar indicador de carregamento
+        async function loadGamificationData() {
             const loadingIndicator = document.getElementById('loadingIndicator');
             if (loadingIndicator) {
                 loadingIndicator.classList.remove('hidden');
             }
-            
-            // Carregar equipes
-            db.ref('gamification/teams').on('value', (snapshot) => {
-                console.log('🏆 Equipes carregadas:', snapshot.val());
-                teamsData = snapshot.val() || {};
-                renderTeamList();
-            }, (error) => {
-                console.error('❌ Erro ao carregar equipes:', error);
-                showNotification('Erro ao carregar equipes: ' + error.message, 'error');
-            });
 
-            // Carregar usuários
-            db.ref('users').on('value', (snapshot) => {
-                console.log('👥 Usuários carregados do Firebase');
-                const users = snapshot.val() || {};
+            try {
+                const [teamList, profiles] = await Promise.all([Api.listTeams(), Api.listProfiles()]);
+
+                teamsData = {};
+                teamList.forEach(team => { teamsData[team.id] = team; });
+
                 membersData = {};
-                
-                Object.keys(users).forEach(userId => {
-                    const user = users[userId];
-                    if (user && user.email) { // Só incluir usuários com email válido
-                        // Prefer scores stored under `profiles/{uid}/gamification/score` when available
-                        const profileGamification = profilesData[userId]?.gamification || {};
-                        const scoreFromProfiles = parseInt(profileGamification.score) || 0;
-                        const scoreFromUsers = parseInt(user.gamification?.score) || 0;
-                        const teamFromUsers = user.gamification?.teamId || null;
-                        const teamFromProfiles = profileGamification.teamId || null;
-
-                        // Normalizar teamId (preferir chave se possível)
-                        const candidateTeam = teamFromUsers || teamFromProfiles || null;
-                        const normalizedTeamKey = resolveTeamKey(candidateTeam) || candidateTeam || null;
-
-                        membersData[userId] = {
-                            id: userId,
-                            name: user.name || user.displayName || user.email?.split('@')[0] || 'Usuário',
-                            displayName: user.displayName || user.name || user.email?.split('@')[0] || 'Usuário',
-                            // teamId sempre será a chave quando possível
-                            teamId: normalizedTeamKey,
-                            // prefer authoritative score from profiles, fallback to users node
-                            score: scoreFromProfiles || scoreFromUsers || 0,
-                            email: user.email
+                profiles.forEach(profile => {
+                    if (profile.email) { // Só incluir usuários com e-mail válido
+                        const fallbackName = profile.email.split('@')[0] || 'Usuário';
+                        membersData[profile.uid] = {
+                            id: profile.uid,
+                            name: profile.name || fallbackName,
+                            displayName: profile.name || fallbackName,
+                            teamId: profile.teamId || null,
+                            score: profile.score || 0,
+                            email: profile.email
                         };
                     }
                 });
-                
-                console.log('👥 Membros processados:', Object.keys(membersData).length);
-                
-                // Esconder indicador de carregamento
-                if (loadingIndicator) {
-                    loadingIndicator.classList.add('hidden');
-                }
-                
-                renderMembersTable();
-                renderTeamList(); // Atualizar contagem de membros nas equipes
-            }, (error) => {
-                console.error('❌ Erro ao carregar usuários:', error);
-                showNotification('Erro ao carregar usuários: ' + error.message, 'error');
-                
-                // Esconder indicador de carregamento
-                if (loadingIndicator) {
-                    loadingIndicator.classList.add('hidden');
-                }
-                
+            } catch (error) {
+                console.error('❌ Erro ao carregar dados:', error);
+                showNotification('Erro ao carregar dados: ' + error.message, 'error');
+
                 // Fallback para dados mock se houver erro
-                console.log('🔄 Usando dados mock como fallback...');
                 membersData = {};
                 MOCK_MEMBERS.forEach(member => {
                     membersData[member.id] = member;
                 });
-                renderMembersTable();
-                renderTeamList(); // Atualizar contagem de membros nas equipes
-            });
-
-            // Carregar profiles para obter pontuações/metadata canônica quando disponível
-            db.ref('profiles').on('value', (snapshot) => {
-                console.log('📂 Profiles carregados (para pontuações)');
-                profilesData = snapshot.val() || {};
-
-                // Atualizar membersData scores/teamId se já tivermos usuários carregados
-                if (Object.keys(membersData).length > 0) {
-                    Object.keys(membersData).forEach(uid => {
-                        const profile = profilesData[uid] || {};
-                        const profGam = profile.gamification || {};
-                        const scoreFromProfiles = parseInt(profGam.score) || 0;
-                        const teamFromProfiles = profGam.teamId || null;
-
-                        // If profiles has a non-zero score, prefer it
-                        if (scoreFromProfiles > 0) membersData[uid].score = scoreFromProfiles;
-                        // If user doesn't have a team in membersData, try to read from profiles
-                        if (!membersData[uid].teamId && teamFromProfiles) membersData[uid].teamId = teamFromProfiles;
-                    });
-                    renderMembersTable();
-                    renderTeamList();
+            } finally {
+                if (loadingIndicator) {
+                    loadingIndicator.classList.add('hidden');
                 }
-            }, (error) => {
-                console.error('❌ Erro ao carregar profiles:', error);
-            });
+            }
+
+            renderTeamList();
+            renderMembersTable();
         }
 
     </script>

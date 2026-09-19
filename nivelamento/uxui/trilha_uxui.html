@@ -373,18 +373,15 @@
         </div>
     </footer>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-    <script src="../../SIGAV/firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../../SIGAV/supabase-config.js"></script>
+    <script src="../../SIGAV/supabase-client.js"></script>
+    <script src="../../SIGAV/data-api.js"></script>
 
     <script>
-        const db = firebase.database();
-        const auth = firebase.auth();
-
         document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(user => {
+            Api.onAuthChange(user => {
                 if (user) {
                     // Verifica Nível 2
                     checkLevel2Unlock(user.uid);
@@ -395,20 +392,15 @@
         });
 
         // --- VERIFICAÇÃO NÍVEL 2 ---
-        function checkLevel2Unlock(uid) {
-            const progressRef = db.ref('users/' + uid + '/progress/uxui/level2_unlocked');
-            const badgeRef = db.ref('users/' + uid + '/badges/uxui_basico');
-
-            Promise.all([progressRef.once('value'), badgeRef.once('value')])
-                .then(([progressSnap, badgeSnap]) => {
-                    const isUnlocked = progressSnap.val() === true;
-                    const hasBadge = badgeSnap.exists();
-
-                    if (isUnlocked || hasBadge) {
-                        unlockLevel2();
-                    }
-                })
-                .catch(err => console.error("Erro Lv2:", err));
+        async function checkLevel2Unlock(uid) {
+            try {
+                const [unlocks, badges] = await Promise.all([Api.getUnlocks('uxui', uid), Api.getBadges(uid)]);
+                if (unlocks.level2 || badges['uxui_basico']) {
+                    unlockLevel2();
+                }
+            } catch (err) {
+                console.error("Erro Lv2:", err);
+            }
         }
 
         function unlockLevel2() {
@@ -438,20 +430,15 @@
         }
 
         // --- VERIFICAÇÃO NÍVEL 3 (AVANÇADO) ---
-        function checkLevel3Unlock(uid) {
-            const progressRef = db.ref('users/' + uid + '/progress/uxui/level3_unlocked');
-            const badgeRef = db.ref('users/' + uid + '/badges/uxui_intermediario');
-
-            Promise.all([progressRef.once('value'), badgeRef.once('value')])
-                .then(([progressSnap, badgeSnap]) => {
-                    const isUnlocked = progressSnap.val() === true;
-                    const hasBadge = badgeSnap.exists();
-
-                    if (isUnlocked || hasBadge) {
-                        unlockLevel3();
-                    }
-                })
-                .catch(err => console.error("Erro Lv3:", err));
+        async function checkLevel3Unlock(uid) {
+            try {
+                const [unlocks, badges] = await Promise.all([Api.getUnlocks('uxui', uid), Api.getBadges(uid)]);
+                if (unlocks.level3 || badges['uxui_intermediario']) {
+                    unlockLevel3();
+                }
+            } catch (err) {
+                console.error("Erro Lv3:", err);
+            }
         }
 
         function unlockLevel3() {

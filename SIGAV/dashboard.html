@@ -6,9 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Dashboard</title>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap"
@@ -161,12 +158,13 @@
         </div>
     </div>
 
-    <script src="./firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./data-api.js"></script>
 
     <script>
         lucide.createIcons();
-        const auth = firebase.auth();
-        const db = firebase.database();
 
         // --- CONFIGURAÇÃO: DEFINIÇÃO DAS TRILHAS ESPECIAIS (HERO) ---
         const SPECIALIZATIONS = {
@@ -202,15 +200,15 @@
         // --- LISTA DE TRILHAS PADRÃO (PARALELAS) ---
         const ALL_TRAILS = [
             { id: 'html_e_css', title: 'HTML 5 e CSS 3', description: 'Fundamentos do desenvolvimento web, da semântica à responsividade.', link: '../Trilhas/html_e_css.html', totalTopics: 12 },
-            { id: 'javaScript', title: 'JavaScript Essencial', description: 'Lógica, manipulação do DOM e os primeiros passos na interatividade.', link: '../Trilhas/javaScript.html', totalTopics: 5 },
+            { id: 'javascript', title: 'JavaScript Essencial', description: 'Lógica, manipulação do DOM e os primeiros passos na interatividade.', link: '../Trilhas/javaScript.html', totalTopics: 5 },
             { id: 'git_e_github', title: 'Git e GitHub', description: 'Controle de versão para organizar e colaborar em seus projetos.', link: '../Trilhas/git_e_github.html', totalTopics: 8 },
             { id: 'python_basico', title: 'Python Básico', description: 'Introdução à uma das linguagens mais versáteis e populares do mercado.', link: '../Trilhas/python_basico.html', totalTopics: 11 },
             { id: 'django', title: 'Django Framework', description: 'Crie aplicações web robustas e escaláveis com o poder do Python.', link: '../Trilhas/django.html', totalTopics: 8 },
             { id: 'vue', title: 'Vue.js', description: 'Desenvolva interfaces reativas e modernas com este framework progressivo.', link: '../Trilhas/vue.html', totalTopics: 6 },
             { id: 'typescript', title: 'TypeScript', description: 'Adicione superpoderes ao seu JavaScript com tipagem estática.', link: '../Trilhas/typescript.html', totalTopics: 8 },
             { id: 'ux_ui', title: 'UX/UI Design', description: 'Conceitos de experiência do usuário e design de interfaces.', link: '../Trilhas/ux_ui.html', totalTopics: 15 },
-            { id: 'Scrum', title: 'Metodologia Scrum', description: 'Aprenda o framework ágil mais usado para gestão de projetos.', link: '../Trilhas/Scrum.html', totalTopics: 6 },
-            { id: 'Metodologia_5S', title: 'Metodologia 5S', description: 'Organização e disciplina para um ambiente de trabalho mais eficiente.', link: '../Trilhas/Metodologia_5S.html', totalTopics: 5 },
+            { id: 'scrum', title: 'Metodologia Scrum', description: 'Aprenda o framework ágil mais usado para gestão de projetos.', link: '../Trilhas/Scrum.html', totalTopics: 6 },
+            { id: 'metodologia_5s', title: 'Metodologia 5S', description: 'Organização e disciplina para um ambiente de trabalho mais eficiente.', link: '../Trilhas/Metodologia_5S.html', totalTopics: 5 },
             { id: 'gestao_de_tempo', title: 'Gestão de Tempo', description: 'Técnicas para aumentar sua produtividade e organização pessoal.', link: '../Trilhas/gestao_de_tempo.html', totalTopics: 7 },
             { id: 'desenvolvimento_humano', title: 'Desenvolvimento Humano', description: 'Habilidades interpessoais e crescimento pessoal para sua carreira.', link: '../Trilhas/desenvolvimento_humano.html', totalTopics: 14 },
             { id: 'financeiro', title: 'Financeiro', description: 'Princípios de gestão financeira para projetos e para a vida.', link: '../Trilhas/financeiro.html', totalTopics: 9 },
@@ -227,20 +225,14 @@
 
             try {
                 // 1. Busque o conteúdo do banco (Para contar quantos itens existem)
-                const contentSnap = await db.ref('contents').once('value');
-                const allContent = contentSnap.val() || {};
+                const allContent = await Api.getContentsTree();
 
                 // 2. Busca dados do Usuário (Nome)
-                const userRef = db.ref(`users/${user.uid}`);
-                const userSnapshot = await userRef.once('value');
-                const userData = userSnapshot.val() || {};
+                const userData = (await Api.getProfile(user.uid)) || {};
                 const userName = userData.name || user.displayName || user.email.split('@')[0];
 
                 // 3. NOVO: Busca as Submissões do usuário (Para status "Em Análise")
-                const subSnap = await db.ref('submissions').orderByChild('userId').equalTo(user.uid).once('value');
-                const submissionsObj = subSnap.val() || {};
-                // Transforma o objeto do Firebase em um Array simples
-                const userSubmissions = Object.values(submissionsObj);
+                const userSubmissions = await Api.listMySubmissions(user.uid);
 
                 // 4. Verifica se tem insígnias novas para explodir o modal (Confete)
                 await checkNewBadges(user.uid);
@@ -272,9 +264,7 @@
         // 2. LÓGICA DE DADOS DO DASHBOARD
         async function loadDashboardData(uid, allContent, userSubmissions = []) {
             // Busca o progresso do usuário
-            const progressRef = db.ref(`users/${uid}/progress`);
-            const snapshot = await progressRef.once('value');
-            const allProgress = snapshot.val() || {};
+            const allProgress = await Api.getProgressTree(uid);
 
             const heroContainer = document.getElementById('heroTrackContainer');
             const gridContainer = document.getElementById('parallelTrailsGrid');
@@ -647,11 +637,15 @@
 
         // --- AUTH ---
         function handleLogout() {
-            auth.signOut().then(() => window.location.href = 'login.html');
+            Api.signOut().then(() => window.location.href = 'login.html');
         }
 
-        auth.onAuthStateChanged(user => {
+        let dashboardStarted = false;
+        Api.onAuthChange(user => {
             if (user) {
+                // O evento de auth pode repetir (renovação de token): inicia uma vez.
+                if (dashboardStarted) return;
+                dashboardStarted = true;
                 showDashboard(user);
                 document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             } else {
@@ -666,9 +660,7 @@
 
         async function checkNewBadges(uid) {
             try {
-                const badgesRef = db.ref(`users/${uid}/badges`);
-                const snapshot = await badgesRef.once('value');
-                const badges = snapshot.val();
+                const badges = await Api.getBadges(uid);
 
                 // Log para Debug: Verifique no console (F12) o que aparece aqui
                 console.log("Minhas Badges:", badges);
@@ -712,10 +704,8 @@
         async function claimBadge() {
             if (!pendingBadgeId) return;
 
-            const uid = auth.currentUser.uid;
-
-            // Remove a flag isNew para não mostrar de novo
-            await db.ref(`users/${uid}/badges/${pendingBadgeId}/isNew`).remove();
+            // Desliga a flag isNew para não mostrar de novo
+            await Api.clearBadgeNew(pendingBadgeId);
 
             // Fecha modal
             const modal = document.getElementById('newBadgeModal');

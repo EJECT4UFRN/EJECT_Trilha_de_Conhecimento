@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EJECT | Login</title>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&display=swap" rel="stylesheet">
@@ -98,8 +94,11 @@
         </div>
     </div>
 
-    <!-- Firebase Config e Lógica de Autenticação -->
-    <script src="firebase-config.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="data-api.js"></script>
     <script>
         const nameInput = document.getElementById('nameInput');
         const emailInput = document.getElementById('emailInput');
@@ -113,7 +112,32 @@
 
         // --- Funções de Autenticação ---
 
-        function handleLogin() {
+        function authErrorMessage(error, fallback) {
+            switch (error.code) {
+                case 'invalid_credentials':
+                    return 'E-mail ou senha inválidos.';
+                case 'email_not_confirmed':
+                    return 'Confirme seu e-mail antes de entrar (verifique sua caixa de entrada).';
+                case 'user_already_exists':
+                case 'email_exists':
+                    return 'Este e-mail já está em uso.';
+                case 'validation_failed':
+                case 'email_address_invalid':
+                    return 'Formato de e-mail inválido.';
+                case 'weak_password':
+                    return 'A senha é muito fraca.';
+                case 'over_request_rate_limit':
+                case 'over_email_send_rate_limit':
+                    return 'Muitas tentativas. Tente novamente mais tarde.';
+                default:
+                    if (/fetch|network/i.test(error.message || '')) {
+                        return 'Erro de conexão. Verifique sua internet.';
+                    }
+                    return fallback;
+            }
+        }
+
+        async function handleLogin() {
             const email = emailInput.value.trim();
             const password = passwordInput.value;
             loginError.textContent = ''; // Limpa erros
@@ -127,50 +151,21 @@
             loginBtn.disabled = true;
             loginBtn.textContent = 'Entrando...';
 
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // Login bem-sucedido, atualiza último login
-                    const user = userCredential.user;
-                    db.ref('users/' + user.uid + '/lastLogin').set(firebase.database.ServerValue.TIMESTAMP)
-                        .then(() => {
-                            console.log('Login registrado com sucesso!');
-                            window.location.href = 'sigav_hub.html';
-                        })
-                        .catch((error) => {
-                            console.warn('Erro ao registrar último login:', error);
-                            // Mesmo com erro no registro do login, redireciona
-                            window.location.href = 'sigav_hub.html';
-                        });
-                })
-                .catch((error) => {
-                    // Reabilita o botão em caso de erro
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Entrar';
-                    
-                    // Trata erros de login
-                    console.error("Erro de login:", error);
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                        case 'auth/wrong-password':
-                        case 'auth/invalid-credential':
-                            loginError.textContent = 'E-mail ou senha inválidos.';
-                            break;
-                        case 'auth/invalid-email':
-                            loginError.textContent = 'Formato de e-mail inválido.';
-                            break;
-                        case 'auth/too-many-requests':
-                            loginError.textContent = 'Muitas tentativas. Tente novamente mais tarde.';
-                            break;
-                        case 'auth/network-request-failed':
-                            loginError.textContent = 'Erro de conexão. Verifique sua internet.';
-                            break;
-                        default:
-                            loginError.textContent = 'Ocorreu um erro ao tentar fazer login.';
-                    }
-                });
+            try {
+                const user = await Api.signIn(email, password);
+                // Login bem-sucedido, atualiza último login (falha aqui não impede o acesso)
+                await Api.touchLastLogin(user.uid).catch((e) => console.warn('Erro ao registrar último login:', e));
+                window.location.href = 'sigav_hub.html';
+            } catch (error) {
+                // Reabilita o botão em caso de erro
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Entrar';
+                console.error("Erro de login:", error);
+                loginError.textContent = authErrorMessage(error, 'Ocorreu um erro ao tentar fazer login.');
+            }
         }
 
-        function handleRegister() {
+        async function handleRegister() {
             const name = nameInput.value.trim();
             const email = emailInput.value.trim();
             const password = passwordInput.value;
@@ -194,56 +189,27 @@
             loginBtn.disabled = true;
             loginBtn.textContent = 'Registrando...';
 
-            auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        // Registro bem-sucedido
-                        const user = userCredential.user;
-
-                        // 1) Atualiza displayName no perfil de autenticação (Auth)
-                        // 2) Depois salva o perfil no Realtime Database
-                        return user.updateProfile({ displayName: name })
-                            .then(() => {
-                                const userProfile = {
-                                    name: name,
-                                    email: email,
-                                    uid: user.uid,
-                                    createdAt: firebase.database.ServerValue.TIMESTAMP,
-                                    lastLogin: firebase.database.ServerValue.TIMESTAMP
-                                };
-
-                                // Salva os dados do usuário no Realtime Database
-                                return db.ref('users/' + user.uid).set(userProfile);
-                            });
-                    })
-                    .then(() => {
-                        console.log('Usuário registrado e dados salvos no banco com sucesso!');
-                        alert('Registro realizado com sucesso! Você será redirecionado.');
-                        window.location.href = 'sigav_hub.html';
-                    })
-                .catch((error) => {
-                    // Reabilita o botão em caso de erro
+            try {
+                // O perfil (tabela profiles) é criado por trigger no banco a partir do nome informado.
+                const result = await Api.signUp(name, email, password);
+                if (result.alreadyRegistered) {
+                    throw Object.assign(new Error('E-mail já cadastrado'), { code: 'user_already_exists' });
+                }
+                if (result.needsConfirmation) {
+                    alert('Registro realizado! Enviamos um e-mail de confirmação: confirme-o e depois faça login.');
                     loginBtn.disabled = false;
-                    loginBtn.textContent = 'Confirmar Registro';
-                    
-                    // Trata erros de registro
-                    console.error("Erro de registro:", error);
-                    switch (error.code) {
-                        case 'auth/email-already-in-use':
-                            loginError.textContent = 'Este e-mail já está em uso.';
-                            break;
-                        case 'auth/invalid-email':
-                            loginError.textContent = 'Formato de e-mail inválido.';
-                            break;
-                        case 'auth/weak-password':
-                            loginError.textContent = 'A senha é muito fraca.';
-                            break;
-                        case 'auth/network-request-failed':
-                            loginError.textContent = 'Erro de conexão. Verifique sua internet.';
-                            break;
-                        default:
-                            loginError.textContent = 'Ocorreu um erro ao tentar se registrar. Tente novamente.';
-                    }
-                });
+                    toggleRegisterMode(false);
+                    return;
+                }
+                alert('Registro realizado com sucesso! Você será redirecionado.');
+                window.location.href = 'sigav_hub.html';
+            } catch (error) {
+                // Reabilita o botão em caso de erro
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Confirmar Registro';
+                console.error("Erro de registro:", error);
+                loginError.textContent = authErrorMessage(error, 'Ocorreu um erro ao tentar se registrar. Tente novamente.');
+            }
         }
 
         function toggleRegisterMode(enable) {
@@ -313,19 +279,17 @@
 
 
         // --- Verificação de Estado de Autenticação ---
-        auth.onAuthStateChanged(user => {
+        Api.onAuthChange(user => {
             const loginForm = document.querySelector('.modal-content');
             if (user) {
-                // Se o usuário está logado: só redireciona automaticamente quando
-                // não estivermos no fluxo de registro. Durante o registro o usuário
-                // é automaticamente autenticado pelo Firebase — mas queremos
-                // esperar salvar displayName e gravar no DB antes do redirect.
+                // Só redireciona automaticamente fora do fluxo de registro, para o
+                // registro terminar (e o aviso ser exibido) antes do redirect.
                 if (!isRegisterMode) {
                     window.location.href = './sigav_hub.html';
                 }
             } else {
                 // Se não há usuário, mostra o formulário de login
-                if(loginForm) loginForm.classList.remove('hidden');
+                if (loginForm) loginForm.classList.remove('hidden');
             }
         });
     </script>

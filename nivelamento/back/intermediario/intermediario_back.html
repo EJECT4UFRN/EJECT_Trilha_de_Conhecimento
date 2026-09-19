@@ -13,9 +13,6 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
@@ -307,7 +304,10 @@
     </footer>
 
 
-    <script src="../../../SIGAV/firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="../../../SIGAV/supabase-config.js"></script>
+    <script src="../../../SIGAV/supabase-client.js"></script>
+    <script src="../../../SIGAV/data-api.js"></script>
     <script>
         const TRACK_ID = 'backend';
         const LEVEL_ID = 'level2';
@@ -327,7 +327,7 @@
         let activeContentId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            auth.onAuthStateChanged(user => {
+            Api.onAuthChange(user => {
                 if (user) {
                     initPage(user);
                 }
@@ -338,23 +338,17 @@
             const container = document.getElementById('dynamic-content-container');
             const loader = document.getElementById('content-loader');
 
-            const progressRef = db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks`);
-            const contentRef = db.ref(`contents/${TRACK_ID}/${LEVEL_ID}`);
-
-            // 1. LISTENER DE PROGRESSO (CORREÇÃO: Agora é .on, atualiza em tempo real)
-            progressRef.on('value', snapshot => {
-                globalUserProgress = snapshot.val() || {};
-
-                // Se o conteúdo já foi baixado, apenas re-renderiza para atualizar os checks
+            async function refreshProgress() {
+                globalUserProgress = await Api.getTaskProgress(TRACK_ID, LEVEL_ID, user.uid);
                 if (globalContentData) {
                     renderContent(globalContentData, globalUserProgress);
                 }
-            });
+            }
 
-            // 2. LISTENER DE CONTEÚDO
-            contentRef.on('value', snapshot => {
+            async function refreshContent() {
+                const data = await Api.getContents(TRACK_ID, LEVEL_ID);
                 loader.style.display = 'none';
-                globalContentData = snapshot.val();
+                globalContentData = Object.keys(data).length ? data : null;
 
                 if (!globalContentData) {
                     container.innerHTML = '<p class="text-center text-gray-500 pt-10 relative z-10">Nenhum conteúdo disponível ainda.</p>';
@@ -365,7 +359,22 @@
                 allContentData = { ...globalContentData.videos, ...globalContentData.artigos, ...globalContentData.links, ...globalContentData.cursos };
 
                 renderContent(globalContentData, globalUserProgress);
-            });
+            }
+
+            // Usado por saveProgress() para atualizar os checks depois de gravar.
+            window.refreshTaskProgress = refreshProgress;
+
+            try {
+                await refreshProgress();
+                await refreshContent();
+            } catch (error) {
+                console.error('Erro ao carregar o nível:', error);
+                loader.style.display = 'none';
+                container.innerHTML = '<p class="text-center text-red-400 pt-10 relative z-10">Não foi possível carregar o conteúdo. Tente novamente.</p>';
+            }
+
+            // Atualiza em tempo real quando um administrador altera os conteúdos.
+            Api.watch('contents', () => refreshContent().catch(console.error));
         }
 
         function renderContent(data, userProgress) {
@@ -638,11 +647,12 @@
             activeContentId = null;
         }
 
-        function saveProgress(key, status) {
-            const user = auth.currentUser;
-            if (user) {
-                // Grava no Firebase. O listener .on no initPage vai pegar essa mudança e atualizar a tela.
-                db.ref(`users/${user.uid}/progress/${TRACK_ID}/${LEVEL_ID}/tasks/${key}`).set(status);
+        async function saveProgress(key, status) {
+            try {
+                await Api.setTask(key, status);
+                await window.refreshTaskProgress();
+            } catch (error) {
+                console.error('Erro ao salvar progresso:', error);
             }
         }
 

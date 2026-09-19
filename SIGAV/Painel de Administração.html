@@ -9,10 +9,6 @@
     <link rel="icon" type="image/x-icon" href="../img/svgs/logo-eject.svg">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
         body {
@@ -169,12 +165,14 @@
         </div>
     </footer>
 
-    <script src="./firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.js"></script>
+    <script src="./supabase-config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./data-api.js"></script>
 
     <script>
         
-        // As variáveis 'auth' e 'db' agora são definidas globalmente
-        // pelo arquivo 'firebase-config.js' e não precisam ser redeclaradas.
+        // (Api é fornecido por data-api.js)
 
         // --- Constantes e Configurações ---
         const USER_KEY = 'eject_current_user';
@@ -184,25 +182,25 @@
 
         const ALL_TRAILS = [
             { id: 'html_e_css', name: 'HTML 5 e CSS 3', total: 12 },
-            { id: 'javaScript', name: 'JavaScript Essencial', total: 5 },
+            { id: 'javascript', name: 'JavaScript Essencial', total: 5 },
             { id: 'git_e_github', name: 'Git e GitHub', total: 8 },
             { id: 'python_basico', name: 'Python Básico', total: 11 },
             { id: 'django', name: 'Django Framework', total: 8 },
             { id: 'vue', name: 'Vue.js', total: 6 },
             { id: 'typescript', name: 'TypeScript', total: 8 },
             { id: 'ux_ui', name: 'UX/UI Design', total: 15 },
-            { id: 'Scrum', name: 'Metodologia Scrum', total: 6 },
-            { id: 'Metodologia_5S', name: 'Metodologia 5S', total: 5 },
+            { id: 'scrum', name: 'Metodologia Scrum', total: 6 },
+            { id: 'metodologia_5s', name: 'Metodologia 5S', total: 5 },
             { id: 'gestao_de_tempo', name: 'Gestão de Tempo', total: 7 },
             { id: 'desenvolvimento_humano', name: 'Desenvolvimento Humano', total: 14 },
             { id: 'financeiro', name: 'Financeiro', total: 9 },
-            { id: 'marketing_comercial', name: 'Marketing e Comercial', total: 9 },
+            { id: 'marketing_comercial', name: 'Marketing e Comercial', total: 11 },
             { id: 'okrs_kpis_e_bpmn', name: 'OKRs, KPIs e BPMN', total: 7 },
             { id: 'wordpress', name: 'WordPress', total: 8 },
             { id: 'historia_eject', name: 'História da EJECT', total: 4 },
         ];
 
-        // --- Coleta de Dados do Firebase Realtime Database ---
+        // --- Coleta de Dados (Supabase) ---
 
         function processUsersProgress(usersData) {
             const allProgress = [];
@@ -340,7 +338,7 @@
         }
 
         function handleLogout() {
-            auth.signOut().then(() => {
+            Api.signOut().then(() => {
                 localStorage.removeItem(USER_KEY); // Limpa o usuário local
                 window.location.href = DASHBOARD_URL;
             }).catch((error) => {
@@ -354,36 +352,37 @@
                 lucide.createIcons();
             }
 
-            auth.onAuthStateChanged(async user => {
+            let started = false;
+            Api.onAuthChange(async user => {
                 if (!user) {
                     console.log('Acesso negado. Nenhum usuário logado. Redirecionando...');
                     window.location.href = DASHBOARD_URL;
                     return;
                 }
+                if (started) return;
+                started = true;
 
-                // Simplificação: Verifica se o usuário é admin (pelo DB) ou super admin (pelo e-mail)
-                const adminSnapshot = await db.ref(`admins/${user.uid}`).once('value');
-                const isStandardAdmin = adminSnapshot.exists();
-                const isSuperAdmin = user.email === 'educhior@hotmail.com';
-
-                if (isStandardAdmin || isSuperAdmin) {
-                    // Usuário é admin, carrega o painel
+                // Admin definido na tabela `admins` (o RLS garante o acesso aos dados)
+                if (await Api.isAdmin()) {
                     console.log('Admin autenticado:', user.email);
 
                     const searchInput = document.getElementById('searchUserInput');
 
                     // Adiciona Event Listeners para pesquisa e logout
                     document.getElementById('logoutBtn').addEventListener('click', handleLogout);
-                    
-                    // Ajuste: a busca agora é em tempo real, acionada pelo evento 'input'
+
+                    // A busca é em tempo real, acionada pelo evento 'input'
                     searchInput.addEventListener('input', () => filterProgressData(searchInput.value.trim()));
 
-                    // Estabelece a escuta em tempo real no nó 'users'
-                    db.ref('users').on('value', (snapshot) => {
-                        console.log('Dados do Firebase atualizados.');
-                        const usersData = snapshot.val();
+                    async function loadProgress() {
+                        const [profiles, progressByUser] = await Promise.all([Api.listProfiles(), Api.getAllTrailProgress()]);
+                        // Mesmo formato que o painel já processava: { uid: { name, email, progress } }
+                        const usersData = {};
+                        profiles.forEach(p => {
+                            usersData[p.uid] = { name: p.name, email: p.email, progress: progressByUser[p.uid] };
+                        });
                         progressDataCache = processUsersProgress(usersData);
-                        
+
                         // Re-aplica o filtro de pesquisa se houver um
                         const currentQuery = searchInput.value.trim();
                         if (currentQuery) {
@@ -391,10 +390,17 @@
                         } else {
                             renderProgressTable(progressDataCache);
                         }
-                    }, (error) => {
-                        console.error("Erro ao sincronizar com o Firebase:", error);
-                        alert("Não foi possível sincronizar com o banco de dados em tempo real.");
-                    });
+                    }
+
+                    try {
+                        await loadProgress();
+                        // Atualização em tempo real quando o progresso muda
+                        Api.watch('trail_progress', () => loadProgress().catch(console.error));
+                        Api.watch('profiles', () => loadProgress().catch(console.error));
+                    } catch (error) {
+                        console.error("Erro ao carregar o progresso:", error);
+                        alert("Não foi possível carregar os dados do banco.");
+                    }
 
                 } else {
                     // Usuário não é admin, redireciona
